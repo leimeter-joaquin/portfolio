@@ -9,7 +9,12 @@ module.exports = {
     "./app.vue",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sofia: ["sofia", "ui-sans", "system-ui"],
+        sans: ["ui-sans-serif", "system-ui"],
+      },
+    },
   },
   plugins: [],
 };

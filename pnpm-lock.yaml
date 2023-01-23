@@ -4,6 +4,7 @@ specifiers:
   '@headlessui/vue': ^1.7.7
   '@heroicons/vue': ^2.0.13
   autoprefixer: ^10.4.13
+  gsap: ^3.11.4
   nuxt: 3.0.0
   postcss: ^8.4.20
   tailwindcss: ^3.2.4
@@ -11,6 +12,7 @@ specifiers:
 dependencies:
   '@headlessui/vue': 1.7.7
   '@heroicons/vue': 2.0.13
+  gsap: 3.11.4
 
 devDependencies:
   autoprefixer: 10.4.13_postcss@8.4.20
@@ -2349,6 +2351,10 @@ packages:
   /graceful-fs/4.2.10:
     resolution: {integrity: sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==}
     dev: true
+
+  /gsap/3.11.4:
+    resolution: {integrity: sha512-McHhEguHyExMMnjqKA8G+7TvxmlKQGMbjgwAilnFe1e4id7V/tFveRQ2YMZhTYu0oxHGWvbPltdVYQOu3z1SCA==}
+    dev: false
 
   /gzip-size/7.0.0:
     resolution: {integrity: sha512-O1Ld7Dr+nqPnmGpdhzLmMTQ4vAsD+rHwMm1NLUmoUFFymBOMKxCCrtDxqdBRYXdeEPEi3SyoR4TizJLQrnKBNA==}

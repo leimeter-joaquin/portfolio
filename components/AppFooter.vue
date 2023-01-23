@@ -17,12 +17,12 @@
       <ul
         class="flex flex-wrap items-center mb-6 text-sm text-gray-500 sm:mb-0 dark:text-gray-400"
       >
-        <NuxtLink to="About">
+        <!-- <NuxtLink to="About">
           <a href="#" class="mr-4 hover:underline md:mr-6">About</a>
         </NuxtLink>
         <NuxtLink to="PrivacyPolicy">
           <a href="#" class="mr-4 hover:underline md:mr-6">Privacy Policy</a>
-        </NuxtLink>
+        </NuxtLink> -->
         <!-- <li>
           <a href="#" class="mr-4 hover:underline md:mr-6">Licensing</a>
         </li>

@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  ssr: true,
   typescript: {
     shim: false,
   },
@@ -9,5 +10,11 @@ export default defineNuxtConfig({
       tailwindcss: {},
       autoprefixer: {},
     },
+  },
+  build: {
+    transpile: ["gsap"],
+  },
+  app: {
+    pageTransition: { name: "page", mode: "default" },
   },
 });
