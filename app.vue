@@ -1,16 +1,11 @@
 <script setup lang="ts">
-const story = await useAsyncStoryblok("home", {
-  version: "draft",
-});
-
-console.log(story.value);
+// const story = await useAsyncStoryblok("home", {
+//   version: "draft",
+// });
 </script>
 
 <template>
-  <!-- <NuxtLayout>
+  <NuxtLayout>
     <NuxtPage />
-    <pre>{{ story }}</pre>
-  </NuxtLayout> -->
-  <Header />
-  <pre>{{ story }}</pre>
+  </NuxtLayout>
 </template>
