@@ -1,5 +1,5 @@
 {
-  "name": "",
+  "name": "@portfolio/app",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
@@ -10,6 +10,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@portfolio/content": "*",
     "astro": "^5.17.1"
   },
   "devDependencies": {

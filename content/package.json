@@ -1,0 +1,20 @@
+{
+  "name": "@portfolio/content",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./schemas/*": "./dist/schemas/*.js",
+    "./data": "./dist/index.json"
+  },
+  "scripts": {
+    "build": "tsc && node dist/build.js"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "portfolio",
+  "private": true,
+  "workspaces": [
+    "app",
+    "server",
+    "content"
+  ],
+  "scripts": {
+    "build": "npm run build -w content && npm run build -w app && npm run build -w server"
+  }
+}
