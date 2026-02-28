@@ -7,7 +7,7 @@ export const ProjectFrontmatterSchema = z.object({
     .string()
     .min(1)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "slug must be kebab-case"),
-  dateStart: z.string().min(1), // keep simple; you can tighten later
+  dateStart: z.string().min(1), // keep simple; yo can tighten later
   dateEnd: z.string().min(1).nullable().optional(),
   stack: z.array(z.string().min(1)).default([]),
   tags: z.array(z.string().min(1)).default([]),

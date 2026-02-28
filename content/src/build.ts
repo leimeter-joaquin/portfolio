@@ -1,7 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { ProjectFrontmatterSchema, type ProjectDocument } from "./schemas/projects.js";
+import { ProjectFrontmatter, ProjectFrontmatterSchema, type ProjectDocument } from "./schemas/project.js";
+import { HeroDocument, HeroFontmatter, HeroFontmatterSchema } from "./schemas/hero.js";
+import z, { ZodTypeAny } from "zod";
+import { TechDocument, TechFontmatterSchema } from "./schemas/tech.js";
 
 const CONTENT_ROOT = path.resolve(process.cwd(), "src");
 const OUT_DIR = path.resolve(process.cwd(), "dist");
@@ -31,10 +34,19 @@ function stripMarkdownToText(md: string): string {
     .trim();
 }
 
-function loadProjectFile(filepath: string): ProjectDocument {
-  const raw = fs.readFileSync(filepath, "utf8");
+type BaseDocument<T> = T & {
+  bodyMarkdown: string;
+  bodyText: string;
+  sourcePath: string;
+};
+
+function loadFile<S extends ZodTypeAny>(
+  filePath: string,
+  schema: S
+): BaseDocument<z.infer<S>> {
+  const raw = fs.readFileSync(filePath, "utf8");
   const parsed = matter(raw);
-  const frontmatter = ProjectFrontmatterSchema.parse(parsed.data);
+  const frontmatter = schema.parse(parsed.data);
 
   const bodyMarkdown = parsed.content.trim();
   const bodyText = stripMarkdownToText(bodyMarkdown);
@@ -43,22 +55,30 @@ function loadProjectFile(filepath: string): ProjectDocument {
     ...frontmatter,
     bodyMarkdown,
     bodyText,
-    sourcePath: path.relative(process.cwd(), filepath),
+    sourcePath: path.relative(process.cwd(), filePath),
   };
 }
 
 function main() {
   const allFiles = walk(CONTENT_ROOT).filter((f) => f.endsWith(".md"));
 
+  let hero: HeroDocument | undefined;
   const projects: ProjectDocument[] = [];
+  const techs: TechDocument[] = []
 
   for (const file of allFiles) {
-    // simplest routing: only parse projects folder here
+    if (file.includes(`${path.sep}hero${path.sep}`)) {
+      hero = loadFile(file, HeroFontmatterSchema)
+    }
     if (file.includes(`${path.sep}projects${path.sep}`)) {
-      projects.push(loadProjectFile(file));
+      projects.push(loadFile(file, ProjectFrontmatterSchema));
+    }
+    if (file.includes(`${path.sep}techs${path.sep}`)) {
+      techs.push(loadFile(file, TechFontmatterSchema))
     }
   }
 
+  // TODO: add other documents to AI flat structure.
   // “documents” is a flattened AI-friendly view of the same content
   const documents = projects.map((p) => ({
     id: `project:${p.slug}`,
@@ -76,7 +96,9 @@ function main() {
 
   const index = {
     generatedAt: new Date().toISOString(),
+    hero,
     projects,
+    techs,
     documents,
   };
 
