@@ -7,6 +7,11 @@
     "content"
   ],
   "scripts": {
-    "build": "npm run build -w content && npm run build -w app && npm run build -w server"
+    "build": "npm run build -w content && npm run build -w app && npm run build -w server",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.8.1",
+    "prettier-plugin-astro": "^0.14.1"
   }
 }
