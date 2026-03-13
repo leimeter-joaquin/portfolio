@@ -1,8 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { ProjectFrontmatter, ProjectFrontmatterSchema, type ProjectDocument } from "./schemas/project.js";
-import { HeroDocument, HeroFontmatter, HeroFontmatterSchema } from "./schemas/hero.js";
+import {
+  ProjectFrontmatter,
+  ProjectFrontmatterSchema,
+  type ProjectDocument,
+} from "./schemas/project.js";
+import {
+  HeroDocument,
+  HeroFontmatter,
+  HeroFontmatterSchema,
+} from "./schemas/hero.js";
 import z, { ZodTypeAny } from "zod";
 import { TechDocument, TechFontmatterSchema } from "./schemas/tech.js";
 
@@ -42,7 +50,7 @@ type BaseDocument<T> = T & {
 
 function loadFile<S extends ZodTypeAny>(
   filePath: string,
-  schema: S
+  schema: S,
 ): BaseDocument<z.infer<S>> {
   const raw = fs.readFileSync(filePath, "utf8");
   const parsed = matter(raw);
@@ -64,17 +72,19 @@ function main() {
 
   let hero: HeroDocument | undefined;
   const projects: ProjectDocument[] = [];
-  const techs: TechDocument[] = []
+  const techs: TechDocument[] = [];
 
   for (const file of allFiles) {
-    if (file.includes(`${path.sep}hero${path.sep}`)) {
-      hero = loadFile(file, HeroFontmatterSchema)
+    console.log("test files ---------", file);
+    if (file.includes("hero")) {
+      console.log("found hero");
+      hero = loadFile(file, HeroFontmatterSchema);
     }
-    if (file.includes(`${path.sep}projects${path.sep}`)) {
+    if (file.includes("projects")) {
       projects.push(loadFile(file, ProjectFrontmatterSchema));
     }
-    if (file.includes(`${path.sep}techs${path.sep}`)) {
-      techs.push(loadFile(file, TechFontmatterSchema))
+    if (file.includes("techs")) {
+      techs.push(loadFile(file, TechFontmatterSchema));
     }
   }
 
@@ -86,11 +96,7 @@ function main() {
     title: p.title,
     slug: p.slug,
     tags: [...p.tags, ...p.stack],
-    text: [
-      p.title,
-      p.highlights.join(" "),
-      p.bodyText,
-    ].join("\n"),
+    text: [p.title, p.highlights.join(" "), p.bodyText].join("\n"),
     url: `/projects/${p.slug}`,
   }));
 
@@ -101,6 +107,8 @@ function main() {
     techs,
     documents,
   };
+
+  console.log("test ----------------", index.hero);
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.writeFileSync(OUT_FILE, JSON.stringify(index, null, 2), "utf8");
