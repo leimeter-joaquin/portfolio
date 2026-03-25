@@ -1,1 +1,80 @@
-<header>header</header>
+---
+import Button from "../components/button.astro";
+
+function something() {
+  console.log("yeah");
+}
+---
+
+<header class="header">
+  <div class="header-brand">
+    <div class="header-brand-icon">
+      icon
+    </div>
+    <div class="header-brand-name">
+      Joaquin Leimeter
+    </div>
+  </div>
+
+  <nav class="header-nav">
+    <ul class="header-nav-list">
+      <li>
+        <Button
+          text="Projects"
+          href="#projects"
+          variant="link"
+        />
+      </li>
+      <li>
+        <Button
+          text="Technologies"
+          href="#techs"
+          variant="link"
+        />
+      </li>
+      <li>
+        <Button
+          text="Contact"
+          href="/contact"
+          variant="link"
+        />
+      </li>
+      <li>
+        <Button
+          text="CV"
+          href="/cv.pdf"
+        />
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<style lang="scss">
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 80px;
+
+    border-bottom: 1px solid red;
+
+    &-brand {
+      display: flex;
+      gap: 1rem;
+      &-icon {
+      }
+
+      &-name {
+      }
+    }
+
+    &-nav {
+      &-list {
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+    }
+  }
+</style>
