@@ -2,9 +2,13 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Code style
+
+Always run `npm run format` from the repo root after making code changes.
+
 ## Commands
 
-All commands run from the `app/` directory:
+All commands run from the repo root unless noted:
 
 ```bash
 npm run dev       # Start dev server at localhost:4321
@@ -47,6 +51,7 @@ Styles use SCSS with [Gorko](https://github.com/andy-bell/gorko) as a utility-cl
 ## Working with specs
 
 Feature specs live in `.claude/specs/`. To implement a feature, reference its spec file:
+
 > "implement `.claude/specs/feature-name.md`"
 
 Move completed specs to `.claude/done/` after shipping. Use Notion for backlog/ideation; convert to a spec file when ready to build.

@@ -13,7 +13,9 @@ Every component uses two layers together — never mix them up:
 
 ```astro
 <!-- Gorko utilities handle color/type; scoped styles handle layout -->
-<h2 class="color-white weight-bold">Title</h2>
+<h2 class="color-white weight-bold">
+  Title
+</h2>
 
 <style>
   .section__header h2 {
@@ -26,15 +28,15 @@ Every component uses two layers together — never mix them up:
 
 Generated from `src/css/config.scss`. Pattern: `{property}-{token}`.
 
-| Prefix | Property | Example |
-|--------|----------|---------|
-| `bg-` | background | `bg-surface`, `bg-primary` |
-| `color-` | color | `color-white`, `color-muted`, `color-secondary` |
-| `text-` | font-size | `text-500`, `text-700` |
-| `weight-` | font-weight | `weight-bold`, `weight-light` |
-| `gap-top-` | margin-top | `gap-top-500` |
-| `pad-top-` | padding-top | `pad-top-700` |
-| `box-` | display | `box-flex`, `box-hide` |
+| Prefix     | Property    | Example                                         |
+| ---------- | ----------- | ----------------------------------------------- |
+| `bg-`      | background  | `bg-surface`, `bg-primary`                      |
+| `color-`   | color       | `color-white`, `color-muted`, `color-secondary` |
+| `text-`    | font-size   | `text-500`, `text-700`                          |
+| `weight-`  | font-weight | `weight-bold`, `weight-light`                   |
+| `gap-top-` | margin-top  | `gap-top-500`                                   |
+| `pad-top-` | padding-top | `pad-top-700`                                   |
+| `box-`     | display     | `box-flex`, `box-hide`                          |
 
 Responsive variants use `:{breakpoint}` suffix: `text-500:md`, `box-hide:sm`.
 
@@ -55,13 +57,20 @@ Component-local classes follow BEM: `.block`, `.block__element`, `.block--modifi
 ```astro
 <section class="projects">
   <ul class="projects__grid">
-    <li class="projects__card projects__card--featured">
+    <li
+      class="projects__card projects__card--featured"
+    >
+    </li>
+  </ul>
+</section>
 ```
 
 Raw HTML elements inside a BEM block are targeted by descendant selector, not given their own class:
 
 ```scss
-.projects__header h2 { font-size: 2.25rem; }
+.projects__header h2 {
+  font-size: 2.25rem;
+}
 ```
 
 ### Design token usage
@@ -70,7 +79,10 @@ Always use color tokens via Gorko utility classes or SCSS `map-get($gorko-colors
 
 ```scss
 // correct
-background: rgba(map-get($gorko-colors, "primary"), 0.2);
+background: rgba(
+  map-get($gorko-colors, "primary"),
+  0.2
+);
 
 // avoid
 background: rgba(219, 48, 105, 0.2);
@@ -81,7 +93,10 @@ background: rgba(219, 48, 105, 0.2);
 Every page section wraps its content in `.section-wrapper` for consistent max-width and padding:
 
 ```astro
-<section id="section-id" class="section-name section-wrapper">
+<section
+  id="section-id"
+  class="section-name section-wrapper"
+>
   ...
 </section>
 ```

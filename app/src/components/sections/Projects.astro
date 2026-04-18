@@ -2,44 +2,90 @@
 import Button from "../button.astro";
 import content from "@portfolio/content/data";
 
-const imageMap: Record<string, { src: string }> = {};
+const imageMap: Record<
+  string,
+  { src: string }
+> = {};
 
 const { projects } = content;
 ---
 
-<section id="projects" class="projects section-wrapper">
+<section
+  id="projects"
+  class="projects section-wrapper"
+>
   <div class="projects__header">
-    <h2 class="color-white weight-bold">Selected Works</h2>
-    <p class="color-muted">A glimpse into my recent development projects.</p>
+    <h2 class="color-white weight-bold">
+      Selected Works
+    </h2>
+    <p class="color-muted">
+      A glimpse into my recent
+      development projects.
+    </p>
   </div>
 
-  <ul class="projects__grid" role="list">
-    {projects.map((project) => {
-      const image = imageMap[project.slug];
-      return (
-        <li class="projects__card bg-surface">
-          {image && (
-            <div class="projects__card-image">
-              <img src={image.src} alt={project.title} />
-              <div class="projects__card-gradient"></div>
+  <ul
+    class="projects__grid"
+    role="list"
+  >
+    {
+      projects.map((project) => {
+        const image =
+          imageMap[project.slug];
+        return (
+          <li class="projects__card bg-surface">
+            {image && (
+              <div class="projects__card-image">
+                <img
+                  src={image.src}
+                  alt={project.title}
+                />
+                <div class="projects__card-gradient" />
+              </div>
+            )}
+            <div
+              class:list={[
+                "projects__card-body",
+                !image &&
+                  "projects__card-body--no-image",
+              ]}
+            >
+              <div class="projects__card-tags">
+                {[
+                  ...project.tags,
+                  ...project.stack,
+                ].map((tag, j) => (
+                  <span
+                    class:list={[
+                      "projects__tag color-white",
+                      j === 0
+                        ? "projects__tag--primary"
+                        : "projects__tag--neutral",
+                    ]}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <h3 class="color-white weight-bold">
+                {project.title}
+              </h3>
+              <p class="color-secondary">
+                {project.highlights[0]}
+              </p>
             </div>
-          )}
-          <div class:list={["projects__card-body", !image && "projects__card-body--no-image"]}>
-            <div class="projects__card-tags">
-              {[...project.tags, ...project.stack].map((tag, j) => (
-                <span class:list={["projects__tag color-white", j === 0 ? "projects__tag--primary" : "projects__tag--neutral"]}>{tag}</span>
-              ))}
-            </div>
-            <h3 class="color-white weight-bold">{project.title}</h3>
-            <p class="color-secondary">{project.highlights[0]}</p>
-          </div>
-        </li>
-      );
-    })}
+          </li>
+        );
+      })
+    }
   </ul>
 
   <div class="projects__footer">
-    <a href="/projects" class="projects__view-all color-white weight-bold">View All Projects</a>
+    <a
+      href="/projects"
+      class="projects__view-all color-white weight-bold"
+      >View All Projects</a
+    >
   </div>
 </section>
 
@@ -61,14 +107,18 @@ const { projects } = content;
 
   .projects__grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(
+      2,
+      1fr
+    );
     gap: 2rem;
     padding: 0;
   }
 
   .projects__card {
     border-radius: 0.75rem;
-    border: 1px solid rgba(30, 37, 64, 0.5);
+    border: 1px solid
+      rgba(30, 37, 64, 0.5);
     overflow: hidden;
     position: relative;
   }
@@ -131,7 +181,12 @@ const { projects } = content;
   }
 
   .projects__tag--neutral {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(
+      255,
+      255,
+      255,
+      0.1
+    );
   }
 
   .projects__card-body h3 {

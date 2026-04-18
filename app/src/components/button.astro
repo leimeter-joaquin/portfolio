@@ -3,14 +3,22 @@ interface Props {
   text: string;
   href?: string;
   type?: "button" | "submit" | "reset";
-  variant?: "primary" | "secondary" | "outline" | "link";
+  variant?:
+    | "primary"
+    | "secondary"
+    | "outline"
+    | "link";
   glow?: boolean;
   pill?: boolean;
 }
 
-const variantClasses: Record<string, string> = {
+const variantClasses: Record<
+  string,
+  string
+> = {
   primary: "bg-primary color-white",
-  secondary: "bg-secondary color-background",
+  secondary:
+    "bg-secondary color-background",
   outline: "color-white color-outline",
   link: "color-secondary",
 };
@@ -29,16 +37,26 @@ const classes = [
   variantClasses[variant] ?? "",
   glow ? "glow-primary" : "",
   pill ? "button--pill" : "",
-].filter(Boolean).join(" ");
+]
+  .filter(Boolean)
+  .join(" ");
 ---
 
 {
   href ? (
-    <a class={classes} href={href} data-variant={variant}>
+    <a
+      class={classes}
+      href={href}
+      data-variant={variant}
+    >
       {text}
     </a>
   ) : (
-    <button class={classes} type={type} data-variant={variant}>
+    <button
+      class={classes}
+      type={type}
+      data-variant={variant}
+    >
       {text}
     </button>
   )

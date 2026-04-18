@@ -7,7 +7,7 @@ export const HeroFontmatterSchema = z.object({
   description: z.string(),
 });
 
-export type HeroFontmatter = z.infer<typeof HeroFontmatterSchema>
+export type HeroFontmatter = z.infer<typeof HeroFontmatterSchema>;
 
 export type HeroDocument = HeroFontmatter & {
   bodyMarkdown: string; // raw markdown body

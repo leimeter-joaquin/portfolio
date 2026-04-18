@@ -3,45 +3,88 @@ import Button from "../button.astro";
 import content from "@portfolio/content/data";
 
 const { hero } = content;
-const [firstName, ...rest] = hero.name.split(" ");
+const [firstName, ...rest] =
+  hero.name.split(" ");
 const lastName = rest.join(" ");
 ---
 
 <section id="hero" class="hero">
   <!-- Decorative background blobs -->
-  <div class="hero__bg" aria-hidden="true">
-    <div class="hero__blob hero__blob--1"></div>
-    <div class="hero__blob hero__blob--2"></div>
-    <div class="hero__blob hero__blob--3"></div>
+  <div
+    class="hero__bg"
+    aria-hidden="true"
+  >
+    <div
+      class="hero__blob hero__blob--1"
+    >
+    </div>
+    <div
+      class="hero__blob hero__blob--2"
+    >
+    </div>
+    <div
+      class="hero__blob hero__blob--3"
+    >
+    </div>
   </div>
 
   <div class="hero__content">
     <span class="hero__badge">
-      <span class="hero__badge-dot"></span>
+      <span class="hero__badge-dot"
+      ></span>
       {hero.statusBadge}
     </span>
 
     <h1 class="hero__title">
-      <span class="color-white">{firstName} </span><span class="text-gradient-primary">{lastName}</span>
+      <span class="color-white"
+        >{firstName}
+      </span><span
+        class="text-gradient-primary"
+        >{lastName}</span
+      >
     </h1>
 
-    <p class="hero__subtitle weight-light">
+    <p
+      class="hero__subtitle weight-light"
+    >
       {hero.tagline}
     </p>
 
-    <p class="hero__description color-secondary">
+    <p
+      class="hero__description color-secondary"
+    >
       {hero.description}
     </p>
 
     <div class="hero__actions">
-      <Button text="View My Work" href="#projects" glow />
-      <Button text="Contact Me" href="/contact" variant="outline" />
+      <Button
+        text="View My Work"
+        href="#projects"
+        glow
+      />
+      <Button
+        text="Contact Me"
+        href="/contact"
+        variant="outline"
+      />
     </div>
   </div>
 
-  <a href="#expertise" class="hero__scroll" aria-label="Scroll down">
-    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="2">
-      <polyline points="1 1 6 6 11 1"></polyline>
+  <a
+    href="#expertise"
+    class="hero__scroll"
+    aria-label="Scroll down"
+  >
+    <svg
+      width="12"
+      height="8"
+      viewBox="0 0 12 8"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <polyline points="1 1 6 6 11 1"
+      ></polyline>
     </svg>
   </a>
 </section>
@@ -93,7 +136,12 @@ const lastName = rest.join(" ");
     height: 300px;
     top: 50%;
     right: 10%;
-    background: rgba(244, 114, 182, 0.1);
+    background: rgba(
+      244,
+      114,
+      182,
+      0.1
+    );
     filter: blur(40px);
   }
 
@@ -115,7 +163,8 @@ const lastName = rest.join(" ");
     text-transform: uppercase;
     color: #db3069;
     background: rgba(219, 48, 105, 0.1);
-    border: 1px solid rgba(219, 48, 105, 0.2);
+    border: 1px solid
+      rgba(219, 48, 105, 0.2);
     border-radius: 9999px;
     padding: 0.3rem 0.8rem;
     margin-bottom: 1rem;
@@ -126,12 +175,18 @@ const lastName = rest.join(" ");
     height: 0.5rem;
     border-radius: 50%;
     background: #db3069;
-    animation: pulse 2s ease-in-out infinite;
+    animation: pulse 2s ease-in-out
+      infinite;
   }
 
   @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
   }
 
   .hero__title {
@@ -165,7 +220,8 @@ const lastName = rest.join(" ");
     color: inherit;
     opacity: 0.4;
     transition: opacity 0.2s ease;
-    animation: bounce 2s ease-in-out infinite;
+    animation: bounce 2s ease-in-out
+      infinite;
     z-index: 1;
   }
 
@@ -174,7 +230,12 @@ const lastName = rest.join(" ");
   }
 
   @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(6px); }
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(6px);
+    }
   }
 </style>

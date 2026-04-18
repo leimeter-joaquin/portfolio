@@ -5,29 +5,58 @@ import content from "@portfolio/content/data";
 const { techs } = content;
 ---
 
-<section id="expertise" class="expertise">
-  <div class="expertise__inner section-wrapper">
+<section
+  id="expertise"
+  class="expertise"
+>
+  <div
+    class="expertise__inner section-wrapper"
+  >
     <div class="expertise__header">
       <div>
-        <h2 class="color-white weight-bold">Technical Expertise</h2>
-        <p class="color-muted">Building scalable solutions with modern tools.</p>
+        <h2
+          class="color-white weight-bold"
+        >
+          Technical Expertise
+        </h2>
+        <p class="color-muted">
+          Building scalable solutions
+          with modern tools.
+        </p>
       </div>
-      <Button text="See full resume →" href="/resume" variant="link" />
+      <Button
+        text="See full resume →"
+        href="/resume"
+        variant="link"
+      />
     </div>
 
-    <ul class="expertise__grid" role="list">
-      {techs.map((tech) => (
-        <li class="expertise__card bg-surface">
-          <div class="expertise__card-header">
-            <span class="expertise__card-icon color-primary">{tech.name[0]}</span>
-            <span class="expertise__badge color-primary">{tech.proficiencyBadge}</span>
-          </div>
-          <div class="expertise__card-body">
-            <h3 class="color-white weight-bold">{tech.name}</h3>
-            <p class="color-muted">{tech.description}</p>
-          </div>
-        </li>
-      ))}
+    <ul
+      class="expertise__grid"
+      role="list"
+    >
+      {
+        techs.map((tech) => (
+          <li class="expertise__card bg-surface">
+            <div class="expertise__card-header">
+              <span class="expertise__card-icon color-primary">
+                {tech.name[0]}
+              </span>
+              <span class="expertise__badge color-primary">
+                {tech.proficiencyBadge}
+              </span>
+            </div>
+            <div class="expertise__card-body">
+              <h3 class="color-white weight-bold">
+                {tech.name}
+              </h3>
+              <p class="color-muted">
+                {tech.description}
+              </p>
+            </div>
+          </li>
+        ))
+      }
     </ul>
   </div>
 </section>
@@ -35,8 +64,10 @@ const { techs } = content;
 <style>
   .expertise {
     background: #0f1424;
-    border-top: 1px solid rgba(30, 37, 64, 0.5);
-    border-bottom: 1px solid rgba(30, 37, 64, 0.5);
+    border-top: 1px solid
+      rgba(30, 37, 64, 0.5);
+    border-bottom: 1px solid
+      rgba(30, 37, 64, 0.5);
   }
 
   .expertise__inner {
@@ -57,7 +88,10 @@ const { techs } = content;
 
   .expertise__grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(
+      3,
+      1fr
+    );
     gap: 1.5rem;
     padding: 0;
   }
@@ -82,7 +116,8 @@ const { techs } = content;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     background: rgba(219, 48, 105, 0.1);
-    border: 1px solid rgba(219, 48, 105, 0.2);
+    border: 1px solid
+      rgba(219, 48, 105, 0.2);
     border-radius: 9999px;
     padding: 0.2rem 0.6rem;
   }

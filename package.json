@@ -7,7 +7,12 @@
     "content"
   ],
   "scripts": {
+    "dev:app": "npm run dev -w app",
+    "dev:server": "npm run dev -w server",
     "build": "npm run build -w content && npm run build -w app && npm run build -w server",
+    "build:content": "npm run build -w content",
+    "build:app": "npm run build -w app",
+    "build:server": "npm run build -w server",
     "format": "prettier --write ."
   },
   "devDependencies": {

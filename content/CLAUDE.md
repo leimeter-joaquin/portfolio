@@ -19,6 +19,7 @@ npm run build   # tsc + node dist/build.js → writes dist/index.json
 `src/build.ts` walks `src/markdown/`, routes files by directory name (`hero`, `projects`, `techs`), parses frontmatter with `gray-matter`, validates against the matching Zod schema, and writes `dist/index.json`.
 
 Each document gets three extra fields appended beyond its frontmatter:
+
 - `bodyMarkdown` — raw markdown body
 - `bodyText` — plain text version (markdown stripped) for AI/RAG use
 - `sourcePath` — relative path to the source file
