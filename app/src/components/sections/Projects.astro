@@ -164,6 +164,7 @@ const { projects } = content;
 
   .projects__card-tags {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
     margin-bottom: 0.25rem;
   }
@@ -174,6 +175,7 @@ const { projects } = content;
     padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
     backdrop-filter: blur(2px);
+    white-space: nowrap;
   }
 
   .projects__tag--primary {
@@ -196,6 +198,7 @@ const { projects } = content;
   .projects__card-body p {
     font-size: 0.875rem;
     line-height: 1.45;
+    overflow-wrap: break-word;
   }
 
   .projects__footer {
