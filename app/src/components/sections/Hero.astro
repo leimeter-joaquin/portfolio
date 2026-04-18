@@ -1,6 +1,175 @@
-<div>
-  <h1 class="color-primary">JOAQUIN LEIMETER</h1>
-  <p>Full Stack Develpper crafting clean, scalable web experiences</p>
-</div>
+---
+import Button from "../button.astro";
+---
 
-<style lang="scss"></style>
+<section id="hero" class="hero">
+  <!-- Decorative background blobs -->
+  <div class="hero__bg" aria-hidden="true">
+    <div class="hero__blob hero__blob--1"></div>
+    <div class="hero__blob hero__blob--2"></div>
+    <div class="hero__blob hero__blob--3"></div>
+  </div>
+
+  <div class="hero__content">
+    <span class="hero__badge">
+      <span class="hero__badge-dot"></span>
+      Available for work
+    </span>
+
+    <h1 class="hero__title">
+      <span class="color-white">Joaquin </span><span class="text-gradient-primary">Leimeter</span>
+    </h1>
+
+    <p class="hero__subtitle weight-light">
+      Full Stack Developer crafting clean, scalable<br/>web experiences.
+    </p>
+
+    <p class="hero__description color-secondary">
+      Specializing in React and Vue ecosystems, currently architecting<br/>robust cloud infrastructure with Terraform.
+    </p>
+
+    <div class="hero__actions">
+      <Button text="View My Work" href="#projects" glow />
+      <Button text="Contact Me" href="/contact" variant="outline" />
+    </div>
+  </div>
+
+  <a href="#expertise" class="hero__scroll" aria-label="Scroll down">
+    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="1 1 6 6 11 1"></polyline>
+    </svg>
+  </a>
+</section>
+
+<style>
+  .hero {
+    display: grid;
+    place-items: center;
+    min-height: calc(100svh - 65px);
+    padding-block: 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Background decorative blobs */
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .hero__blob {
+    position: absolute;
+    border-radius: 9999px;
+  }
+
+  .hero__blob--1 {
+    width: 600px;
+    height: 600px;
+    top: -405px;
+    left: -128px;
+    background: rgba(219, 48, 105, 0.2);
+    filter: blur(60px);
+  }
+
+  .hero__blob--2 {
+    width: 500px;
+    height: 500px;
+    bottom: -200px;
+    right: -64px;
+    background: rgba(168, 85, 247, 0.2);
+    filter: blur(50px);
+  }
+
+  .hero__blob--3 {
+    width: 300px;
+    height: 300px;
+    top: 50%;
+    right: 10%;
+    background: rgba(244, 114, 182, 0.1);
+    filter: blur(40px);
+  }
+
+  .hero__content {
+    display: grid;
+    gap: 2rem;
+    justify-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #db3069;
+    background: rgba(219, 48, 105, 0.1);
+    border: 1px solid rgba(219, 48, 105, 0.2);
+    border-radius: 9999px;
+    padding: 0.3rem 0.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero__badge-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: #db3069;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .hero__title {
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.05em;
+  }
+
+  .hero__subtitle {
+    font-size: 1.875rem;
+    line-height: 1.2;
+    color: #e2e8f0;
+  }
+
+  .hero__description {
+    font-size: 1.125rem;
+    line-height: 1.55;
+    max-width: 576px;
+  }
+
+  .hero__actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .hero__scroll {
+    position: absolute;
+    bottom: 2.5rem;
+    color: inherit;
+    opacity: 0.4;
+    transition: opacity 0.2s ease;
+    animation: bounce 2s ease-in-out infinite;
+    z-index: 1;
+  }
+
+  .hero__scroll:hover {
+    opacity: 0.8;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+</style>

@@ -1,3 +1,111 @@
-<section>
-  <h2>Expertise</h2>
+---
+import Button from "../button.astro";
+
+const cards = [
+  {
+    icon: "<>",
+    title: "Frontend",
+    description:
+      "Crafting responsive and interactive UIs using React, Vue.js, and Tailwind CSS with a focus on accessibility and performance.",
+  },
+  {
+    icon: "☰",
+    title: "Backend",
+    description:
+      "Architecting secure RESTful APIs and managing data with Node.js, Python, PostgreSQL, and Redis.",
+  },
+  {
+    icon: "☁",
+    title: "Cloud & DevOps",
+    description:
+      "Designing and managing infrastructure as code using Terraform, AWS, Docker, and CI/CD pipelines.",
+  },
+];
+---
+
+<section id="expertise" class="expertise">
+  <div class="expertise__inner section-wrapper">
+    <div class="expertise__header">
+      <div>
+        <h2 class="color-white weight-bold">Technical Expertise</h2>
+        <p class="color-muted">Building scalable solutions with modern tools.</p>
+      </div>
+      <Button text="See full resume →" href="/resume" variant="link" />
+    </div>
+
+    <ul class="expertise__grid" role="list">
+      {cards.map((card) => (
+        <li class="expertise__card bg-surface">
+          <span class="expertise__card-icon color-primary">{card.icon}</span>
+          <div class="expertise__card-body">
+            <h3 class="color-white weight-bold">{card.title}</h3>
+            <p class="color-muted">{card.description}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
 </section>
+
+<style>
+  .expertise {
+    background: #0f1424;
+    border-top: 1px solid rgba(30, 37, 64, 0.5);
+    border-bottom: 1px solid rgba(30, 37, 64, 0.5);
+  }
+
+  .expertise__inner {
+    padding-block: 5rem;
+  }
+
+  .expertise__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 3rem;
+  }
+
+  .expertise__header h2 {
+    font-size: 2.25rem;
+    letter-spacing: -0.025em;
+  }
+
+  .expertise__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    padding: 0;
+  }
+
+  .expertise__card {
+    display: grid;
+    gap: 1.25rem;
+    padding: 1.5625rem;
+    border-radius: 1rem;
+    border: 1px solid #1e2540;
+  }
+
+  .expertise__card-icon {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.5rem;
+    background: rgba(219, 48, 105, 0.1);
+    font-size: 1.25rem;
+  }
+
+  .expertise__card-body {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .expertise__card-body h3 {
+    font-size: 1.25rem;
+  }
+
+  .expertise__card-body p {
+    font-size: 0.875rem;
+    line-height: 1.625;
+  }
+</style>

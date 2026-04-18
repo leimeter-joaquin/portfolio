@@ -3,13 +3,16 @@ interface Props {
   text: string;
   href?: string;
   type?: "button" | "submit" | "reset";
-  variant?: "primary" | "secondary" | "link";
+  variant?: "primary" | "secondary" | "outline" | "link";
+  glow?: boolean;
+  pill?: boolean;
 }
 
 const variantClasses: Record<string, string> = {
-  primary: "bg-primary color-background",
+  primary: "bg-primary color-white",
   secondary: "bg-secondary color-background",
-  link: "color-primary",
+  outline: "color-white color-outline",
+  link: "color-secondary",
 };
 
 const {
@@ -17,9 +20,16 @@ const {
   href,
   type = "button",
   variant = "primary",
+  glow = false,
+  pill = false,
 } = Astro.props;
 
-const classes = `button ${variantClasses[variant] ?? ""}`;
+const classes = [
+  "button",
+  variantClasses[variant] ?? "",
+  glow ? "glow-primary" : "",
+  pill ? "button--pill" : "",
+].filter(Boolean).join(" ");
 ---
 
 {
@@ -38,15 +48,17 @@ const classes = `button ${variantClasses[variant] ?? ""}`;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.75rem 1.25rem;
+    padding: 0.75rem 2rem;
     border: 0;
     border-radius: 0.5rem;
     text-decoration: none;
     cursor: pointer;
+    font: inherit;
+    font-weight: 700;
     transition:
       transform 0.2s ease,
-      opacity 0.2s ease;
-    font: inherit;
+      opacity 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
   .button:hover {
@@ -57,9 +69,21 @@ const classes = `button ${variantClasses[variant] ?? ""}`;
     transform: translateY(1px);
   }
 
+  .button--pill {
+    border-radius: 9999px;
+    padding: 0.625rem 1.5rem;
+    font-size: 0.875rem;
+  }
+
+  .button[data-variant="outline"] {
+    background: transparent;
+    border: 1px solid #475569;
+  }
+
   .button[data-variant="link"] {
     background: transparent;
     padding: 0;
     border-radius: 0;
+    font-weight: 500;
   }
 </style>

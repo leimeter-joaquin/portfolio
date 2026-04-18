@@ -1,80 +1,62 @@
 ---
-import Button from "../components/button.astro";
-
-function something() {
-  console.log("yeah");
-}
+import Button from "./button.astro";
+import logoSrc from "../assets/logo.svg";
 ---
 
 <header class="header">
-  <div class="header-brand">
-    <div class="header-brand-icon">
-      icon
-    </div>
-    <div class="header-brand-name">
-      Joaquin Leimeter
-    </div>
-  </div>
+  <div class="header__inner section-wrapper">
+    <a href="/" class="header__brand color-white">
+      <img src={logoSrc.src} alt="" class="header__logo" width="32" height="32" />
+      <span class="weight-bold">Joaquin Leimeter</span>
+    </a>
 
-  <nav class="header-nav">
-    <ul class="header-nav-list">
-      <li>
-        <Button
-          text="Projects"
-          href="#projects"
-          variant="link"
-        />
-      </li>
-      <li>
-        <Button
-          text="Technologies"
-          href="#techs"
-          variant="link"
-        />
-      </li>
-      <li>
-        <Button
-          text="Contact"
-          href="/contact"
-          variant="link"
-        />
-      </li>
-      <li>
-        <Button
-          text="CV"
-          href="/cv.pdf"
-        />
-      </li>
-    </ul>
-  </nav>
+    <nav>
+      <ul class="header__nav" role="list">
+        <li><Button text="Projects" href="#projects" variant="link" /></li>
+        <li><Button text="Technologies" href="#expertise" variant="link" /></li>
+        <li><Button text="Contact" href="/contact" variant="link" /></li>
+        <li><Button text="Hire Me" href="#hero" glow pill /></li>
+      </ul>
+    </nav>
+  </div>
 </header>
 
-<style lang="scss">
+<style>
   .header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    background: rgba(12, 18, 35, 0.8);
+    border-bottom: 1px solid #1e2540;
+  }
+
+  .header__inner {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 80px;
+    padding-block: 1rem;
+    flex-wrap: nowrap;
+  }
 
-    border-bottom: 1px solid red;
+  .header__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    font-size: 1.125rem;
+  }
 
-    &-brand {
-      display: flex;
-      gap: 1rem;
-      &-icon {
-      }
+  .header__logo {
+    border-radius: 0.375rem;
+  }
 
-      &-name {
-      }
-    }
-
-    &-nav {
-      &-list {
-        list-style: none;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-    }
+  .header__nav {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 0;
   }
 </style>
