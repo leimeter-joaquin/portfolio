@@ -1,24 +1,10 @@
 ---
 import Button from "../button.astro";
-import ecommerceImg from "../../assets/projects/ecommerce.png";
-import saasImg from "../../assets/projects/saas.png";
+import content from "@portfolio/content/data";
 
-const projects = [
-  {
-    title: "E-Commerce Analytics Platform",
-    description:
-      "A comprehensive dashboard for tracking sales metrics, user behavior, and inventory management in real-time.",
-    tags: ["React", "Tailwind"],
-    image: ecommerceImg,
-  },
-  {
-    title: "SaaS Infrastructure Manager",
-    description:
-      "A cloud resource management tool allowing developers to provision and monitor server instances easily.",
-    tags: ["Vue.js", "AWS"],
-    image: saasImg,
-  },
-];
+const imageMap: Record<string, { src: string }> = {};
+
+const { projects } = content;
 ---
 
 <section id="projects" class="projects section-wrapper">
@@ -28,23 +14,28 @@ const projects = [
   </div>
 
   <ul class="projects__grid" role="list">
-    {projects.map((project, i) => (
-      <li class="projects__card bg-surface">
-        <div class="projects__card-image">
-          <img src={project.image.src} alt={project.title} />
-          <div class="projects__card-gradient"></div>
-        </div>
-        <div class="projects__card-body">
-          <div class="projects__card-tags">
-            {project.tags.map((tag, j) => (
-              <span class:list={["projects__tag color-white", j === 0 ? "projects__tag--primary" : "projects__tag--neutral"]}>{tag}</span>
-            ))}
+    {projects.map((project) => {
+      const image = imageMap[project.slug];
+      return (
+        <li class="projects__card bg-surface">
+          {image && (
+            <div class="projects__card-image">
+              <img src={image.src} alt={project.title} />
+              <div class="projects__card-gradient"></div>
+            </div>
+          )}
+          <div class:list={["projects__card-body", !image && "projects__card-body--no-image"]}>
+            <div class="projects__card-tags">
+              {[...project.tags, ...project.stack].map((tag, j) => (
+                <span class:list={["projects__tag color-white", j === 0 ? "projects__tag--primary" : "projects__tag--neutral"]}>{tag}</span>
+              ))}
+            </div>
+            <h3 class="color-white weight-bold">{project.title}</h3>
+            <p class="color-secondary">{project.highlights[0]}</p>
           </div>
-          <h3 class="color-white weight-bold">{project.title}</h3>
-          <p class="color-secondary">{project.description}</p>
-        </div>
-      </li>
-    ))}
+        </li>
+      );
+    })}
   </ul>
 
   <div class="projects__footer">
@@ -113,6 +104,11 @@ const projects = [
     right: 0;
     display: grid;
     gap: 0.5rem;
+    padding: 1.5rem;
+  }
+
+  .projects__card-body--no-image {
+    position: static;
     padding: 1.5rem;
   }
 

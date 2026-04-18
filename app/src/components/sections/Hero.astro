@@ -1,5 +1,10 @@
 ---
 import Button from "../button.astro";
+import content from "@portfolio/content/data";
+
+const { hero } = content;
+const [firstName, ...rest] = hero.name.split(" ");
+const lastName = rest.join(" ");
 ---
 
 <section id="hero" class="hero">
@@ -13,19 +18,19 @@ import Button from "../button.astro";
   <div class="hero__content">
     <span class="hero__badge">
       <span class="hero__badge-dot"></span>
-      Available for work
+      {hero.statusBadge}
     </span>
 
     <h1 class="hero__title">
-      <span class="color-white">Joaquin </span><span class="text-gradient-primary">Leimeter</span>
+      <span class="color-white">{firstName} </span><span class="text-gradient-primary">{lastName}</span>
     </h1>
 
     <p class="hero__subtitle weight-light">
-      Full Stack Developer crafting clean, scalable<br/>web experiences.
+      {hero.tagline}
     </p>
 
     <p class="hero__description color-secondary">
-      Specializing in React and Vue ecosystems, currently architecting<br/>robust cloud infrastructure with Terraform.
+      {hero.description}
     </p>
 
     <div class="hero__actions">

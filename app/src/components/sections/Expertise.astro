@@ -1,26 +1,8 @@
 ---
 import Button from "../button.astro";
+import content from "@portfolio/content/data";
 
-const cards = [
-  {
-    icon: "<>",
-    title: "Frontend",
-    description:
-      "Crafting responsive and interactive UIs using React, Vue.js, and Tailwind CSS with a focus on accessibility and performance.",
-  },
-  {
-    icon: "☰",
-    title: "Backend",
-    description:
-      "Architecting secure RESTful APIs and managing data with Node.js, Python, PostgreSQL, and Redis.",
-  },
-  {
-    icon: "☁",
-    title: "Cloud & DevOps",
-    description:
-      "Designing and managing infrastructure as code using Terraform, AWS, Docker, and CI/CD pipelines.",
-  },
-];
+const { techs } = content;
 ---
 
 <section id="expertise" class="expertise">
@@ -34,12 +16,15 @@ const cards = [
     </div>
 
     <ul class="expertise__grid" role="list">
-      {cards.map((card) => (
+      {techs.map((tech) => (
         <li class="expertise__card bg-surface">
-          <span class="expertise__card-icon color-primary">{card.icon}</span>
+          <div class="expertise__card-header">
+            <span class="expertise__card-icon color-primary">{tech.name[0]}</span>
+            <span class="expertise__badge color-primary">{tech.proficiencyBadge}</span>
+          </div>
           <div class="expertise__card-body">
-            <h3 class="color-white weight-bold">{card.title}</h3>
-            <p class="color-muted">{card.description}</p>
+            <h3 class="color-white weight-bold">{tech.name}</h3>
+            <p class="color-muted">{tech.description}</p>
           </div>
         </li>
       ))}
@@ -83,6 +68,23 @@ const cards = [
     padding: 1.5625rem;
     border-radius: 1rem;
     border: 1px solid #1e2540;
+  }
+
+  .expertise__card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .expertise__badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: rgba(219, 48, 105, 0.1);
+    border: 1px solid rgba(219, 48, 105, 0.2);
+    border-radius: 9999px;
+    padding: 0.2rem 0.6rem;
   }
 
   .expertise__card-icon {
