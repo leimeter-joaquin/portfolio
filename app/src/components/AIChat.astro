@@ -1,0 +1,353 @@
+---
+import Input from "./input.astro";
+---
+
+<div class="ai-chat">
+  <div
+    id="ai-chat-response"
+    class="ai-chat__response"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+  </div>
+  <form
+    id="ai-chat-form"
+    class="ai-chat__form"
+    novalidate
+  >
+    <Input
+      id="ai-chat-input"
+      placeholder="Ask me anything…"
+      autocomplete="off"
+      maxlength={500}
+    />
+    <button
+      id="ai-chat-submit"
+      class="ai-chat__submit bg-primary color-white weight-bold"
+      type="submit"
+    >
+      Ask
+    </button>
+  </form>
+  <p
+    id="ai-chat-counter"
+    class="ai-chat__counter color-muted"
+  >
+    5 of 5 questions remaining
+  </p>
+</div>
+
+<script>
+  const API_URL =
+    (import.meta.env.PUBLIC_API_URL as
+      | string
+      | undefined) ??
+    "http://localhost:3001";
+  const MAX_QUESTIONS = 5;
+
+  const form = document.getElementById(
+    "ai-chat-form",
+  ) as HTMLFormElement;
+  const input = document.getElementById(
+    "ai-chat-input",
+  ) as HTMLInputElement;
+  const submitBtn =
+    document.getElementById(
+      "ai-chat-submit",
+    ) as HTMLButtonElement;
+  const responseEl =
+    document.getElementById(
+      "ai-chat-response",
+    ) as HTMLElement;
+  const counterEl =
+    document.getElementById(
+      "ai-chat-counter",
+    ) as HTMLElement;
+
+  let questionsRemaining =
+    MAX_QUESTIONS;
+  let typewriterTimer: ReturnType<
+    typeof setInterval
+  > | null = null;
+
+  function typewrite(
+    text: string,
+    isError = false,
+    onComplete?: () => void,
+  ) {
+    if (typewriterTimer !== null) {
+      clearInterval(typewriterTimer);
+      typewriterTimer = null;
+    }
+    responseEl.textContent = "";
+    responseEl.className = [
+      "ai-chat__response",
+      "ai-chat__response--visible",
+      isError
+        ? "ai-chat__response--error"
+        : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    let i = 0;
+    typewriterTimer = setInterval(
+      () => {
+        responseEl.textContent +=
+          text[i++];
+        if (i >= text.length) {
+          clearInterval(
+            typewriterTimer!,
+          );
+          typewriterTimer = null;
+          onComplete?.();
+        }
+      },
+      18,
+    );
+  }
+
+  function setLoading(
+    loading: boolean,
+  ) {
+    input.disabled = loading;
+    submitBtn.disabled = loading;
+    submitBtn.textContent = loading
+      ? "Asking…"
+      : "Ask";
+  }
+
+  function updateCounter(
+    remaining: number,
+  ) {
+    questionsRemaining = remaining;
+    if (remaining <= 0) {
+      counterEl.textContent =
+        "You've used all 5 questions";
+      input.disabled = true;
+      submitBtn.disabled = true;
+    } else {
+      counterEl.textContent = `${remaining} of ${MAX_QUESTIONS} questions remaining`;
+    }
+  }
+
+  function showResponse(
+    text: string,
+    isError = false,
+  ) {
+    typewrite(text, isError);
+  }
+
+  form.addEventListener(
+    "submit",
+    async (e) => {
+      e.preventDefault();
+      const question =
+        input.value.trim();
+      if (
+        !question ||
+        questionsRemaining <= 0
+      )
+        return;
+
+      setLoading(true);
+      responseEl.className =
+        "ai-chat__response";
+
+      try {
+        const res = await fetch(
+          `${API_URL}/api/ask`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            body: JSON.stringify({
+              question,
+            }),
+          },
+        );
+
+        const data =
+          (await res.json()) as {
+            answer?: string;
+            questionsRemaining?: number;
+            error?: string;
+          };
+
+        if (res.status === 429) {
+          updateCounter(0);
+          const email =
+            "leimeter.joaquin@gmail.com";
+          typewrite(
+            `Hey! You've reached the limit. If you have more questions you can send me an email on: ${email}`,
+            true,
+            () => {
+              const full =
+                responseEl.textContent ??
+                "";
+              const idx =
+                full.lastIndexOf(email);
+              if (idx === -1) return;
+              responseEl.textContent =
+                full.slice(0, idx);
+              const span =
+                document.createElement(
+                  "span",
+                );
+              span.textContent = email;
+              span.className =
+                "ai-chat__limit-email";
+              span.dataset.tooltip =
+                "Copy to clipboard";
+              span.addEventListener(
+                "click",
+                async () => {
+                  await navigator.clipboard.writeText(
+                    email,
+                  );
+                  span.dataset.tooltip =
+                    "Copied!";
+                  setTimeout(() => {
+                    span.dataset.tooltip =
+                      "Copy to clipboard";
+                  }, 2000);
+                },
+              );
+              responseEl.appendChild(
+                span,
+              );
+            },
+          );
+        } else if (res.status === 503) {
+          showResponse(
+            "AI is temporarily unavailable. Please try again in a moment.",
+            true,
+          );
+        } else if (!res.ok) {
+          showResponse(
+            "Something went wrong. Please try again.",
+            true,
+          );
+        } else {
+          input.value = "";
+          showResponse(
+            data.answer ?? "",
+          );
+          updateCounter(
+            data.questionsRemaining ??
+              0,
+          );
+        }
+      } catch {
+        showResponse(
+          "Unable to reach the server. Please try again later.",
+          true,
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+  );
+</script>
+
+<style lang="scss">
+  @use "../css/config" as *;
+
+  .ai-chat {
+    display: grid;
+    gap: 0.875rem;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .ai-chat__response {
+    opacity: 0;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: map-get(
+      $gorko-colors,
+      "secondary"
+    );
+    transition: opacity 0.3s ease;
+    min-height: 0;
+  }
+
+  .ai-chat__response--visible {
+    opacity: 1;
+  }
+
+  .ai-chat__response--error {
+    opacity: 1;
+    color: map-get(
+      $gorko-colors,
+      "primary"
+    );
+  }
+
+  .ai-chat__form {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .ai-chat__submit {
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.9375rem;
+    white-space: nowrap;
+    transition: opacity 0.2s ease;
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .ai-chat__counter {
+    font-size: 0.8125rem;
+  }
+
+  :global(.ai-chat__limit-email) {
+    font-weight: 700;
+    cursor: pointer;
+    position: relative;
+
+    &::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: map-get(
+        $gorko-colors,
+        "surface-alt"
+      );
+      color: map-get(
+        $gorko-colors,
+        "secondary"
+      );
+      font-size: 0.75rem;
+      font-weight: 400;
+      white-space: nowrap;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      border: 1px solid
+        map-get($gorko-colors, "border");
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    &:hover::after {
+      opacity: 1;
+    }
+  }
+</style>

@@ -1,6 +1,6 @@
 ---
 import Button from "../button.astro";
-import Input from "../input.astro";
+import AIChat from "../AIChat.astro";
 import content from "@portfolio/content/data";
 
 const { hero } = content;
@@ -45,40 +45,7 @@ const lastName = rest.join(" ");
       >
     </h1>
 
-    <div class="hero__chat">
-      <div
-        id="hero-chat-response"
-        class="hero__chat-response"
-        aria-live="polite"
-        aria-atomic="true"
-      >
-      </div>
-      <form
-        id="hero-chat-form"
-        class="hero__chat-form"
-        novalidate
-      >
-        <Input
-          id="hero-chat-input"
-          placeholder="Ask me anything…"
-          autocomplete="off"
-          maxlength={500}
-        />
-        <button
-          id="hero-chat-submit"
-          class="hero__chat-submit bg-primary color-white weight-bold"
-          type="submit"
-        >
-          Ask
-        </button>
-      </form>
-      <p
-        id="hero-chat-counter"
-        class="hero__chat-counter color-muted"
-      >
-        5 of 5 questions remaining
-      </p>
-    </div>
+    <AIChat />
 
     <p
       class="hero__subtitle weight-light"
@@ -125,221 +92,6 @@ const lastName = rest.join(" ");
   </a>
 </section>
 
-<script>
-  const API_URL =
-    (import.meta.env.PUBLIC_API_URL as
-      | string
-      | undefined) ??
-    "http://localhost:3001";
-  const MAX_QUESTIONS = 5;
-
-  const form = document.getElementById(
-    "hero-chat-form",
-  ) as HTMLFormElement;
-  const input = document.getElementById(
-    "hero-chat-input",
-  ) as HTMLInputElement;
-  const submitBtn =
-    document.getElementById(
-      "hero-chat-submit",
-    ) as HTMLButtonElement;
-  const responseEl =
-    document.getElementById(
-      "hero-chat-response",
-    ) as HTMLElement;
-  const counterEl =
-    document.getElementById(
-      "hero-chat-counter",
-    ) as HTMLElement;
-
-  let questionsRemaining =
-    MAX_QUESTIONS;
-  let typewriterTimer: ReturnType<
-    typeof setInterval
-  > | null = null;
-
-  function typewrite(
-    text: string,
-    isError = false,
-    onComplete?: () => void,
-  ) {
-    if (typewriterTimer !== null) {
-      clearInterval(typewriterTimer);
-      typewriterTimer = null;
-    }
-    responseEl.textContent = "";
-    responseEl.className = [
-      "hero__chat-response",
-      "hero__chat-response--visible",
-      isError
-        ? "hero__chat-response--error"
-        : "",
-    ]
-      .filter(Boolean)
-      .join(" ");
-
-    let i = 0;
-    typewriterTimer = setInterval(
-      () => {
-        responseEl.textContent +=
-          text[i++];
-        if (i >= text.length) {
-          clearInterval(
-            typewriterTimer!,
-          );
-          typewriterTimer = null;
-          onComplete?.();
-        }
-      },
-      18,
-    );
-  }
-
-  function setLoading(
-    loading: boolean,
-  ) {
-    input.disabled = loading;
-    submitBtn.disabled = loading;
-    submitBtn.textContent = loading
-      ? "Asking…"
-      : "Ask";
-  }
-
-  function updateCounter(
-    remaining: number,
-  ) {
-    questionsRemaining = remaining;
-    if (remaining <= 0) {
-      counterEl.textContent =
-        "You've used all 5 questions";
-      input.disabled = true;
-      submitBtn.disabled = true;
-    } else {
-      counterEl.textContent = `${remaining} of ${MAX_QUESTIONS} questions remaining`;
-    }
-  }
-
-  function showResponse(
-    text: string,
-    isError = false,
-  ) {
-    typewrite(text, isError);
-  }
-
-  form.addEventListener(
-    "submit",
-    async (e) => {
-      e.preventDefault();
-      const question =
-        input.value.trim();
-      if (
-        !question ||
-        questionsRemaining <= 0
-      )
-        return;
-
-      setLoading(true);
-      responseEl.className =
-        "hero__chat-response";
-
-      try {
-        const res = await fetch(
-          `${API_URL}/api/ask`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-            body: JSON.stringify({
-              question,
-            }),
-          },
-        );
-
-        const data =
-          (await res.json()) as {
-            answer?: string;
-            questionsRemaining?: number;
-            error?: string;
-          };
-
-        if (res.status === 429) {
-          updateCounter(0);
-          const email =
-            "leimeter.joaquin@gmail.com";
-          typewrite(
-            `Hey! You've reached the limit. If you have more questions you can send me an email on: ${email}`,
-            true,
-            () => {
-              const full =
-                responseEl.textContent ??
-                "";
-              const idx =
-                full.lastIndexOf(email);
-              if (idx === -1) return;
-              responseEl.textContent =
-                full.slice(0, idx);
-              const span =
-                document.createElement(
-                  "span",
-                );
-              span.textContent = email;
-              span.className =
-                "hero__chat-limit-email";
-              span.dataset.tooltip =
-                "Copy to clipboard";
-              span.addEventListener(
-                "click",
-                async () => {
-                  await navigator.clipboard.writeText(
-                    email,
-                  );
-                  span.dataset.tooltip =
-                    "Copied!";
-                  setTimeout(() => {
-                    span.dataset.tooltip =
-                      "Copy to clipboard";
-                  }, 2000);
-                },
-              );
-              responseEl.appendChild(
-                span,
-              );
-            },
-          );
-        } else if (res.status === 503) {
-          showResponse(
-            "AI is temporarily unavailable. Please try again in a moment.",
-            true,
-          );
-        } else if (!res.ok) {
-          showResponse(
-            "Something went wrong. Please try again.",
-            true,
-          );
-        } else {
-          input.value = "";
-          showResponse(
-            data.answer ?? "",
-          );
-          updateCounter(
-            data.questionsRemaining ??
-              0,
-          );
-        }
-      } catch {
-        showResponse(
-          "Unable to reach the server. Please try again later.",
-          true,
-        );
-      } finally {
-        setLoading(false);
-      }
-    },
-  );
-</script>
-
 <style lang="scss">
   @use "../../css/config" as *;
 
@@ -353,7 +105,6 @@ const lastName = rest.join(" ");
     overflow: hidden;
   }
 
-  /* Background decorative blobs */
   .hero__bg {
     position: absolute;
     inset: 0;
@@ -371,7 +122,10 @@ const lastName = rest.join(" ");
     height: 600px;
     top: -405px;
     left: -128px;
-    background: rgba(219, 48, 105, 0.2);
+    background: rgba(
+      map-get($gorko-colors, "primary"),
+      0.2
+    );
     filter: blur(60px);
   }
 
@@ -390,9 +144,7 @@ const lastName = rest.join(" ");
     top: 50%;
     right: 10%;
     background: rgba(
-      244,
-      114,
-      182,
+      map-get($gorko-colors, "primary"),
       0.1
     );
     filter: blur(40px);
@@ -414,10 +166,22 @@ const lastName = rest.join(" ");
     font-weight: 700;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: #db3069;
-    background: rgba(219, 48, 105, 0.1);
+    color: map-get(
+      $gorko-colors,
+      "primary"
+    );
+    background: rgba(
+      map-get($gorko-colors, "primary"),
+      0.1
+    );
     border: 1px solid
-      rgba(219, 48, 105, 0.2);
+      rgba(
+        map-get(
+          $gorko-colors,
+          "primary"
+        ),
+        0.2
+      );
     border-radius: 9999px;
     padding: 0.3rem 0.8rem;
     margin-bottom: 1rem;
@@ -427,7 +191,10 @@ const lastName = rest.join(" ");
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 50%;
-    background: #db3069;
+    background: map-get(
+      $gorko-colors,
+      "primary"
+    );
     animation: pulse 2s ease-in-out
       infinite;
   }
@@ -447,103 +214,6 @@ const lastName = rest.join(" ");
     font-weight: 700;
     line-height: 1;
     letter-spacing: -0.05em;
-  }
-
-  /* Chat widget */
-  .hero__chat {
-    display: grid;
-    gap: 0.875rem;
-    width: 100%;
-    max-width: 480px;
-  }
-
-  .hero__chat-response {
-    opacity: 0;
-    font-size: 0.9375rem;
-    line-height: 1.6;
-    color: map-get(
-      $gorko-colors,
-      "secondary"
-    );
-    transition: opacity 0.3s ease;
-    min-height: 0;
-  }
-
-  .hero__chat-response--visible {
-    opacity: 1;
-  }
-
-  .hero__chat-response--error {
-    opacity: 1;
-    color: map-get(
-      $gorko-colors,
-      "primary"
-    );
-  }
-
-  .hero__chat-form {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .hero__chat-submit {
-    padding: 0.75rem 1.25rem;
-    border: none;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    font: inherit;
-    font-size: 0.9375rem;
-    white-space: nowrap;
-    transition: opacity 0.2s ease;
-
-    &:hover:not(:disabled) {
-      opacity: 0.9;
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-
-  .hero__chat-counter {
-    font-size: 0.8125rem;
-  }
-
-  :global(.hero__chat-limit-email) {
-    font-weight: 700;
-    cursor: pointer;
-    position: relative;
-
-    &::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      bottom: calc(100% + 6px);
-      left: 50%;
-      transform: translateX(-50%);
-      background: map-get(
-        $gorko-colors,
-        "surface-alt"
-      );
-      color: map-get(
-        $gorko-colors,
-        "secondary"
-      );
-      font-size: 0.75rem;
-      font-weight: 400;
-      white-space: nowrap;
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.25rem;
-      border: 1px solid
-        map-get($gorko-colors, "border");
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.15s ease;
-    }
-
-    &:hover::after {
-      opacity: 1;
-    }
   }
 
   .hero__subtitle {
