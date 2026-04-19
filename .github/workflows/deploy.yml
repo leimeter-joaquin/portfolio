@@ -26,6 +26,8 @@ jobs:
 
       - name: Build app
         run: npm run build -w app
+        env:
+          PUBLIC_API_URL: https://portfolio-server.leimeter-joaquin.workers.dev
 
       - name: Deploy Worker
         run: npx wrangler deploy
