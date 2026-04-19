@@ -16,12 +16,14 @@ Every push to `main` automatically builds and deploys the full portfolio (conten
 ## Scope
 
 **Included:**
+
 - Fix the Cloudflare API token permissions
 - Add `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` to GitHub Actions secrets
 - Pass `PUBLIC_API_URL` as an env var during the app build step
 - Add a `terraform apply` step to the pipeline so infra stays in sync with code
 
 **Out of scope:**
+
 - PR preview deployments
 - Separate staging environment
 - Slack/email notifications
@@ -48,6 +50,7 @@ Steps 4–6 need `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. Terraform a
 Edit the existing token at `dash.cloudflare.com` → My Profile → API Tokens:
 
 Required permissions (all at Account level):
+
 - `Workers Scripts: Edit`
 - `Workers KV Storage: Edit`
 - `Cloudflare Pages: Edit`
@@ -57,11 +60,11 @@ Required permissions (all at Account level):
 
 In the GitHub repo → Settings → Secrets and variables → Actions:
 
-| Secret name | Value |
-|---|---|
-| `CLOUDFLARE_API_TOKEN` | The fixed API token |
-| `CLOUDFLARE_ACCOUNT_ID` | `da26dbdf33968c1557b318037912e6bc` |
-| `TF_VAR_cloudflare_api_token` | Same token (for Terraform) |
+| Secret name                   | Value                              |
+| ----------------------------- | ---------------------------------- |
+| `CLOUDFLARE_API_TOKEN`        | The fixed API token                |
+| `CLOUDFLARE_ACCOUNT_ID`       | `da26dbdf33968c1557b318037912e6bc` |
+| `TF_VAR_cloudflare_api_token` | Same token (for Terraform)         |
 
 ### 3. Update `.github/workflows/deploy.yml`
 
@@ -72,6 +75,7 @@ In the GitHub repo → Settings → Secrets and variables → Actions:
 ### 4. Terraform backend (optional but recommended)
 
 Currently state is local (`infra/terraform.tfstate`, gitignored). For CI to apply Terraform, state must be accessible to the runner. Options:
+
 - **Terraform Cloud** free tier — remote state, no setup beyond adding a `cloud {}` block and a `TF_TOKEN_app_terraform_io` secret
 - **Cloudflare R2** — S3-compatible backend, free tier, stays in Cloudflare ecosystem
 

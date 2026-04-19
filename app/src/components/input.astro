@@ -1,0 +1,73 @@
+---
+interface Props {
+  id?: string;
+  type?: string;
+  placeholder?: string;
+  autocomplete?: string;
+  maxlength?: number;
+}
+
+const {
+  id,
+  type = "text",
+  placeholder,
+  autocomplete,
+  maxlength,
+} = Astro.props;
+---
+
+<input
+  {id}
+  class="input color-white"
+  {type}
+  {placeholder}
+  {autocomplete}
+  {maxlength}
+/>
+
+<style lang="scss">
+  @use "../css/config" as *;
+
+  .input {
+    flex: 1;
+    background: rgba(
+      map-get($gorko-colors, "surface"),
+      0.8
+    );
+    border: 1px solid
+      rgba(
+        map-get(
+          $gorko-colors,
+          "outline"
+        ),
+        0.4
+      );
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font: inherit;
+    font-size: 0.9375rem;
+    outline: none;
+    backdrop-filter: blur(8px);
+    transition: border-color 0.2s ease;
+    text-align: left;
+
+    &:focus {
+      border-color: map-get(
+        $gorko-colors,
+        "primary"
+      );
+    }
+
+    &::placeholder {
+      color: map-get(
+        $gorko-colors,
+        "muted"
+      );
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+</style>
