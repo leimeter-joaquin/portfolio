@@ -1,18 +1,21 @@
-import { serve } from "@hono/node-server";
-import { getConnInfo } from "@hono/node-server/conninfo";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { OpenRouter } from "@openrouter/sdk";
-import content from "@portfolio/content/data" with { type: "json" };
+import content from "@portfolio/content/data";
 
-const OPEN_ROUTER_API_KEY = process.env.OPEN_ROUTER_API_KEY;
-if (!OPEN_ROUTER_API_KEY) {
-  console.error("Missing required env var: OPEN_ROUTER_API_KEY");
-  process.exit(1);
-}
+type Bindings = {
+  RATE_LIMIT: KVNamespace;
+  OPEN_ROUTER_API_KEY: string;
+  APP_ORIGIN?: string;
+};
 
 const MAX_QUESTIONS = 5;
-const rateLimitStore = new Map<string, number>();
+
+const MODELS = [
+  "openai/gpt-oss-120b:free",
+  "openai/gpt-oss-20b:free",
+  "nvidia/nemotron-3-super-120b-a12b:free",
+];
 
 const contextText = content.documents
   .map((doc) => `## ${doc.title}\n${doc.text}`)
@@ -23,41 +26,28 @@ const systemPrompt = `You are a helpful assistant that answers questions about J
 Context about Joaquin:
 ${contextText}`;
 
-const MODELS = [
-  "openai/gpt-oss-120b:free",
-  "openai/gpt-oss-20b:free",
-  "nvidia/nemotron-3-super-120b-a12b:free",
-];
+const app = new Hono<{ Bindings: Bindings }>();
 
-const openRouter = new OpenRouter({
-  apiKey: OPEN_ROUTER_API_KEY,
-  httpReferer: "https://joaquinleimeter.com",
-  appTitle: "Joaquin Leimeter Portfolio",
-});
-
-const app = new Hono();
-
-const allowedOrigins = ["http://localhost:4321", process.env.APP_ORIGIN].filter(
-  (o): o is string => Boolean(o),
-);
-
-app.use(
-  "/api/*",
-  cors({
-    origin: (origin) => (allowedOrigins.includes(origin) ? origin : null),
+app.use("/api/*", (c, next) => {
+  const allowed = [
+    "http://localhost:4321",
+    "http://localhost:4322",
+    ...(c.env.APP_ORIGIN ? [c.env.APP_ORIGIN] : []),
+  ];
+  return cors({
+    origin: (origin) =>
+      allowed.includes(origin) || origin.endsWith(".pages.dev") ? origin : null,
     allowMethods: ["POST", "OPTIONS"],
     allowHeaders: ["Content-Type"],
-  }),
-);
+  })(c, next);
+});
 
 app.post("/api/ask", async (c) => {
-  const connInfo = getConnInfo(c);
-  const ip =
-    c.req.header("x-forwarded-for")?.split(",")[0].trim() ??
-    connInfo.remote.address ??
-    "unknown";
+  const ip = c.req.header("cf-connecting-ip") ?? "unknown";
 
-  const count = rateLimitStore.get(ip) ?? 0;
+  const countStr = await c.env.RATE_LIMIT.get(ip);
+  const count = Number(countStr ?? "0");
+
   if (count >= MAX_QUESTIONS) {
     return c.json({ error: "limit_reached", questionsRemaining: 0 }, 429);
   }
@@ -75,8 +65,14 @@ app.post("/api/ask", async (c) => {
   }
 
   const newCount = count + 1;
-  rateLimitStore.set(ip, newCount);
+  await c.env.RATE_LIMIT.put(ip, String(newCount), { expirationTtl: 86400 });
   const questionsRemaining = MAX_QUESTIONS - newCount;
+
+  const openRouter = new OpenRouter({
+    apiKey: c.env.OPEN_ROUTER_API_KEY,
+    httpReferer: "https://joaquinleimeter.com",
+    appTitle: "Joaquin Leimeter Portfolio",
+  });
 
   let answer: string | null = null;
   for (const model of MODELS) {
@@ -91,10 +87,10 @@ app.post("/api/ask", async (c) => {
           ],
         },
       });
-      const { content } = (
+      const { content: msg } = (
         completion as import("@openrouter/sdk/models").ChatResult
       ).choices[0].message;
-      answer = typeof content === "string" ? content : "";
+      answer = typeof msg === "string" ? msg : "";
       break;
     } catch (err) {
       console.warn(
@@ -105,14 +101,11 @@ app.post("/api/ask", async (c) => {
   }
 
   if (answer === null) {
-    rateLimitStore.set(ip, count);
+    await c.env.RATE_LIMIT.put(ip, String(count), { expirationTtl: 86400 });
     return c.json({ error: "ai_unavailable" }, 503);
   }
 
   return c.json({ answer, questionsRemaining });
 });
 
-const port = Number(process.env.PORT ?? 3001);
-serve({ fetch: app.fetch, port }, (info) => {
-  console.log(`Server running on port ${info.port}`);
-});
+export default app;
