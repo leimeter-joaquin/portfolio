@@ -6,6 +6,11 @@
       "sourceType": "github",
       "computedHash": "ebefe26b231d32379c14e41a46c2de7b4b0184543bedab7febdabe4fb21fba4e"
     },
+    "security-review": {
+      "source": "getsentry/skills",
+      "sourceType": "github",
+      "computedHash": "ec9792f5fd065e020c48ab5a57707c83435c286c449ba98dfa726d7b1842c868"
+    },
     "terraform-engineer": {
       "source": "jeffallan/claude-skills",
       "sourceType": "github",
