@@ -4,11 +4,14 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "node --watch dist/index.js",
+    "dev": "node --env-file=.env --watch dist/index.js",
     "build": "tsc"
   },
   "dependencies": {
-    "@portfolio/content": "*"
+    "@hono/node-server": "^1.13.0",
+    "@openrouter/sdk": "^0.12.15",
+    "@portfolio/content": "*",
+    "hono": "^4.0.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

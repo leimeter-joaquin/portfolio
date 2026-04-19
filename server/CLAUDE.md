@@ -17,20 +17,27 @@ npm run build   # tsc → compiles to dist/
 npm run dev     # node --watch dist/index.js (requires build first)
 ```
 
-## Architecture (TBD)
+## Architecture
 
-HTTP framework, AI provider, and RAG strategy are not yet decided. When chosen, document them here:
+- **HTTP framework:** Hono + `@hono/node-server`
+- **AI provider / model:** Google Gemini 1.5 Flash (`@google/generative-ai`)
+- **Search / RAG:** Context stuffing — all `documents[]` are included in the system prompt on every request
+- **Rate limiting:** In-memory `Map<string, number>` keyed by IP, 5 requests max, resets on restart
 
-- **HTTP framework:** TBD
-- **AI provider / model:** TBD
-- **Search / RAG:** TBD (the `documents[]` array in `@portfolio/content/data` is the knowledge base)
+## Environment variables
+
+| Variable         | Required | Description                                                                      |
+| ---------------- | -------- | -------------------------------------------------------------------------------- |
+| `GEMINI_API_KEY` | Yes      | Google Gemini API key — server exits on startup if missing                       |
+| `APP_ORIGIN`     | No       | Production app origin added to CORS allowlist (e.g. `https://yourportfolio.com`) |
+| `PORT`           | No       | Port to listen on (default: `3001`)                                              |
 
 ## Content integration
 
 Import the built content index to access the knowledge base:
 
 ```ts
-import content from "@portfolio/content/data" assert { type: "json" };
+import content from "@portfolio/content/data" with { type: "json" };
 // content.documents — flat AI-ready entries
 // content.projects  — full project documents
 // content.techs     — full tech documents
