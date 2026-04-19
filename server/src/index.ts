@@ -9,7 +9,7 @@ type Bindings = {
   APP_ORIGIN?: string;
 };
 
-const MAX_QUESTIONS = 5;
+const MAX_QUESTIONS = 3;
 
 const MODELS = [
   "openai/gpt-oss-120b:free",
@@ -37,9 +37,17 @@ app.use("/api/*", (c, next) => {
   return cors({
     origin: (origin) =>
       allowed.includes(origin) || origin.endsWith(".pages.dev") ? origin : null,
-    allowMethods: ["POST", "OPTIONS"],
+    allowMethods: ["GET", "POST", "OPTIONS"],
     allowHeaders: ["Content-Type"],
   })(c, next);
+});
+
+app.get("/api/remaining", async (c) => {
+  const ip = c.req.header("cf-connecting-ip") ?? "unknown";
+  const countStr = await c.env.RATE_LIMIT.get(ip);
+  const count = Number(countStr ?? "0");
+  const questionsRemaining = Math.max(0, MAX_QUESTIONS - count);
+  return c.json({ questionsRemaining });
 });
 
 app.post("/api/ask", async (c) => {

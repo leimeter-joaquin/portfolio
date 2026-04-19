@@ -1,39 +1,60 @@
 ---
-import Input from "./input.astro";
+
 ---
 
 <div class="ai-chat">
-  <div
-    id="ai-chat-response"
-    class="ai-chat__response"
-    aria-live="polite"
-    aria-atomic="true"
-  >
-  </div>
-  <form
-    id="ai-chat-form"
-    class="ai-chat__form"
-    novalidate
-  >
-    <Input
-      id="ai-chat-input"
-      placeholder="Ask me anything…"
-      autocomplete="off"
-      maxlength={500}
-    />
-    <button
-      id="ai-chat-submit"
-      class="ai-chat__submit bg-primary color-white weight-bold"
-      type="submit"
+  <div class="ai-chat__box">
+    <div
+      id="ai-chat-thread"
+      class="ai-chat__thread"
+      aria-live="polite"
+      aria-atomic="false"
     >
-      Ask
-    </button>
-  </form>
+    </div>
+    <div class="ai-chat__input-area">
+      <form
+        id="ai-chat-form"
+        class="ai-chat__form"
+        novalidate
+      >
+        <span
+          class="ai-chat__prompt color-muted"
+          aria-hidden="true">{">"}</span
+        >
+        <input
+          id="ai-chat-input"
+          class="ai-chat__input color-white"
+          type="text"
+          placeholder="Ask me anything…"
+          autocomplete="off"
+          maxlength={500}
+        />
+        <button
+          id="ai-chat-submit"
+          class="ai-chat__submit color-muted"
+          type="submit"
+        >
+          ↵
+        </button>
+        {
+          import.meta.env.DEV && (
+            <button
+              id="ai-chat-clear"
+              class="ai-chat__clear color-muted"
+              type="button"
+              title="Clear conversation (dev only)"
+            >
+              ×
+            </button>
+          )
+        }
+      </form>
+    </div>
+  </div>
   <p
     id="ai-chat-counter"
     class="ai-chat__counter color-muted"
   >
-    5 of 5 questions remaining
   </p>
 </div>
 
@@ -43,7 +64,14 @@ import Input from "./input.astro";
       | string
       | undefined) ??
     "http://localhost:3001";
-  const MAX_QUESTIONS = 5;
+  const MAX_QUESTIONS = 3;
+  const STORAGE_KEY = "ai-chat-history";
+
+  type Message = {
+    role: "user" | "ai";
+    text: string;
+    isError?: boolean;
+  };
 
   const form = document.getElementById(
     "ai-chat-form",
@@ -55,22 +83,73 @@ import Input from "./input.astro";
     document.getElementById(
       "ai-chat-submit",
     ) as HTMLButtonElement;
-  const responseEl =
+  const threadEl =
     document.getElementById(
-      "ai-chat-response",
+      "ai-chat-thread",
     ) as HTMLElement;
   const counterEl =
     document.getElementById(
       "ai-chat-counter",
     ) as HTMLElement;
+  const clearBtn =
+    document.getElementById(
+      "ai-chat-clear",
+    ) as HTMLButtonElement | null;
 
   let questionsRemaining =
     MAX_QUESTIONS;
+  let limitReached = false;
   let typewriterTimer: ReturnType<
     typeof setInterval
   > | null = null;
 
-  function typewrite(
+  function scrollToBottom() {
+    threadEl.scrollTop =
+      threadEl.scrollHeight;
+  }
+
+  function createBubble(
+    role: "user" | "ai",
+    isError = false,
+  ): HTMLElement {
+    const el =
+      document.createElement("div");
+    el.className = [
+      "ai-chat__bubble",
+      role === "user"
+        ? "ai-chat__bubble--user"
+        : "ai-chat__bubble--ai",
+      isError
+        ? "ai-chat__bubble--error"
+        : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+    return el;
+  }
+
+  function appendUserBubble(
+    text: string,
+  ) {
+    const el = createBubble("user");
+    el.textContent = text;
+    threadEl.appendChild(el);
+    scrollToBottom();
+  }
+
+  function appendThinkingBubble(): HTMLElement {
+    const el = createBubble("ai");
+    el.classList.add(
+      "ai-chat__bubble--thinking",
+    );
+    el.innerHTML = `<span class="ai-chat__dots"><span></span><span></span><span></span></span>`;
+    threadEl.appendChild(el);
+    scrollToBottom();
+    return el;
+  }
+
+  function typewriteInto(
+    el: HTMLElement,
     text: string,
     isError = false,
     onComplete?: () => void,
@@ -79,22 +158,20 @@ import Input from "./input.astro";
       clearInterval(typewriterTimer);
       typewriterTimer = null;
     }
-    responseEl.textContent = "";
-    responseEl.className = [
-      "ai-chat__response",
-      "ai-chat__response--visible",
-      isError
-        ? "ai-chat__response--error"
-        : "",
-    ]
-      .filter(Boolean)
-      .join(" ");
+    el.classList.remove(
+      "ai-chat__bubble--thinking",
+    );
+    if (isError)
+      el.classList.add(
+        "ai-chat__bubble--error",
+      );
+    el.textContent = "";
 
     let i = 0;
     typewriterTimer = setInterval(
       () => {
-        responseEl.textContent +=
-          text[i++];
+        el.textContent += text[i++];
+        scrollToBottom();
         if (i >= text.length) {
           clearInterval(
             typewriterTimer!,
@@ -107,14 +184,61 @@ import Input from "./input.astro";
     );
   }
 
+  function saveHistory(
+    messages: Message[],
+  ) {
+    try {
+      sessionStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(messages),
+      );
+    } catch {}
+  }
+
+  function loadHistory(): Message[] {
+    try {
+      return JSON.parse(
+        sessionStorage.getItem(
+          STORAGE_KEY,
+        ) ?? "[]",
+      ) as Message[];
+    } catch {
+      return [];
+    }
+  }
+
+  function renderHistoryMessage(
+    msg: Message,
+  ) {
+    const el = createBubble(
+      msg.role,
+      msg.isError,
+    );
+    el.textContent = msg.text;
+    threadEl.appendChild(el);
+  }
+
+  const history = loadHistory();
+  for (const msg of history) {
+    renderHistoryMessage(msg);
+  }
+  if (history.length > 0)
+    scrollToBottom();
+
   function setLoading(
     loading: boolean,
   ) {
-    input.disabled = loading;
-    submitBtn.disabled = loading;
-    submitBtn.textContent = loading
-      ? "Asking…"
-      : "Ask";
+    if (loading) {
+      input.disabled = true;
+      submitBtn.disabled = true;
+      submitBtn.textContent = "…";
+    } else {
+      submitBtn.textContent = "↵";
+      if (!limitReached) {
+        input.disabled = false;
+        submitBtn.disabled = false;
+      }
+    }
   }
 
   function updateCounter(
@@ -122,8 +246,8 @@ import Input from "./input.astro";
   ) {
     questionsRemaining = remaining;
     if (remaining <= 0) {
-      counterEl.textContent =
-        "You've used all 5 questions";
+      limitReached = true;
+      counterEl.textContent = `You've used all ${MAX_QUESTIONS} questions`;
       input.disabled = true;
       submitBtn.disabled = true;
     } else {
@@ -131,12 +255,37 @@ import Input from "./input.astro";
     }
   }
 
-  function showResponse(
-    text: string,
-    isError = false,
-  ) {
-    typewrite(text, isError);
-  }
+  fetch(`${API_URL}/api/remaining`)
+    .then((r) => r.json())
+    .then(
+      (d: {
+        questionsRemaining?: number;
+      }) => {
+        updateCounter(
+          d.questionsRemaining ??
+            MAX_QUESTIONS,
+        );
+      },
+    )
+    .catch(() => {
+      updateCounter(MAX_QUESTIONS);
+    });
+
+  clearBtn?.addEventListener(
+    "click",
+    () => {
+      sessionStorage.removeItem(
+        STORAGE_KEY,
+      );
+      threadEl.innerHTML = "";
+      questionsRemaining =
+        MAX_QUESTIONS;
+      limitReached = false;
+      input.disabled = false;
+      submitBtn.disabled = false;
+      updateCounter(MAX_QUESTIONS);
+    },
+  );
 
   form.addEventListener(
     "submit",
@@ -150,9 +299,21 @@ import Input from "./input.astro";
       )
         return;
 
+      const messages = loadHistory();
+      messages.push({
+        role: "user",
+        text: question,
+      });
+      saveHistory(messages);
+
+      appendUserBubble(question);
+      input.value = "";
       setLoading(true);
-      responseEl.className =
-        "ai-chat__response";
+
+      const thinkingEl =
+        appendThinkingBubble();
+      const email =
+        "leimeter.joaquin@gmail.com";
 
       try {
         const res = await fetch(
@@ -177,20 +338,27 @@ import Input from "./input.astro";
           };
 
         if (res.status === 429) {
+          limitReached = true;
           updateCounter(0);
-          const email =
-            "leimeter.joaquin@gmail.com";
-          typewrite(
-            `Hey! You've reached the limit. If you have more questions you can send me an email on: ${email}`,
+          const limitText = `Hey! You've reached the limit. If you have more questions you can send me an email on: ${email}`;
+          messages.push({
+            role: "ai",
+            text: limitText,
+            isError: true,
+          });
+          saveHistory(messages);
+          typewriteInto(
+            thinkingEl,
+            limitText,
             true,
             () => {
               const full =
-                responseEl.textContent ??
+                thinkingEl.textContent ??
                 "";
               const idx =
                 full.lastIndexOf(email);
               if (idx === -1) return;
-              responseEl.textContent =
+              thinkingEl.textContent =
                 full.slice(0, idx);
               const span =
                 document.createElement(
@@ -215,25 +383,50 @@ import Input from "./input.astro";
                   }, 2000);
                 },
               );
-              responseEl.appendChild(
+              thinkingEl.appendChild(
                 span,
               );
             },
           );
         } else if (res.status === 503) {
-          showResponse(
-            "AI is temporarily unavailable. Please try again in a moment.",
+          const errText =
+            "AI is temporarily unavailable. Please try again in a moment.";
+          messages.push({
+            role: "ai",
+            text: errText,
+            isError: true,
+          });
+          saveHistory(messages);
+          typewriteInto(
+            thinkingEl,
+            errText,
             true,
           );
         } else if (!res.ok) {
-          showResponse(
-            "Something went wrong. Please try again.",
+          const errText =
+            "Something went wrong. Please try again.";
+          messages.push({
+            role: "ai",
+            text: errText,
+            isError: true,
+          });
+          saveHistory(messages);
+          typewriteInto(
+            thinkingEl,
+            errText,
             true,
           );
         } else {
-          input.value = "";
-          showResponse(
-            data.answer ?? "",
+          const answer =
+            data.answer ?? "";
+          messages.push({
+            role: "ai",
+            text: answer,
+          });
+          saveHistory(messages);
+          typewriteInto(
+            thinkingEl,
+            answer,
           );
           updateCounter(
             data.questionsRemaining ??
@@ -241,8 +434,17 @@ import Input from "./input.astro";
           );
         }
       } catch {
-        showResponse(
-          "Unable to reach the server. Please try again later.",
+        const errText =
+          "Unable to reach the server. Please try again later.";
+        messages.push({
+          role: "ai",
+          text: errText,
+          isError: true,
+        });
+        saveHistory(messages);
+        typewriteInto(
+          thinkingEl,
+          errText,
           true,
         );
       } finally {
@@ -257,52 +459,142 @@ import Input from "./input.astro";
 
   .ai-chat {
     display: grid;
-    gap: 0.875rem;
+    gap: 0.5rem;
     width: 100%;
     max-width: 480px;
   }
 
-  .ai-chat__response {
-    opacity: 0;
+  .ai-chat__box {
+    border: 1px solid
+      map-get($gorko-colors, "border");
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+
+  .ai-chat__thread {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    height: 320px;
+    overflow-y: auto;
+    padding: 1rem;
+  }
+
+  .ai-chat__input-area {
+    border-top: 1px solid
+      map-get($gorko-colors, "border");
+    padding: 0.625rem 0.875rem;
+  }
+
+  :global(.ai-chat__bubble) {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
     font-size: 0.9375rem;
     line-height: 1.6;
+    max-width: 85%;
+    word-break: break-word;
+  }
+
+  :global(.ai-chat__bubble--user) {
+    align-self: flex-start;
+    background: map-get(
+      $gorko-colors,
+      "surface-alt"
+    );
+    color: map-get(
+      $gorko-colors,
+      "white"
+    );
+    border-bottom-left-radius: 0.25rem;
+  }
+
+  :global(.ai-chat__bubble--ai) {
+    align-self: flex-end;
     color: map-get(
       $gorko-colors,
       "secondary"
     );
-    transition: opacity 0.3s ease;
-    min-height: 0;
+    border-bottom-right-radius: 0.25rem;
   }
 
-  .ai-chat__response--visible {
-    opacity: 1;
-  }
-
-  .ai-chat__response--error {
-    opacity: 1;
+  :global(.ai-chat__bubble--error) {
     color: map-get(
       $gorko-colors,
       "primary"
     );
   }
 
+  :global(.ai-chat__bubble--thinking) {
+    display: flex;
+    align-items: center;
+  }
+
+  :global(.ai-chat__dots) {
+    display: flex;
+    gap: 0.25rem;
+
+    span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: map-get(
+        $gorko-colors,
+        "secondary"
+      );
+      animation: ai-chat-dot 1.2s
+        ease-in-out infinite;
+
+      &:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      &:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+    }
+  }
+
+  @keyframes ai-chat-dot {
+    0%,
+    80%,
+    100% {
+      opacity: 0.3;
+      transform: scale(0.8);
+    }
+
+    40% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
   .ai-chat__form {
     display: flex;
+    align-items: center;
     gap: 0.5rem;
   }
 
-  .ai-chat__submit {
-    padding: 0.75rem 1.25rem;
+  .ai-chat__prompt {
+    font-family: monospace;
+    font-size: 1rem;
+    flex-shrink: 0;
+    user-select: none;
+  }
+
+  .ai-chat__input {
+    flex: 1;
+    background: transparent;
     border: none;
-    border-radius: 0.5rem;
-    cursor: pointer;
+    outline: none;
     font: inherit;
     font-size: 0.9375rem;
-    white-space: nowrap;
-    transition: opacity 0.2s ease;
+    min-width: 0;
 
-    &:hover:not(:disabled) {
-      opacity: 0.9;
+    &::placeholder {
+      color: map-get(
+        $gorko-colors,
+        "muted"
+      );
     }
 
     &:disabled {
@@ -311,8 +603,50 @@ import Input from "./input.astro";
     }
   }
 
+  .ai-chat__submit {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font: inherit;
+    font-size: 1.1rem;
+    padding: 0 0.25rem;
+    flex-shrink: 0;
+    transition: color 0.15s ease;
+
+    &:hover:not(:disabled) {
+      color: map-get(
+        $gorko-colors,
+        "primary"
+      );
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  .ai-chat__clear {
+    background: none;
+    border: none;
+    border-left: 1px solid
+      map-get($gorko-colors, "border");
+    cursor: pointer;
+    font: inherit;
+    font-size: 1rem;
+    padding: 0 0 0 0.5rem;
+    flex-shrink: 0;
+    opacity: 0.4;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
   .ai-chat__counter {
     font-size: 0.8125rem;
+    padding-inline: 0.25rem;
   }
 
   :global(.ai-chat__limit-email) {
