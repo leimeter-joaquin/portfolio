@@ -30,9 +30,9 @@ type Message = {
 };
 
 type Session = {
-  count: number;        // questions asked so far
-  messages: Message[];  // full conversation
-  createdAt: number;    // Unix ms — when the session was first created
+  count: number; // questions asked so far
+  messages: Message[]; // full conversation
+  createdAt: number; // Unix ms — when the session was first created
 };
 ```
 
@@ -58,6 +58,32 @@ function getClientId(): string {
 - Call once on script init, store in a `const clientId`
 - Add `"X-Client-ID": clientId` to the headers of every `fetch` call (`/api/ask` and `/api/remaining`)
 - No other client changes needed — session history display still uses `sessionStorage` as before
+
+### Dev-only clear button
+
+The existing `×` clear button (rendered only when `import.meta.env.DEV`) must also reset the server-side session:
+
+```ts
+clearBtn?.addEventListener("click", async () => {
+  // reset client UI (existing)
+  sessionStorage.removeItem(STORAGE_KEY);
+  threadEl.innerHTML = "";
+  // ... reset counter/disabled state ...
+
+  // reset server session
+  await fetch(`${API_URL}/api/session`, {
+    method: "DELETE",
+    headers: { "X-Client-ID": clientId },
+  });
+});
+```
+
+Server endpoint `DELETE /api/session`:
+
+- Read and validate `X-Client-ID` header; ignore request if missing/invalid
+- Call `kv.delete(clientId)` to remove the KV entry immediately
+- Return `204 No Content`
+- **Only available in dev** — gate with `c.env.ENVIRONMENT !== "production"` (requires an `ENVIRONMENT` binding set to `"production"` in the deployed wrangler config)
 
 ## Server changes (`server/src/index.ts`)
 
@@ -143,3 +169,5 @@ If the header fails validation, treat it as a new session (generate a fresh one 
 - [ ] Each question and answer is appended to `session.messages` in KV
 - [ ] After 4 hours of inactivity the KV entry expires and the user can ask again
 - [ ] No regression on normal error paths (503, network failure, invalid body)
+- [ ] In dev, clicking `×` deletes the KV entry so the next question starts a fresh session
+- [ ] `DELETE /api/session` returns 404/403 in production (or is absent entirely)

@@ -1,6 +1,6 @@
 ---
 import Button from "../button.astro";
-import AIChat from "../AIChat.astro";
+import AIChat from "../AIChat.vue";
 import content from "@portfolio/content/data";
 
 const { hero } = content;
@@ -45,7 +45,7 @@ const lastName = rest.join(" ");
       >
     </h1>
 
-    <AIChat />
+    <AIChat client:load />
 
     <p
       class="hero__subtitle weight-light"
