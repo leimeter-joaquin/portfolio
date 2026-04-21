@@ -278,11 +278,36 @@ import Button from "./button.astro";
   );
 
   btn?.addEventListener("click", () => {
-    applyTheme(
+    const targetTheme =
       html.dataset.theme === "light"
         ? "dark"
-        : "light",
+        : "light";
+
+    // Pin the clip-path origin to the toggle button centre
+    const rect =
+      btn.getBoundingClientRect();
+    html.style.setProperty(
+      "--ripple-x",
+      `${rect.left + rect.width / 2}px`,
     );
+    html.style.setProperty(
+      "--ripple-y",
+      `${rect.top + rect.height / 2}px`,
+    );
+
+    // View Transitions API: captures old/new snapshots and clips the
+    // new-theme snapshot to an expanding circle — real colors reveal as it sweeps.
+    if (
+      "startViewTransition" in document
+    ) {
+      document.startViewTransition(
+        () => {
+          applyTheme(targetTheme);
+        },
+      );
+    } else {
+      applyTheme(targetTheme);
+    }
   });
 
   // Frosted-on-scroll
@@ -300,7 +325,9 @@ import Button from "./button.astro";
     window.addEventListener(
       "scroll",
       fn,
-      { passive: true },
+      {
+        passive: true,
+      },
     );
     fn();
   }

@@ -277,6 +277,38 @@ body {
   background: var(--bg);
 }
 
+// ── Theme transition — expanding circle via View Transitions API ──────────────
+@keyframes theme-expand {
+  from {
+    clip-path: circle(
+      0% at var(--ripple-x, 50%)
+        var(--ripple-y, 50%)
+    );
+  }
+  to {
+    clip-path: circle(
+      200vmax at var(--ripple-x, 50%)
+        var(--ripple-y, 50%)
+    );
+  }
+}
+
+::view-transition-old(root) {
+  animation: none;
+}
+
+::view-transition-new(root) {
+  animation: theme-expand 1.4s
+    cubic-bezier(0.4, 0, 0.2, 1)
+    forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
 // ── Global utilities ──────────────────────────────────────────────────────────
 .glow-primary {
   box-shadow:
