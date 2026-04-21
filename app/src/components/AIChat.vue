@@ -556,8 +556,6 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
-@use "../css/config" as *;
-
 .ai-chat {
   display: grid;
   gap: 0.75rem;
@@ -565,16 +563,10 @@ onMounted(() => {
 }
 
 .ai-chat__box {
-  border: 1px solid
-    rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-border);
   border-radius: 1.25rem;
   overflow: hidden;
-  background: rgba(
-    255,
-    255,
-    255,
-    0.025
-  );
+  background: var(--glass-bg);
   backdrop-filter: blur(20px)
     saturate(1.4);
   -webkit-backdrop-filter: blur(20px)
@@ -589,39 +581,27 @@ onMounted(() => {
 
 .ai-chat__box--focused {
   border-color: rgba(
-    map-get($gorko-colors, "primary"),
+    var(--accent-rgb),
     0.4
   );
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--glass-bg-hover);
   box-shadow:
     0 0 0 3px
-      rgba(
-        map-get(
-          $gorko-colors,
-          "primary"
-        ),
-        0.08
-      ),
+      rgba(var(--accent-rgb), 0.08),
     0 24px 60px rgba(0, 0, 0, 0.5),
     0 0 100px
-      rgba(
-        map-get(
-          $gorko-colors,
-          "primary"
-        ),
-        0.05
-      );
+      rgba(var(--accent-rgb), 0.05);
 }
 
 // ── Header ──────────────────────────────────────────────
 .ai-chat__header {
   padding: 0.8125rem 1.125rem;
   border-bottom: 1px solid
-    rgba(255, 255, 255, 0.06);
+    var(--glass-border-subtle);
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  background: rgba(255, 255, 255, 0.01);
+  background: var(--glass-bg-minimal);
 }
 
 .ai-chat__pulse-wrap {
@@ -635,10 +615,7 @@ onMounted(() => {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: map-get(
-    $gorko-colors,
-    "primary"
-  );
+  background: var(--accent);
   animation: pulse-dot 2.5s ease-in-out
     infinite;
 }
@@ -647,10 +624,7 @@ onMounted(() => {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: map-get(
-    $gorko-colors,
-    "primary"
-  );
+  background: var(--accent);
   opacity: 0.4;
   animation: ring-out 2.5s ease-out
     infinite;
@@ -661,24 +635,12 @@ onMounted(() => {
   100% {
     opacity: 1;
     box-shadow: 0 0 0 0
-      rgba(
-        map-get(
-          $gorko-colors,
-          "primary"
-        ),
-        0.5
-      );
+      rgba(var(--accent-rgb), 0.5);
   }
   50% {
     opacity: 0.6;
     box-shadow: 0 0 0 6px
-      rgba(
-        map-get(
-          $gorko-colors,
-          "primary"
-        ),
-        0
-      );
+      rgba(var(--accent-rgb), 0);
   }
 }
 
@@ -696,7 +658,7 @@ onMounted(() => {
 .ai-chat__header-label {
   font-size: 0.75rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--label-color);
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -705,34 +667,22 @@ onMounted(() => {
   margin-left: auto;
   font-size: 0.6875rem;
   font-weight: 700;
-  color: map-get(
-    $gorko-colors,
-    "primary"
-  );
+  color: var(--accent);
   background: rgba(
-    map-get($gorko-colors, "primary"),
+    var(--accent-rgb),
     0.1
   );
   border: 1px solid
-    rgba(
-      map-get($gorko-colors, "primary"),
-      0.2
-    );
+    rgba(var(--accent-rgb), 0.2);
   padding: 0.125rem 0.625rem;
   border-radius: 999px;
 }
 
 .ai-chat__counter-badge--done {
-  color: map-get(
-    $gorko-colors,
-    "muted"
-  );
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(
-    255,
-    255,
-    255,
-    0.07
+  color: var(--color-text-muted);
+  background: var(--glass-bg-hover);
+  border-color: var(
+    --glass-border-faint
   );
 }
 
@@ -756,12 +706,7 @@ onMounted(() => {
   gap: 0.625rem;
   padding: 1rem 1.125rem;
   scrollbar-width: thin;
-  scrollbar-color: rgba(
-      255,
-      255,
-      255,
-      0.08
-    )
+  scrollbar-color: var(--glass-border)
     transparent;
 }
 
@@ -777,10 +722,10 @@ onMounted(() => {
   align-self: flex-start;
   border-radius: 1rem 1rem 1rem
     0.3125rem;
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--user-bubble-bg);
   border: 1px solid
-    rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.88);
+    var(--user-bubble-border);
+  color: var(--user-bubble-color);
 }
 
 .ai-chat__bubble--ai {
@@ -788,25 +733,16 @@ onMounted(() => {
   border-radius: 1rem 1rem 0.3125rem
     1rem;
   background: rgba(
-    map-get($gorko-colors, "primary"),
+    var(--accent-rgb),
     0.1
   );
   border: 1px solid
-    rgba(
-      map-get($gorko-colors, "primary"),
-      0.2
-    );
-  color: map-get(
-    $gorko-colors,
-    "primary"
-  );
+    rgba(var(--accent-rgb), 0.2);
+  color: var(--accent);
 }
 
 .ai-chat__bubble--error {
-  color: map-get(
-    $gorko-colors,
-    "muted"
-  );
+  color: var(--color-text-muted);
 }
 
 .ai-chat__bubble--thinking {
@@ -823,10 +759,7 @@ onMounted(() => {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: map-get(
-      $gorko-colors,
-      "primary"
-    );
+    background: var(--accent);
     display: inline-block;
     animation: dot-bounce 1.2s
       ease-in-out infinite;
@@ -862,7 +795,7 @@ onMounted(() => {
 
 .ai-chat__input-area--bordered {
   border-top: 1px solid
-    rgba(255, 255, 255, 0.05);
+    var(--glass-border-subtle);
 }
 
 .ai-chat__form {
@@ -878,10 +811,7 @@ onMounted(() => {
   user-select: none;
   padding-bottom: 0.1rem;
   opacity: 0.45;
-  color: map-get(
-    $gorko-colors,
-    "primary"
-  );
+  color: var(--accent);
   line-height: 1;
 }
 
@@ -900,10 +830,7 @@ onMounted(() => {
   transition: height 0.2s ease;
 
   &::placeholder {
-    color: map-get(
-      $gorko-colors,
-      "muted"
-    );
+    color: var(--color-text-muted);
   }
 
   &:disabled {
@@ -917,10 +844,10 @@ onMounted(() => {
   height: 2.125rem;
   border-radius: 0.625rem;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--glass-bg-hover);
   border: none;
   cursor: not-allowed;
-  color: white;
+  color: var(--color-text);
   font-size: 0.9375rem;
   display: grid;
   place-items: center;
@@ -930,24 +857,18 @@ onMounted(() => {
 }
 
 .ai-chat__submit--active {
-  background: map-get(
-    $gorko-colors,
-    "primary"
-  );
+  background: var(--accent);
   cursor: pointer;
   opacity: 1;
   box-shadow: 0 4px 16px
-    rgba(
-      map-get($gorko-colors, "primary"),
-      0.45
-    );
+    rgba(var(--accent-rgb), 0.45);
 }
 
 .ai-chat__clear {
   background: none;
   border: none;
   border-left: 1px solid
-    map-get($gorko-colors, "border");
+    var(--border-color);
   cursor: pointer;
   font: inherit;
   font-size: 1rem;
@@ -977,21 +898,15 @@ onMounted(() => {
     bottom: calc(100% + 6px);
     left: 50%;
     transform: translateX(-50%);
-    background: map-get(
-      $gorko-colors,
-      "surface-alt"
-    );
-    color: map-get(
-      $gorko-colors,
-      "secondary"
-    );
+    background: var(--bg-surface-alt);
+    color: var(--color-text);
     font-size: 0.75rem;
     font-weight: 400;
     white-space: nowrap;
     padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
     border: 1px solid
-      map-get($gorko-colors, "border");
+      var(--border-color);
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.15s ease;
@@ -1011,17 +926,14 @@ onMounted(() => {
 }
 
 .ai-chat__chip {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--glass-bg-hover);
   border: 1px solid
-    rgba(255, 255, 255, 0.07);
+    var(--glass-border-faint);
   border-radius: 999px;
   padding: 0.375rem 0.875rem;
   font-size: 0.75rem;
   font-weight: 600;
-  color: map-get(
-    $gorko-colors,
-    "muted"
-  );
+  color: var(--color-text-muted);
   cursor: pointer;
   font-family: inherit;
   transition:
@@ -1031,17 +943,14 @@ onMounted(() => {
 
   &:hover {
     background: rgba(
-      map-get($gorko-colors, "primary"),
+      var(--accent-rgb),
       0.1
     );
     border-color: rgba(
-      map-get($gorko-colors, "primary"),
+      var(--accent-rgb),
       0.3
     );
-    color: map-get(
-      $gorko-colors,
-      "primary"
-    );
+    color: var(--accent);
   }
 }
 </style>

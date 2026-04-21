@@ -27,9 +27,25 @@ import BgSvg from "../components/BgSvg.astro";
       content={Astro.generator}
     />
     <title>
-      Joaquin Leimeter — Full Stack
+      Joaquin Leimeter - Full Stack
       Developer
     </title>
+    <!-- Prevent flash of wrong theme by setting data-theme before first paint -->
+    <script is:inline>
+      (function () {
+        const stored =
+          localStorage.getItem("theme");
+        const prefersDark =
+          window.matchMedia(
+            "(prefers-color-scheme: dark)",
+          ).matches;
+        document.documentElement.dataset.theme =
+          stored ||
+          (prefersDark
+            ? "dark"
+            : "light");
+      })();
+    </script>
     <link
       rel="preconnect"
       href="https://fonts.googleapis.com"

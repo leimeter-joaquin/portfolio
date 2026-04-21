@@ -117,22 +117,13 @@ const lastName = rest.join(" ");
     font-weight: 700;
     letter-spacing: 0.07em;
     text-transform: uppercase;
-    color: map-get(
-      $gorko-colors,
-      "primary"
-    );
+    color: var(--accent);
     background: rgba(
-      map-get($gorko-colors, "primary"),
+      var(--accent-rgb),
       0.1
     );
     border: 1px solid
-      rgba(
-        map-get(
-          $gorko-colors,
-          "primary"
-        ),
-        0.25
-      );
+      rgba(var(--accent-rgb), 0.25);
     border-radius: 9999px;
     padding: 0.3125rem 1rem;
     opacity: 0;
@@ -143,10 +134,7 @@ const lastName = rest.join(" ");
     width: 0.4375rem;
     height: 0.4375rem;
     border-radius: 50%;
-    background: map-get(
-      $gorko-colors,
-      "primary"
-    );
+    background: var(--accent);
     animation: pulse-dot 2.5s
       ease-in-out infinite;
 
@@ -155,10 +143,7 @@ const lastName = rest.join(" ");
       position: absolute;
       inset: 0;
       border-radius: 50%;
-      background: map-get(
-        $gorko-colors,
-        "primary"
-      );
+      background: var(--accent);
       opacity: 0.4;
       animation: ring-out 2.5s ease-out
         infinite;
@@ -170,24 +155,12 @@ const lastName = rest.join(" ");
     100% {
       opacity: 1;
       box-shadow: 0 0 0 0
-        rgba(
-          map-get(
-            $gorko-colors,
-            "primary"
-          ),
-          0.5
-        );
+        rgba(var(--accent-rgb), 0.5);
     }
     50% {
       opacity: 0.6;
       box-shadow: 0 0 0 6px
-        rgba(
-          map-get(
-            $gorko-colors,
-            "primary"
-          ),
-          0
-        );
+        rgba(var(--accent-rgb), 0);
     }
   }
 
@@ -221,7 +194,7 @@ const lastName = rest.join(" ");
       1.3rem
     );
     line-height: 1.45;
-    color: #e0d0b0;
+    color: var(--tagline-color);
     opacity: 0;
   }
 
@@ -252,7 +225,9 @@ const lastName = rest.join(" ");
     bottom: 1.75rem;
     left: 50%;
     transform: translateX(-50%);
-    color: rgba(255, 255, 255, 0.2);
+    color: var(
+      --scroll-indicator-color
+    );
     text-decoration: none;
     animation: scroll-bob 2.5s
       ease-in-out infinite;

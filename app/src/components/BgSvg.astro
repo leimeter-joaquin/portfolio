@@ -227,9 +227,12 @@
     number,
     number,
   ][] = [
-    ["d1", 0, 0.35],
-    ["d2", 0.05, 0.4],
-    ["d3", 0.08, 0.45],
+    ["d1", 0, 0.05],
+    ["d2", 0, 0.1],
+    ["d3", 0, 0.1],
+    ["d4", 0, 0.35],
+    ["d5", 0.05, 0.4],
+    ["d6", 0.08, 0.45],
     ["hx1", 0.1, 0.5],
     ["hx2", 0.12, 0.52],
     ["hx3", 0.15, 0.55],
@@ -312,11 +315,7 @@
         String(len);
       el.style.strokeDashoffset =
         String(len);
-      (
-        el as HTMLElement & {
-          dataset: DOMStringMap;
-        }
-      ).dataset.pathLen = String(len);
+      (el as SVGElement).dataset.pathLen = String(len);
     });
     initialized = true;
   }

@@ -3,7 +3,52 @@
 @import "./reset";
 @import "./utilities/section-wrapper";
 
+// ── Theme-aware CSS custom properties ────────────────────────────────────────
+// Dark mode (default)
 :root {
+  // Semantic surfaces
+  --bg: #{map-get(
+      $gorko-colors,
+      "background"
+    )};
+  --bg-surface: #{map-get(
+      $gorko-colors,
+      "surface"
+    )};
+  --bg-surface-alt: #{map-get(
+      $gorko-colors,
+      "surface-alt"
+    )};
+  --border-color: #{map-get(
+      $gorko-colors,
+      "border"
+    )};
+
+  // Text
+  --color-heading: #{map-get(
+      $gorko-colors,
+      "white"
+    )};
+  --color-text: #{map-get(
+      $gorko-colors,
+      "secondary"
+    )};
+  --color-text-muted: #{map-get(
+      $gorko-colors,
+      "muted"
+    )};
+
+  // Accent
+  --accent: #{map-get(
+      $gorko-colors,
+      "primary"
+    )};
+  --accent2: #{map-get(
+      $gorko-colors,
+      "primary2"
+    )};
+  --accent-rgb: 245, 158, 11;
+  --accent2-rgb: 251, 146, 60;
   --primary-color: #{map-get(
       $gorko-colors,
       "primary"
@@ -16,17 +61,203 @@
       $gorko-colors,
       "background"
     )};
-  --accent: #{map-get(
+
+  // Background as rgb triplet (for rgba() gradients)
+  --bg-rgb: 14, 11, 4;
+
+  // Glass / transparency effects
+  --glass-bg: rgba(
+    255,
+    255,
+    255,
+    0.025
+  );
+  --glass-bg-hover: rgba(
+    255,
+    255,
+    255,
+    0.04
+  );
+  --glass-bg-minimal: rgba(
+    255,
+    255,
+    255,
+    0.01
+  );
+  --glass-border: rgba(
+    255,
+    255,
+    255,
+    0.08
+  );
+  --glass-border-subtle: rgba(
+    255,
+    255,
+    255,
+    0.05
+  );
+  --glass-border-faint: rgba(
+    255,
+    255,
+    255,
+    0.07
+  );
+
+  // Component-specific
+  --tagline-color: #e0d0b0;
+  --scroll-indicator-color: rgba(
+    255,
+    255,
+    255,
+    0.2
+  );
+  --label-color: rgba(
+    255,
+    255,
+    255,
+    0.5
+  );
+  --user-bubble-bg: rgba(
+    255,
+    255,
+    255,
+    0.07
+  );
+  --user-bubble-border: rgba(
+    255,
+    255,
+    255,
+    0.08
+  );
+  --user-bubble-color: rgba(
+    255,
+    255,
+    255,
+    0.88
+  );
+  --header-frosted-bg: rgba(
+    14,
+    11,
+    4,
+    0.88
+  );
+  --header-frosted-border: rgba(
+    255,
+    255,
+    255,
+    0.05
+  );
+  --outline-border: #{map-get(
       $gorko-colors,
-      "primary"
-    )};
-  --accent-rgb: 245, 158, 11;
-  --accent2: #{map-get(
-      $gorko-colors,
-      "primary2"
+      "outline"
     )};
 }
 
+// Light mode overrides
+html[data-theme="light"] {
+  --bg: #fdf8f0;
+  --bg-surface: #f5ede0;
+  --bg-surface-alt: #ede3d4;
+  --border-color: #d4b896;
+
+  --color-heading: #1a1008;
+  --color-text: #3d2e10;
+  --color-text-muted: #7a6040;
+
+  --accent: #b87a00;
+  --accent2: #c45c00;
+  --accent-rgb: 184, 122, 0;
+  --accent2-rgb: 196, 92, 0;
+  --primary-color: #b87a00;
+
+  --bg-rgb: 253, 248, 240;
+  --glass-bg: rgba(0, 0, 0, 0.02);
+  --glass-bg-hover: rgba(0, 0, 0, 0.04);
+  --glass-bg-minimal: rgba(
+    0,
+    0,
+    0,
+    0.01
+  );
+  --glass-border: rgba(0, 0, 0, 0.09);
+  --glass-border-subtle: rgba(
+    0,
+    0,
+    0,
+    0.06
+  );
+  --glass-border-faint: rgba(
+    0,
+    0,
+    0,
+    0.07
+  );
+
+  --tagline-color: #5a3a10;
+  --scroll-indicator-color: rgba(
+    0,
+    0,
+    0,
+    0.2
+  );
+  --label-color: rgba(0, 0, 0, 0.45);
+  --user-bubble-bg: rgba(0, 0, 0, 0.05);
+  --user-bubble-border: rgba(
+    0,
+    0,
+    0,
+    0.07
+  );
+  --user-bubble-color: rgba(
+    0,
+    0,
+    0,
+    0.85
+  );
+  --header-frosted-bg: rgba(
+    253,
+    248,
+    240,
+    0.92
+  );
+  --header-frosted-border: rgba(
+    0,
+    0,
+    0,
+    0.06
+  );
+  --outline-border: #a0845a;
+
+  // Override Gorko utility classes
+  &.bg-background,
+  .bg-background {
+    background: var(--bg);
+  }
+  .bg-surface {
+    background: var(--bg-surface);
+  }
+  .bg-surface-alt {
+    background: var(--bg-surface-alt);
+  }
+  // "white" in dark mode = headings; remap to dark in light mode
+  .color-white {
+    color: var(--color-heading);
+  }
+  .color-secondary {
+    color: var(--color-text);
+  }
+  .color-muted {
+    color: var(--color-text-muted);
+  }
+  .color-primary {
+    color: var(--accent);
+  }
+  .bg-primary {
+    background: var(--accent);
+  }
+}
+
+// ── Base ──────────────────────────────────────────────────────────────────────
 html {
   scroll-behavior: smooth;
 }
@@ -38,57 +269,32 @@ body {
   margin: 0;
   width: 100%;
   height: 100%;
-  color: map-get(
-    $gorko-colors,
-    "secondary"
-  );
+  color: var(--color-text);
+  background: var(--bg);
 }
 
+// ── Global utilities ──────────────────────────────────────────────────────────
 .glow-primary {
   box-shadow:
     0 10px 15px -3px
-      rgba(
-        map-get(
-          $gorko-colors,
-          "primary"
-        ),
-        0.25
-      ),
+      rgba(var(--accent-rgb), 0.25),
     0 4px 6px -4px
-      rgba(
-        map-get(
-          $gorko-colors,
-          "primary"
-        ),
-        0.25
-      );
+      rgba(var(--accent-rgb), 0.25);
 
   &:hover {
     box-shadow:
       0 10px 20px -3px
-        rgba(
-          map-get(
-            $gorko-colors,
-            "primary"
-          ),
-          0.4
-        ),
+        rgba(var(--accent-rgb), 0.4),
       0 4px 8px -4px
-        rgba(
-          map-get(
-            $gorko-colors,
-            "primary"
-          ),
-          0.4
-        );
+        rgba(var(--accent-rgb), 0.4);
   }
 }
 
 .text-gradient-primary {
   background: linear-gradient(
     135deg,
-    map-get($gorko-colors, "primary"),
-    map-get($gorko-colors, "primary2")
+    var(--accent),
+    var(--accent2)
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

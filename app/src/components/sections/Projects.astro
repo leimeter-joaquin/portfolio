@@ -131,7 +131,7 @@ const { projects } = content;
   .projects__card {
     border-radius: 1.125rem;
     border: 1px solid
-      map-get($gorko-colors, "border");
+      var(--border-color);
     overflow: hidden;
     position: relative;
     cursor: pointer;
@@ -144,21 +144,12 @@ const { projects } = content;
 
     &:hover {
       border-color: rgba(
-        map-get(
-          $gorko-colors,
-          "primary"
-        ),
+        var(--accent-rgb),
         0.4
       );
       transform: translateY(-4px);
       box-shadow: 0 16px 48px
-        rgba(
-          map-get(
-            $gorko-colors,
-            "primary"
-          ),
-          0.12
-        );
+        rgba(var(--accent-rgb), 0.12);
     }
   }
 
@@ -180,18 +171,12 @@ const { projects } = content;
     background: linear-gradient(
       to top,
       rgba(
-          map-get(
-            $gorko-colors,
-            "background"
-          ),
+          var(--bg-rgb, 14, 11, 4),
           0.9
         )
         0%,
       rgba(
-          map-get(
-            $gorko-colors,
-            "background"
-          ),
+          var(--bg-rgb, 14, 11, 4),
           0.4
         )
         50%,
@@ -232,23 +217,17 @@ const { projects } = content;
 
   .projects__tag--primary {
     background: rgba(
-      map-get($gorko-colors, "primary"),
+      var(--accent-rgb),
       0.18
     );
-    color: map-get(
-      $gorko-colors,
-      "primary"
-    );
+    color: var(--accent);
   }
 
   .projects__tag--neutral {
-    background: rgba(
-      255,
-      255,
-      255,
-      0.07
+    background: var(
+      --glass-border-faint
     );
-    color: rgba(255, 255, 255, 0.55);
+    color: var(--color-text-muted);
   }
 
   .projects__card-body h3 {
@@ -283,7 +262,7 @@ const { projects } = content;
     font-size: 0.9375rem;
     padding-bottom: 0.375rem;
     border-bottom: 2px solid
-      map-get($gorko-colors, "primary");
+      var(--accent);
     transition: opacity 0.2s ease;
 
     &:hover {
