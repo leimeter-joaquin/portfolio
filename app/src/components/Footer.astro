@@ -1,13 +1,21 @@
-<footer class="footer">
+---
+
+---
+
+<footer id="contact" class="footer">
   <div
     class="footer__inner section-wrapper"
   >
     <div class="footer__info">
-      <h2
-        class="color-white weight-bold"
-      >
-        Let's build something together
-      </h2>
+      <div class="footer__brand">
+        <div class="footer__monogram">
+          JL
+        </div>
+        <span
+          class="footer__name color-white weight-bold"
+          >Joaquin Leimeter</span
+        >
+      </div>
       <p class="color-muted">
         Open for freelance opportunities
         and full-time roles. Feel free
@@ -75,12 +83,27 @@
       </a>
     </nav>
   </div>
+  <div
+    class="footer__bottom section-wrapper"
+  >
+    <span
+      class="footer__copy color-muted"
+      >© 2026 Joaquin Leimeter. Built
+      with care.</span
+    >
+  </div>
 </footer>
 
-<style>
+<style lang="scss">
+  @use "../css/config" as *;
+
   .footer {
-    background: #0a0f1d;
-    border-top: 1px solid #1e2540;
+    background: map-get(
+      $gorko-colors,
+      "surface-alt"
+    );
+    border-top: 1px solid
+      rgba(255, 255, 255, 0.05);
   }
 
   .footer__inner {
@@ -88,21 +111,63 @@
     justify-content: space-between;
     align-items: center;
     padding-block: 4rem;
+    flex-wrap: wrap;
+    gap: 2rem;
   }
 
   .footer__info {
     display: grid;
     gap: 1rem;
-    max-width: 440px;
+    max-width: 460px;
   }
 
-  .footer__info h2 {
-    font-size: 1.5rem;
+  .footer__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .footer__monogram {
+    width: 30px;
+    height: 30px;
+    border-radius: 0.5rem;
+    background: map-get(
+      $gorko-colors,
+      "primary"
+    );
+    display: grid;
+    place-items: center;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    color: #fff;
+    box-shadow: 0 4px 12px
+      rgba(
+        map-get(
+          $gorko-colors,
+          "primary"
+        ),
+        0.35
+      );
+    flex-shrink: 0;
+  }
+
+  .footer__name {
+    font-size: 0.9375rem;
+  }
+
+  .footer__info p {
+    font-size: 0.875rem;
+    line-height: 1.75;
   }
 
   .footer__email {
-    font-size: 1.125rem;
+    font-size: 0.9375rem;
     text-decoration: none;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.75;
+    }
   }
 
   .footer__social {
@@ -113,9 +178,21 @@
   .footer__social-link {
     opacity: 0.7;
     transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 1;
+    }
   }
 
-  .footer__social-link:hover {
-    opacity: 1;
+  .footer__bottom {
+    padding-block: 1.5rem;
+    border-top: 1px solid
+      rgba(255, 255, 255, 0.04);
+    text-align: center;
+  }
+
+  .footer__copy {
+    font-size: 0.75rem;
+    opacity: 0.5;
   }
 </style>

@@ -10,25 +10,6 @@ const lastName = rest.join(" ");
 ---
 
 <section id="hero" class="hero">
-  <!-- Decorative background blobs -->
-  <div
-    class="hero__bg"
-    aria-hidden="true"
-  >
-    <div
-      class="hero__blob hero__blob--1"
-    >
-    </div>
-    <div
-      class="hero__blob hero__blob--2"
-    >
-    </div>
-    <div
-      class="hero__blob hero__blob--3"
-    >
-    </div>
-  </div>
-
   <div class="hero__content">
     <span class="hero__badge">
       <span class="hero__badge-dot"
@@ -45,13 +26,15 @@ const lastName = rest.join(" ");
       >
     </h1>
 
-    <AIChat client:load />
-
     <p
-      class="hero__subtitle weight-light"
+      class="hero__tagline weight-light"
     >
       {hero.tagline}
     </p>
+
+    <div class="hero__chat-wrapper">
+      <AIChat client:load />
+    </div>
 
     <p
       class="hero__description color-secondary"
@@ -79,15 +62,26 @@ const lastName = rest.join(" ");
     aria-label="Scroll down"
   >
     <svg
-      width="12"
-      height="8"
-      viewBox="0 0 12 8"
+      width="20"
+      height="28"
+      viewBox="0 0 20 28"
       fill="none"
-      stroke="currentColor"
-      stroke-width="2"
     >
-      <polyline points="1 1 6 6 11 1"
-      ></polyline>
+      <rect
+        x="1.5"
+        y="1.5"
+        width="17"
+        height="25"
+        rx="8.5"
+        stroke="currentColor"
+        stroke-width="1.5"></rect>
+      <rect
+        x="9"
+        y="6"
+        width="2"
+        height="5"
+        rx="1"
+        fill="currentColor"></rect>
     </svg>
   </a>
 </section>
@@ -98,56 +92,11 @@ const lastName = rest.join(" ");
   .hero {
     display: grid;
     place-items: center;
-    min-height: calc(100svh - 65px);
-    padding-block: 4rem;
+    min-height: 100svh;
+    padding: 90px 2rem 60px;
     text-align: center;
     position: relative;
     overflow: hidden;
-  }
-
-  .hero__bg {
-    position: absolute;
-    inset: 0;
-    opacity: 0.3;
-    pointer-events: none;
-  }
-
-  .hero__blob {
-    position: absolute;
-    border-radius: 9999px;
-  }
-
-  .hero__blob--1 {
-    width: 600px;
-    height: 600px;
-    top: -405px;
-    left: -128px;
-    background: rgba(
-      map-get($gorko-colors, "primary"),
-      0.2
-    );
-    filter: blur(60px);
-  }
-
-  .hero__blob--2 {
-    width: 500px;
-    height: 500px;
-    bottom: -200px;
-    right: -64px;
-    background: rgba(168, 85, 247, 0.2);
-    filter: blur(50px);
-  }
-
-  .hero__blob--3 {
-    width: 300px;
-    height: 300px;
-    top: 50%;
-    right: 10%;
-    background: rgba(
-      map-get($gorko-colors, "primary"),
-      0.1
-    );
-    filter: blur(40px);
   }
 
   .hero__content {
@@ -156,15 +105,17 @@ const lastName = rest.join(" ");
     justify-items: center;
     position: relative;
     z-index: 1;
+    max-width: 900px;
+    width: 100%;
   }
 
   .hero__badge {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.07em;
     text-transform: uppercase;
     color: map-get(
       $gorko-colors,
@@ -180,82 +131,208 @@ const lastName = rest.join(" ");
           $gorko-colors,
           "primary"
         ),
-        0.2
+        0.25
       );
     border-radius: 9999px;
-    padding: 0.3rem 0.8rem;
-    margin-bottom: 1rem;
+    padding: 0.3125rem 1rem;
+    opacity: 0;
   }
 
   .hero__badge-dot {
-    width: 0.5rem;
-    height: 0.5rem;
+    position: relative;
+    width: 0.4375rem;
+    height: 0.4375rem;
     border-radius: 50%;
     background: map-get(
       $gorko-colors,
       "primary"
     );
-    animation: pulse 2s ease-in-out
-      infinite;
+    animation: pulse-dot 2.5s
+      ease-in-out infinite;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: map-get(
+        $gorko-colors,
+        "primary"
+      );
+      opacity: 0.4;
+      animation: ring-out 2.5s ease-out
+        infinite;
+    }
   }
 
-  @keyframes pulse {
+  @keyframes pulse-dot {
     0%,
     100% {
       opacity: 1;
+      box-shadow: 0 0 0 0
+        rgba(
+          map-get(
+            $gorko-colors,
+            "primary"
+          ),
+          0.5
+        );
     }
     50% {
-      opacity: 0.4;
+      opacity: 0.6;
+      box-shadow: 0 0 0 6px
+        rgba(
+          map-get(
+            $gorko-colors,
+            "primary"
+          ),
+          0
+        );
+    }
+  }
+
+  @keyframes ring-out {
+    0% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(2.4);
+      opacity: 0;
     }
   }
 
   .hero__title {
-    font-size: clamp(3rem, 8vw, 6rem);
-    font-weight: 700;
-    line-height: 1;
+    font-size: clamp(
+      3.4rem,
+      9vw,
+      6.8rem
+    );
+    font-weight: 800;
+    line-height: 0.97;
     letter-spacing: -0.05em;
+    opacity: 0;
   }
 
-  .hero__subtitle {
-    font-size: 1.875rem;
-    line-height: 1.2;
-    color: #e2e8f0;
+  .hero__tagline {
+    font-size: clamp(
+      1.05rem,
+      2.5vw,
+      1.3rem
+    );
+    line-height: 1.45;
+    color: #e0d0b0;
+    opacity: 0;
+  }
+
+  .hero__chat-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    opacity: 0;
   }
 
   .hero__description {
-    font-size: 1.125rem;
-    line-height: 1.55;
-    max-width: 576px;
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    max-width: 500px;
+    opacity: 0;
   }
 
   .hero__actions {
     display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    opacity: 0;
   }
 
   .hero__scroll {
     position: absolute;
-    bottom: 2.5rem;
-    color: inherit;
-    opacity: 0.4;
-    transition: opacity 0.2s ease;
-    animation: bounce 2s ease-in-out
-      infinite;
+    bottom: 1.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.2);
+    text-decoration: none;
+    animation: scroll-bob 2.5s
+      ease-in-out infinite;
     z-index: 1;
   }
 
-  .hero__scroll:hover {
-    opacity: 0.8;
-  }
-
-  @keyframes bounce {
+  @keyframes scroll-bob {
     0%,
     100% {
-      transform: translateY(0);
+      transform: translateX(-50%)
+        translateY(0);
     }
     50% {
-      transform: translateY(6px);
+      transform: translateX(-50%)
+        translateY(6px);
     }
   }
 </style>
+
+<script>
+  import { createTimeline } from "animejs";
+
+  window.addEventListener(
+    "DOMContentLoaded",
+    () => {
+      createTimeline({})
+        .add(
+          ".hero__badge",
+          {
+            opacity: [0, 1],
+            y: [22, 0],
+            duration: 600,
+          },
+          150,
+        )
+        .add(
+          ".hero__title",
+          {
+            opacity: [0, 1],
+            y: [22, 0],
+            duration: 650,
+          },
+          350,
+        )
+        .add(
+          ".hero__tagline",
+          {
+            opacity: [0, 1],
+            y: [18, 0],
+            duration: 600,
+          },
+          520,
+        )
+        .add(
+          ".hero__chat-wrapper",
+          {
+            opacity: [0, 1],
+            y: [22, 0],
+            duration: 700,
+          },
+          650,
+        )
+        .add(
+          ".hero__description",
+          {
+            opacity: [0, 1],
+            y: [16, 0],
+            duration: 600,
+          },
+          900,
+        )
+        .add(
+          ".hero__actions",
+          {
+            opacity: [0, 1],
+            y: [16, 0],
+            duration: 600,
+          },
+          1050,
+        );
+    },
+  );
+</script>

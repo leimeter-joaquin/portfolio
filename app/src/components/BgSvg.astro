@@ -1,0 +1,398 @@
+---
+
+---
+
+<div
+  id="bg-svg-layer"
+  aria-hidden="true"
+>
+  <svg
+    id="bg-svg"
+    viewBox="0 0 1440 900"
+    preserveAspectRatio="xMidYMid slice"
+    fill="none"
+  >
+    <!-- group A: slow up parallax — long diagonals -->
+    <g id="grp-a">
+      <line
+        id="d1"
+        x1="-60"
+        y1="720"
+        x2="820"
+        y2="-60"
+        stroke-width="1"></line>
+      <line
+        id="d2"
+        x1="500"
+        y1="960"
+        x2="1520"
+        y2="80"
+        stroke-width="1"></line>
+      <line
+        id="d3"
+        x1="900"
+        y1="960"
+        x2="1520"
+        y2="380"
+        stroke-width=".6"></line>
+    </g>
+    <!-- group B: slight down parallax — hexagons -->
+    <g id="grp-b">
+      <polygon
+        id="hx1"
+        points="1356,110 1356,290 1200,380 1044,290 1044,110 1200,20"
+        stroke-width="1"></polygon>
+      <polygon
+        id="hx2"
+        points="1296,150 1296,250 1200,300 1104,250 1104,150 1200,100"
+        stroke-width=".5"></polygon>
+      <polygon
+        id="hx3"
+        points="249,680 249,760 180,800 111,760 111,680 180,640"
+        stroke-width=".8"></polygon>
+    </g>
+    <!-- group C: mid parallax — circuit traces -->
+    <g id="grp-c">
+      <path
+        id="ct1"
+        d="M-10,340 H140 V230 H320 V340 H460 V260"
+        stroke-width="1"></path>
+      <path
+        id="ct2"
+        d="M1450,560 H1280 V460 H1100 V560 H940 V480"
+        stroke-width="1"></path>
+      <path
+        id="ct3"
+        d="M-10,580 H100 V700 H240 V620 H380"
+        stroke-width=".7"></path>
+      <path
+        id="ct4"
+        d="M600,960 V820 H780 V900"
+        stroke-width=".7"></path>
+      <circle
+        id="td1"
+        cx="460"
+        cy="260"
+        r="3"
+        stroke-width="1.2"></circle>
+      <circle
+        id="td2"
+        cx="940"
+        cy="480"
+        r="3"
+        stroke-width="1.2"></circle>
+      <circle
+        id="td3"
+        cx="380"
+        cy="620"
+        r="3"
+        stroke-width="1.2"></circle>
+      <circle
+        id="td4"
+        cx="780"
+        cy="900"
+        r="3"
+        stroke-width="1.2"></circle>
+    </g>
+    <!-- group D: faster parallax — arcs + constellation -->
+    <g id="grp-d">
+      <path
+        id="arc1"
+        d="M-60,900 Q240,560 620,860"
+        stroke-width="1"></path>
+      <path
+        id="arc2"
+        d="M1500,0 Q1200,300 1440,600"
+        stroke-width=".8"></path>
+      <line
+        id="cn1"
+        x1="200"
+        y1="440"
+        x2="320"
+        y2="390"
+        stroke-width=".7"></line>
+      <line
+        id="cn2"
+        x1="320"
+        y1="390"
+        x2="380"
+        y2="480"
+        stroke-width=".7"></line>
+      <line
+        id="cn3"
+        x1="380"
+        y1="480"
+        x2="260"
+        y2="520"
+        stroke-width=".7"></line>
+      <line
+        id="cn4"
+        x1="260"
+        y1="520"
+        x2="200"
+        y2="440"
+        stroke-width=".7"></line>
+      <line
+        id="cn5"
+        x1="320"
+        y1="390"
+        x2="260"
+        y2="520"
+        stroke-width=".4"></line>
+      <circle
+        id="cnd1"
+        cx="200"
+        cy="440"
+        r="2.5"
+        stroke-width="1.2"></circle>
+      <circle
+        id="cnd2"
+        cx="320"
+        cy="390"
+        r="2"
+        stroke-width="1"></circle>
+      <circle
+        id="cnd3"
+        cx="380"
+        cy="480"
+        r="2"
+        stroke-width="1"></circle>
+      <circle
+        id="cnd4"
+        cx="260"
+        cy="520"
+        r="2.5"
+        stroke-width="1.2"></circle>
+      <path
+        id="cr1"
+        d="M700,140 m-8,0 h16 M700,140 m0,-8 v16"
+        stroke-width=".8"></path>
+      <path
+        id="cr2"
+        d="M1050,620 m-8,0 h16 M1050,620 m0,-8 v16"
+        stroke-width=".8"></path>
+      <path
+        id="cr3"
+        d="M380,820 m-6,0 h12 M380,820 m0,-6 v12"
+        stroke-width=".7"></path>
+    </g>
+    <!-- static faint dot grid -->
+    <g id="grp-dots" opacity="0.18">
+      <circle cx="720" cy="80" r="1.5"
+      ></circle>
+      <circle cx="960" cy="200" r="1"
+      ></circle>
+      <circle cx="480" cy="160" r="1"
+      ></circle>
+      <circle cx="1100" cy="480" r="1.5"
+      ></circle>
+      <circle cx="60" cy="300" r="1"
+      ></circle>
+      <circle cx="1380" cy="700" r="1"
+      ></circle>
+      <circle cx="820" cy="820" r="1.5"
+      ></circle>
+      <circle cx="140" cy="860" r="1"
+      ></circle>
+      <circle cx="560" cy="680" r="1"
+      ></circle>
+      <circle cx="1280" cy="140" r="1.5"
+      ></circle>
+    </g>
+  </svg>
+</div>
+
+<style>
+  #bg-svg-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  #bg-svg-layer svg {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  const ACCENT_OPACITY = 0.2;
+  let raf: number | null = null;
+  let initialized = false;
+
+  const paths: [
+    string,
+    number,
+    number,
+  ][] = [
+    ["d1", 0, 0.35],
+    ["d2", 0.05, 0.4],
+    ["d3", 0.08, 0.45],
+    ["hx1", 0.1, 0.5],
+    ["hx2", 0.12, 0.52],
+    ["hx3", 0.15, 0.55],
+    ["ct1", 0.18, 0.55],
+    ["ct2", 0.2, 0.58],
+    ["ct3", 0.22, 0.6],
+    ["ct4", 0.25, 0.62],
+    ["td1", 0.3, 0.52],
+    ["td2", 0.32, 0.54],
+    ["td3", 0.34, 0.56],
+    ["td4", 0.36, 0.58],
+    ["arc1", 0.28, 0.65],
+    ["arc2", 0.3, 0.68],
+    ["cn1", 0.4, 0.72],
+    ["cn2", 0.42, 0.74],
+    ["cn3", 0.44, 0.76],
+    ["cn4", 0.46, 0.78],
+    ["cn5", 0.48, 0.8],
+    ["cnd1", 0.5, 0.74],
+    ["cnd2", 0.52, 0.76],
+    ["cnd3", 0.54, 0.78],
+    ["cnd4", 0.56, 0.8],
+    ["cr1", 0.3, 0.55],
+    ["cr2", 0.35, 0.6],
+    ["cr3", 0.38, 0.63],
+  ];
+
+  const parallax: [string, number][] = [
+    ["grp-a", -130],
+    ["grp-b", 80],
+    ["grp-c", -60],
+    ["grp-d", 110],
+  ];
+
+  function applyAccentColor() {
+    const svg =
+      document.getElementById("bg-svg");
+    if (!svg) return;
+    const accentRgb =
+      getComputedStyle(
+        document.documentElement,
+      )
+        .getPropertyValue(
+          "--accent-rgb",
+        )
+        .trim() || "245,158,11";
+    svg
+      .querySelectorAll(
+        "line,path,polygon,circle",
+      )
+      .forEach((el: Element) => {
+        const htmlEl =
+          el as HTMLElement;
+        if (el.closest("#grp-dots")) {
+          htmlEl.style.fill = `rgba(${accentRgb},0.45)`;
+          htmlEl.style.stroke = "none";
+        } else {
+          htmlEl.style.stroke = `rgba(${accentRgb},${ACCENT_OPACITY})`;
+          htmlEl.style.fill = "none";
+        }
+      });
+  }
+
+  function initLengths() {
+    paths.forEach(([id]) => {
+      const el =
+        document.getElementById(
+          id,
+        ) as SVGGeometryElement | null;
+      if (!el) return;
+      let len: number;
+      try {
+        len = el.getTotalLength
+          ? el.getTotalLength()
+          : 100;
+      } catch {
+        len = 100;
+      }
+      el.style.strokeDasharray =
+        String(len);
+      el.style.strokeDashoffset =
+        String(len);
+      (
+        el as HTMLElement & {
+          dataset: DOMStringMap;
+        }
+      ).dataset.pathLen = String(len);
+    });
+    initialized = true;
+  }
+
+  function tick() {
+    const maxScroll = Math.max(
+      1,
+      document.documentElement
+        .scrollHeight -
+        window.innerHeight,
+    );
+    const p =
+      window.scrollY / maxScroll;
+    const svg =
+      document.getElementById("bg-svg");
+    if (!svg) return;
+
+    parallax.forEach(([id, dist]) => {
+      const g =
+        document.getElementById(id);
+      if (g)
+        g.style.transform = `translateY(${p * dist}px)`;
+    });
+
+    if (initialized) {
+      paths.forEach(
+        ([id, start, end]) => {
+          const el =
+            document.getElementById(
+              id,
+            ) as
+              | (SVGGeometryElement &
+                  HTMLElement)
+              | null;
+          if (!el) return;
+          const progress = Math.max(
+            0,
+            Math.min(
+              1,
+              (p - start) /
+                Math.max(
+                  0.01,
+                  end - start,
+                ),
+            ),
+          );
+          const len = parseFloat(
+            el.dataset.pathLen ?? "100",
+          );
+          el.style.strokeDashoffset =
+            String(
+              len * (1 - progress),
+            );
+        },
+      );
+    }
+  }
+
+  function onScroll() {
+    if (raf !== null)
+      cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(tick);
+  }
+
+  window.addEventListener(
+    "DOMContentLoaded",
+    () => {
+      applyAccentColor();
+      initLengths();
+      tick();
+    },
+  );
+
+  window.addEventListener(
+    "scroll",
+    onScroll,
+    { passive: true },
+  );
+</script>

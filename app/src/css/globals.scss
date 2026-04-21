@@ -16,6 +16,15 @@
       $gorko-colors,
       "background"
     )};
+  --accent: #{map-get(
+      $gorko-colors,
+      "primary"
+    )};
+  --accent-rgb: 245, 158, 11;
+  --accent2: #{map-get(
+      $gorko-colors,
+      "primary2"
+    )};
 }
 
 html {
@@ -25,7 +34,7 @@ html {
 html,
 body {
   font-family:
-    "Space Grotesk Variable", sans-serif;
+    "Plus Jakarta Sans", sans-serif;
   margin: 0;
   width: 100%;
   height: 100%;
@@ -62,7 +71,7 @@ body {
             $gorko-colors,
             "primary"
           ),
-          0.35
+          0.4
         ),
       0 4px 8px -4px
         rgba(
@@ -70,16 +79,16 @@ body {
             $gorko-colors,
             "primary"
           ),
-          0.35
+          0.4
         );
   }
 }
 
 .text-gradient-primary {
   background: linear-gradient(
-    to right,
+    135deg,
     map-get($gorko-colors, "primary"),
-    #c084fc
+    map-get($gorko-colors, "primary2")
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

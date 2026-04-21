@@ -12,7 +12,9 @@ const { techs } = content;
   <div
     class="expertise__inner section-wrapper"
   >
-    <div class="expertise__header">
+    <div
+      class="expertise__header reveal-target"
+    >
       <div>
         <h2
           class="color-white weight-bold"
@@ -36,8 +38,11 @@ const { techs } = content;
       role="list"
     >
       {
-        techs.map((tech) => (
-          <li class="expertise__card bg-surface">
+        techs.map((tech, i) => (
+          <li
+            class="expertise__card bg-surface reveal-card"
+            data-delay={i * 100}
+          >
             <div class="expertise__card-header">
               <span class="expertise__card-icon color-primary">
                 {tech.name[0]}
@@ -61,17 +66,22 @@ const { techs } = content;
   </div>
 </section>
 
-<style>
+<style lang="scss">
+  @use "../../css/config" as *;
+
   .expertise {
-    background: #0f1424;
+    background: map-get(
+      $gorko-colors,
+      "surface-alt"
+    );
     border-top: 1px solid
-      rgba(30, 37, 64, 0.5);
+      rgba(255, 255, 255, 0.04);
     border-bottom: 1px solid
-      rgba(30, 37, 64, 0.5);
+      rgba(255, 255, 255, 0.04);
   }
 
   .expertise__inner {
-    padding-block: 5rem;
+    padding-block: 5.625rem;
   }
 
   .expertise__header {
@@ -79,29 +89,62 @@ const { techs } = content;
     justify-content: space-between;
     align-items: flex-end;
     margin-bottom: 3rem;
+    opacity: 0;
   }
 
   .expertise__header h2 {
-    font-size: 2.25rem;
-    letter-spacing: -0.025em;
+    font-size: clamp(
+      1.875rem,
+      4vw,
+      2.625rem
+    );
+    letter-spacing: -0.04em;
+    margin-bottom: 0.5rem;
   }
 
   .expertise__grid {
     display: grid;
     grid-template-columns: repeat(
-      3,
-      1fr
+      auto-fit,
+      minmax(280px, 1fr)
     );
-    gap: 1.5rem;
+    gap: 1.25rem;
     padding: 0;
   }
 
   .expertise__card {
     display: grid;
-    gap: 1.25rem;
-    padding: 1.5625rem;
-    border-radius: 1rem;
-    border: 1px solid #1e2540;
+    gap: 1.125rem;
+    padding: 1.625rem;
+    border-radius: 1.125rem;
+    border: 1px solid
+      map-get($gorko-colors, "border");
+    cursor: default;
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      border-color 0.25s ease,
+      box-shadow 0.25s ease,
+      transform 0.25s ease;
+
+    &:hover {
+      border-color: rgba(
+        map-get(
+          $gorko-colors,
+          "primary"
+        ),
+        0.4
+      );
+      box-shadow: 0 12px 40px
+        rgba(
+          map-get(
+            $gorko-colors,
+            "primary"
+          ),
+          0.1
+        );
+      transform: translateY(-3px);
+    }
   }
 
   .expertise__card-header {
@@ -111,38 +154,126 @@ const { techs } = content;
   }
 
   .expertise__badge {
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
+    font-size: 0.625rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    background: rgba(219, 48, 105, 0.1);
+    background: rgba(
+      map-get($gorko-colors, "primary"),
+      0.1
+    );
     border: 1px solid
-      rgba(219, 48, 105, 0.2);
+      rgba(
+        map-get(
+          $gorko-colors,
+          "primary"
+        ),
+        0.2
+      );
     border-radius: 9999px;
-    padding: 0.2rem 0.6rem;
+    padding: 0.1875rem 0.625rem;
   }
 
   .expertise__card-icon {
     display: grid;
     place-items: center;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 0.5rem;
-    background: rgba(219, 48, 105, 0.1);
-    font-size: 1.25rem;
+    width: 2.875rem;
+    height: 2.875rem;
+    border-radius: 0.75rem;
+    background: rgba(
+      map-get($gorko-colors, "primary"),
+      0.1
+    );
+    font-size: 1.125rem;
+    font-weight: 800;
   }
 
   .expertise__card-body {
     display: grid;
-    gap: 0.5rem;
+    gap: 0.4375rem;
   }
 
   .expertise__card-body h3 {
-    font-size: 1.25rem;
+    font-size: 1.0625rem;
+    font-weight: 700;
   }
 
   .expertise__card-body p {
-    font-size: 0.875rem;
-    line-height: 1.625;
+    font-size: 0.84375rem;
+    line-height: 1.65;
   }
 </style>
+
+<script>
+  import {
+    animate,
+    stagger,
+  } from "animejs";
+
+  const section =
+    document.getElementById(
+      "expertise",
+    );
+  if (section) {
+    let headerRevealed = false;
+    let cardsRevealed = false;
+
+    const headerObs =
+      new IntersectionObserver(
+        ([entry]) => {
+          if (
+            entry.isIntersecting &&
+            !headerRevealed
+          ) {
+            headerRevealed = true;
+            animate(
+              ".expertise__header",
+              {
+                opacity: [0, 1],
+                y: [20, 0],
+                duration: 600,
+                ease: "outCubic",
+              },
+            );
+            headerObs.disconnect();
+          }
+        },
+        { threshold: 0.08 },
+      );
+
+    const cardsObs =
+      new IntersectionObserver(
+        ([entry]) => {
+          if (
+            entry.isIntersecting &&
+            !cardsRevealed
+          ) {
+            cardsRevealed = true;
+            animate(
+              ".expertise__card",
+              {
+                opacity: [0, 1],
+                y: [24, 0],
+                duration: 600,
+                ease: "outCubic",
+                delay: stagger(100),
+              },
+            );
+            cardsObs.disconnect();
+          }
+        },
+        { threshold: 0.05 },
+      );
+
+    const header =
+      section.querySelector(
+        ".expertise__header",
+      );
+    const grid = section.querySelector(
+      ".expertise__grid",
+    );
+    if (header)
+      headerObs.observe(header);
+    if (grid) cardsObs.observe(grid);
+  }
+</script>

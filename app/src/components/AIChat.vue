@@ -5,6 +5,7 @@ import {
   onMounted,
   nextTick,
 } from "vue";
+import { animate } from "animejs";
 
 const API_URL =
   (import.meta.env.PUBLIC_API_URL as
@@ -16,6 +17,13 @@ const STORAGE_KEY = "ai-chat-history";
 const IS_DEV = import.meta.env.DEV;
 const EMAIL =
   "leimeter.joaquin@gmail.com";
+
+const SUGGESTIONS = [
+  "What stack do you use?",
+  "Available for hire?",
+  "Tell me about your projects.",
+  "Cloud & DevOps experience?",
+];
 
 interface ChatMessage {
   role: "user" | "ai";
@@ -32,6 +40,7 @@ const questionsRemaining = ref(
 );
 const limitReached = ref(false);
 const loading = ref(false);
+const focused = ref(false);
 const threadEl =
   ref<HTMLElement | null>(null);
 const inputEl =
@@ -39,8 +48,9 @@ const inputEl =
 const clientId = ref("");
 const copiedEmail = ref(false);
 
-let typewriterTimer: ReturnType<
-  typeof setInterval
+// Holds the current running anime animation so we can cancel it on new message
+let typewriterAnim: ReturnType<
+  typeof animate
 > | null = null;
 
 function autoResizeInput() {
@@ -116,27 +126,45 @@ const counterText = computed(() =>
     : `${MAX_QUESTIONS - questionsRemaining.value} of ${MAX_QUESTIONS} questions`,
 );
 
+const hasMessages = computed(
+  () => messages.value.length > 0,
+);
+
+// AnimeJS typewriter — animates charIndex from 0 → fullText.length,
+// slicing the string in onUpdate for a smooth streaming effect.
 function typewriteInto(
   index: number,
   fullText: string,
   onComplete?: () => void,
 ) {
-  if (typewriterTimer) {
-    clearInterval(typewriterTimer);
-    typewriterTimer = null;
+  if (typewriterAnim) {
+    typewriterAnim.pause();
+    typewriterAnim = null;
   }
   messages.value[index].text = "";
-  let i = 0;
-  typewriterTimer = setInterval(() => {
-    messages.value[index].text +=
-      fullText[i++];
-    nextTick(scrollToBottom);
-    if (i >= fullText.length) {
-      clearInterval(typewriterTimer!);
-      typewriterTimer = null;
+  const obj = { charIndex: 0 };
+  typewriterAnim = animate(obj, {
+    charIndex: fullText.length,
+    duration: Math.max(
+      600,
+      fullText.length * 22,
+    ),
+    ease: "linear",
+    onUpdate: () => {
+      messages.value[index].text =
+        fullText.slice(
+          0,
+          Math.floor(obj.charIndex),
+        );
+      nextTick(scrollToBottom);
+    },
+    onComplete: () => {
+      messages.value[index].text =
+        fullText;
+      typewriterAnim = null;
       onComplete?.();
-    }
-  }, 18);
+    },
+  });
 }
 
 async function fetchRemaining() {
@@ -161,9 +189,12 @@ async function fetchRemaining() {
   }
 }
 
-async function onSubmit() {
-  const question =
-    inputValue.value.trim();
+async function onSubmit(
+  questionOverride?: string,
+) {
+  const question = (
+    questionOverride ?? inputValue.value
+  ).trim();
   if (
     !question ||
     questionsRemaining.value <= 0 ||
@@ -304,9 +335,9 @@ async function copyEmail() {
 }
 
 async function clearConversation() {
-  if (typewriterTimer) {
-    clearInterval(typewriterTimer);
-    typewriterTimer = null;
+  if (typewriterAnim) {
+    typewriterAnim.pause();
+    typewriterAnim = null;
   }
   sessionStorage.removeItem(
     STORAGE_KEY,
@@ -336,12 +367,51 @@ onMounted(() => {
 
 <template>
   <div class="ai-chat">
-    <div class="ai-chat__box">
+    <div
+      class="ai-chat__box"
+      :class="{
+        'ai-chat__box--focused':
+          focused,
+      }"
+    >
+      <!-- Header row -->
+      <div class="ai-chat__header">
+        <div
+          class="ai-chat__pulse-wrap"
+        >
+          <span
+            class="ai-chat__pulse-dot"
+          ></span>
+          <span
+            class="ai-chat__pulse-ring"
+          ></span>
+        </div>
+        <span
+          class="ai-chat__header-label"
+          >Talk to Joaquin's AI</span
+        >
+        <div
+          class="ai-chat__counter-badge"
+          :class="{
+            'ai-chat__counter-badge--done':
+              limitReached,
+          }"
+        >
+          {{
+            limitReached
+              ? "Limit reached"
+              : `${questionsRemaining} of ${MAX_QUESTIONS} left`
+          }}
+        </div>
+      </div>
+
+      <!-- Thread -->
       <div
+        v-if="hasMessages"
         class="ai-chat__thread"
         :class="{
           'ai-chat__thread--open':
-            messages.length > 0,
+            hasMessages,
         }"
       >
         <div
@@ -390,38 +460,61 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="ai-chat__input-area">
+      <!-- Input -->
+      <div
+        class="ai-chat__input-area"
+        :class="{
+          'ai-chat__input-area--bordered':
+            hasMessages,
+        }"
+      >
         <form
           class="ai-chat__form"
           novalidate
-          @submit.prevent="onSubmit"
+          @submit.prevent="
+            () => onSubmit()
+          "
         >
           <span
             class="ai-chat__prompt color-muted"
             aria-hidden="true"
-            >></span
+            >›</span
           >
           <textarea
             ref="inputEl"
             v-model="inputValue"
             class="ai-chat__input color-white"
             rows="1"
-            placeholder="Ask me anything…"
+            :placeholder="
+              limitReached
+                ? 'Email leimeter.joaquin@gmail.com for more…'
+                : 'Ask me anything…'
+            "
             autocomplete="off"
             maxlength="500"
             :disabled="
               loading || limitReached
             "
             @keydown.enter.prevent="
-              onSubmit
+              () => onSubmit()
             "
             @input="autoResizeInput"
+            @focus="focused = true"
+            @blur="focused = false"
           />
           <button
-            class="ai-chat__submit color-muted"
+            class="ai-chat__submit"
             type="submit"
+            :class="{
+              'ai-chat__submit--active':
+                inputValue.trim() &&
+                !loading &&
+                !limitReached,
+            }"
             :disabled="
-              loading || limitReached
+              loading ||
+              limitReached ||
+              !inputValue.trim()
             "
           >
             {{ loading ? "…" : "↵" }}
@@ -437,12 +530,27 @@ onMounted(() => {
           </button>
         </form>
         <p
-          v-if="messages.length > 0"
+          v-if="hasMessages"
           class="ai-chat__counter color-muted"
         >
           {{ counterText }}
         </p>
       </div>
+    </div>
+
+    <!-- Suggestion chips — shown before first message -->
+    <div
+      v-if="!hasMessages"
+      class="ai-chat__chips"
+    >
+      <button
+        v-for="s in SUGGESTIONS"
+        :key="s"
+        class="ai-chat__chip"
+        @click="() => onSubmit(s)"
+      >
+        {{ s }}
+      </button>
     </div>
   </div>
 </template>
@@ -452,22 +560,188 @@ onMounted(() => {
 
 .ai-chat {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.75rem;
   width: 100%;
-  max-width: 480px;
 }
 
 .ai-chat__box {
   border: 1px solid
-    map-get($gorko-colors, "border");
-  border-radius: 0.75rem;
+    rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
   overflow: hidden;
+  background: rgba(
+    255,
+    255,
+    255,
+    0.025
+  );
+  backdrop-filter: blur(20px)
+    saturate(1.4);
+  -webkit-backdrop-filter: blur(20px)
+    saturate(1.4);
+  box-shadow: 0 16px 48px
+    rgba(0, 0, 0, 0.4);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    background 0.3s ease;
 }
 
+.ai-chat__box--focused {
+  border-color: rgba(
+    map-get($gorko-colors, "primary"),
+    0.4
+  );
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow:
+    0 0 0 3px
+      rgba(
+        map-get(
+          $gorko-colors,
+          "primary"
+        ),
+        0.08
+      ),
+    0 24px 60px rgba(0, 0, 0, 0.5),
+    0 0 100px
+      rgba(
+        map-get(
+          $gorko-colors,
+          "primary"
+        ),
+        0.05
+      );
+}
+
+// ── Header ──────────────────────────────────────────────
+.ai-chat__header {
+  padding: 0.8125rem 1.125rem;
+  border-bottom: 1px solid
+    rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.ai-chat__pulse-wrap {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+}
+
+.ai-chat__pulse-dot {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: map-get(
+    $gorko-colors,
+    "primary"
+  );
+  animation: pulse-dot 2.5s ease-in-out
+    infinite;
+}
+
+.ai-chat__pulse-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: map-get(
+    $gorko-colors,
+    "primary"
+  );
+  opacity: 0.4;
+  animation: ring-out 2.5s ease-out
+    infinite;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0
+      rgba(
+        map-get(
+          $gorko-colors,
+          "primary"
+        ),
+        0.5
+      );
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 0 6px
+      rgba(
+        map-get(
+          $gorko-colors,
+          "primary"
+        ),
+        0
+      );
+  }
+}
+
+@keyframes ring-out {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.ai-chat__header-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ai-chat__counter-badge {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: map-get(
+    $gorko-colors,
+    "primary"
+  );
+  background: rgba(
+    map-get($gorko-colors, "primary"),
+    0.1
+  );
+  border: 1px solid
+    rgba(
+      map-get($gorko-colors, "primary"),
+      0.2
+    );
+  padding: 0.125rem 0.625rem;
+  border-radius: 999px;
+}
+
+.ai-chat__counter-badge--done {
+  color: map-get(
+    $gorko-colors,
+    "muted"
+  );
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(
+    255,
+    255,
+    255,
+    0.07
+  );
+}
+
+// ── Thread ───────────────────────────────────────────────
 .ai-chat__thread {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 2s ease;
+  transition: grid-template-rows 0.5s
+    ease;
 }
 
 .ai-chat__thread--open {
@@ -475,56 +749,63 @@ onMounted(() => {
 }
 
 .ai-chat__messages {
-  overflow: hidden;
+  overflow: hidden auto;
+  max-height: 260px;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 1rem;
-}
-
-.ai-chat__input-area {
-  border-top: 1px solid
-    map-get($gorko-colors, "border");
-  padding: 0.625rem 0.875rem;
+  gap: 0.625rem;
+  padding: 1rem 1.125rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(
+      255,
+      255,
+      255,
+      0.08
+    )
+    transparent;
 }
 
 .ai-chat__bubble {
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.75rem;
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  max-width: 85%;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  max-width: 84%;
   word-break: break-word;
 }
 
 .ai-chat__bubble--user {
   align-self: flex-start;
-  text-align: left;
-  background: map-get(
-    $gorko-colors,
-    "surface-alt"
-  );
-  color: map-get(
-    $gorko-colors,
-    "white"
-  );
-  border-bottom-left-radius: 0.25rem;
+  border-radius: 1rem 1rem 1rem
+    0.3125rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid
+    rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .ai-chat__bubble--ai {
   align-self: flex-end;
-  text-align: right;
+  border-radius: 1rem 1rem 0.3125rem
+    1rem;
+  background: rgba(
+    map-get($gorko-colors, "primary"),
+    0.1
+  );
+  border: 1px solid
+    rgba(
+      map-get($gorko-colors, "primary"),
+      0.2
+    );
   color: map-get(
     $gorko-colors,
-    "secondary"
+    "primary"
   );
-  border-bottom-right-radius: 0.25rem;
 }
 
 .ai-chat__bubble--error {
   color: map-get(
     $gorko-colors,
-    "primary"
+    "muted"
   );
 }
 
@@ -536,6 +817,7 @@ onMounted(() => {
 .ai-chat__dots {
   display: flex;
   gap: 0.25rem;
+  padding-block: 0.125rem;
 
   span {
     width: 6px;
@@ -543,13 +825,14 @@ onMounted(() => {
     border-radius: 50%;
     background: map-get(
       $gorko-colors,
-      "secondary"
+      "primary"
     );
-    animation: ai-chat-dot 1.2s
+    display: inline-block;
+    animation: dot-bounce 1.2s
       ease-in-out infinite;
 
     &:nth-child(2) {
-      animation-delay: 2s;
+      animation-delay: 0.2s;
     }
 
     &:nth-child(3) {
@@ -558,18 +841,28 @@ onMounted(() => {
   }
 }
 
-@keyframes ai-chat-dot {
+@keyframes dot-bounce {
   0%,
   80%,
   100% {
+    transform: scale(0.6);
     opacity: 0.3;
-    transform: scale(0.8);
   }
 
   40% {
-    opacity: 1;
     transform: scale(1);
+    opacity: 1;
   }
+}
+
+// ── Input area ───────────────────────────────────────────
+.ai-chat__input-area {
+  padding: 0.6875rem 0.9375rem 0.8125rem;
+}
+
+.ai-chat__input-area--bordered {
+  border-top: 1px solid
+    rgba(255, 255, 255, 0.05);
 }
 
 .ai-chat__form {
@@ -580,10 +873,16 @@ onMounted(() => {
 
 .ai-chat__prompt {
   font-family: monospace;
-  font-size: 1rem;
+  font-size: 1.125rem;
   flex-shrink: 0;
   user-select: none;
   padding-bottom: 0.1rem;
+  opacity: 0.45;
+  color: map-get(
+    $gorko-colors,
+    "primary"
+  );
+  line-height: 1;
 }
 
 .ai-chat__input {
@@ -592,7 +891,7 @@ onMounted(() => {
   border: none;
   outline: none;
   font: inherit;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   line-height: 1.5;
   min-width: 0;
   resize: none;
@@ -608,32 +907,40 @@ onMounted(() => {
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
   }
 }
 
 .ai-chat__submit {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font: inherit;
-  font-size: 1.1rem;
-  padding: 0 0.25rem 0.1rem;
+  width: 2.125rem;
+  height: 2.125rem;
+  border-radius: 0.625rem;
   flex-shrink: 0;
-  transition: color 0.15s ease;
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  cursor: not-allowed;
+  color: white;
+  font-size: 0.9375rem;
+  display: grid;
+  place-items: center;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  opacity: 0.4;
+}
 
-  &:hover:not(:disabled) {
-    color: map-get(
-      $gorko-colors,
-      "primary"
+.ai-chat__submit--active {
+  background: map-get(
+    $gorko-colors,
+    "primary"
+  );
+  cursor: pointer;
+  opacity: 1;
+  box-shadow: 0 4px 16px
+    rgba(
+      map-get($gorko-colors, "primary"),
+      0.45
     );
-  }
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
 }
 
 .ai-chat__clear {
@@ -692,6 +999,49 @@ onMounted(() => {
 
   &:hover::after {
     opacity: 1;
+  }
+}
+
+// ── Suggestion chips ─────────────────────────────────────
+.ai-chat__chips {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ai-chat__chip {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid
+    rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: map-get(
+    $gorko-colors,
+    "muted"
+  );
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+
+  &:hover {
+    background: rgba(
+      map-get($gorko-colors, "primary"),
+      0.1
+    );
+    border-color: rgba(
+      map-get($gorko-colors, "primary"),
+      0.3
+    );
+    color: map-get(
+      $gorko-colors,
+      "primary"
+    );
   }
 }
 </style>

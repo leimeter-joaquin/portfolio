@@ -1,8 +1,8 @@
 ---
-import "@fontsource-variable/space-grotesk";
 import "../css/globals.scss";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import BgSvg from "../components/BgSvg.astro";
 ---
 
 <!doctype html>
@@ -26,11 +26,37 @@ import Footer from "../components/Footer.astro";
       name="generator"
       content={Astro.generator}
     />
-    <title>Astro Basics</title>
+    <title>
+      Joaquin Leimeter — Full Stack
+      Developer
+    </title>
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body class="bg-background">
-    <Header />
-    <slot />
-    <Footer />
+    <BgSvg />
+    <div class="page-content">
+      <Header />
+      <slot />
+      <Footer />
+    </div>
   </body>
 </html>
+
+<style>
+  .page-content {
+    position: relative;
+    z-index: 1;
+  }
+</style>
