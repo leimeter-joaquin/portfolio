@@ -315,7 +315,9 @@
         String(len);
       el.style.strokeDashoffset =
         String(len);
-      (el as SVGElement).dataset.pathLen = String(len);
+      (
+        el as SVGElement
+      ).dataset.pathLen = String(len);
     });
     initialized = true;
   }

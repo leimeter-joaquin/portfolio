@@ -571,8 +571,9 @@ onMounted(() => {
     saturate(1.4);
   -webkit-backdrop-filter: blur(20px)
     saturate(1.4);
-  box-shadow: 0 16px 48px
-    rgba(0, 0, 0, 0.4);
+  box-shadow: var(--chat-box-shadow);
+  position: relative;
+  z-index: 0;
   transition:
     border-color 0.3s ease,
     box-shadow 0.3s ease,
@@ -923,6 +924,8 @@ onMounted(() => {
   gap: 0.5rem;
   flex-wrap: wrap;
   justify-content: center;
+  position: relative;
+  z-index: 1;
 }
 
 .ai-chat__chip {
