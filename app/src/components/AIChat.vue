@@ -119,13 +119,6 @@ function updateCounter(
     limitReached.value = true;
 }
 
-const counterText = computed(() =>
-  limitReached.value ||
-  questionsRemaining.value <= 0
-    ? `You've used all ${MAX_QUESTIONS} questions`
-    : `${MAX_QUESTIONS - questionsRemaining.value} of ${MAX_QUESTIONS} questions`,
-);
-
 const hasMessages = computed(
   () => messages.value.length > 0,
 );
@@ -529,12 +522,6 @@ onMounted(() => {
             ×
           </button>
         </form>
-        <p
-          v-if="hasMessages"
-          class="ai-chat__counter color-muted"
-        >
-          {{ counterText }}
-        </p>
       </div>
     </div>
 
