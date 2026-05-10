@@ -1,0 +1,172 @@
+---
+import { experience } from "@data/mock";
+
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+function formatPart(
+  iso: string,
+): string {
+  const [y, m] = iso.split("-");
+  const idx = Math.max(
+    0,
+    Math.min(11, Number(m) - 1),
+  );
+  return `${MONTHS[idx]} ${y}`;
+}
+
+function formatRange(
+  start: string,
+  end: string | "present",
+): string {
+  const tail =
+    end === "present"
+      ? "Present"
+      : formatPart(end);
+  return `${formatPart(start)} — ${tail}`;
+}
+---
+
+<section
+  id="experience"
+  class="experience"
+>
+  <div class="experience__inner">
+    <header class="experience__header">
+      <p class="experience__eyebrow">
+        Experience
+      </p>
+      <h2 class="experience__title">
+        Where I've worked.
+      </h2>
+    </header>
+
+    <ol class="experience__list">
+      {
+        experience.map((role) => (
+          <li class="experience__row">
+            <span class="experience__range">
+              {formatRange(
+                role.start,
+                role.end,
+              )}
+            </span>
+            <div class="experience__role">
+              <span class="experience__title-line">
+                {role.title}
+              </span>
+              {role.note && (
+                <span class="experience__note">
+                  {role.note}
+                </span>
+              )}
+            </div>
+            <span class="experience__company">
+              {role.company}
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style lang="scss">
+  .experience {
+    padding: var(--space-800)
+      var(--shell-padding-x);
+  }
+
+  .experience__inner {
+    max-width: var(--shell-max-width);
+    margin: 0 auto;
+  }
+
+  .experience__eyebrow {
+    color: var(--color-text-subtle);
+    font-size: var(--text-300);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: var(--space-300);
+  }
+
+  .experience__title {
+    font-size: var(--text-800);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-text);
+    margin-bottom: var(--space-600);
+  }
+
+  .experience__list {
+    display: grid;
+  }
+
+  .experience__row {
+    display: grid;
+    grid-template-columns: 12rem 1fr auto;
+    gap: var(--space-500);
+    align-items: start;
+    padding: var(--space-500) 0;
+    border-top: 1px solid
+      var(--color-border);
+  }
+
+  .experience__row:last-child {
+    border-bottom: 1px solid
+      var(--color-border);
+  }
+
+  .experience__range {
+    color: var(--color-text-subtle);
+    font-size: var(--text-300);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .experience__role {
+    display: grid;
+    gap: var(--space-200);
+  }
+
+  .experience__title-line {
+    color: var(--color-text);
+    font-weight: 700;
+    font-size: var(--text-500);
+  }
+
+  .experience__note {
+    color: var(--color-text-muted);
+    font-size: var(--text-400);
+    max-width: 60ch;
+  }
+
+  .experience__company {
+    color: var(--color-text);
+    font-weight: 600;
+    font-size: var(--text-400);
+    text-align: right;
+  }
+
+  @media (max-width: 720px) {
+    .experience__row {
+      grid-template-columns: 1fr;
+    }
+    .experience__company {
+      text-align: left;
+    }
+  }
+</style>

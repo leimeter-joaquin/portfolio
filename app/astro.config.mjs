@@ -1,20 +1,31 @@
 // @ts-check
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 import vue from "@astrojs/vue";
 
-// https://astro.build/config
 export default defineConfig({
   integrations: [vue()],
   vite: {
-    css: {
-      preprocessorOptions: {
-        scss: {
-          silenceDeprecations: [
-            "import",
-            "global-builtin",
-            "slash-div",
-          ],
-        },
+    resolve: {
+      alias: {
+        "@components": fileURLToPath(
+          new URL(
+            "./src/components",
+            import.meta.url,
+          ),
+        ),
+        "@data": fileURLToPath(
+          new URL(
+            "./src/data",
+            import.meta.url,
+          ),
+        ),
+        "@css": fileURLToPath(
+          new URL(
+            "./src/css",
+            import.meta.url,
+          ),
+        ),
       },
     },
   },

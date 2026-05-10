@@ -1,8 +1,15 @@
 ---
-import "../css/globals.scss";
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
-import BgSvg from "../components/BgSvg.astro";
+import "@css/globals.scss";
+
+interface Props {
+  description?: string;
+  title?: string;
+}
+
+const {
+  description = "Joaquin Leimeter — full stack developer building from interface to infrastructure.",
+  title = "Joaquin Leimeter — Full Stack Developer",
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -12,6 +19,10 @@ import BgSvg from "../components/BgSvg.astro";
     <meta
       name="viewport"
       content="width=device-width"
+    />
+    <meta
+      name="description"
+      content={description}
     />
     <link
       rel="icon"
@@ -26,24 +37,31 @@ import BgSvg from "../components/BgSvg.astro";
       name="generator"
       content={Astro.generator}
     />
-    <title>
-      Joaquin Leimeter - Full Stack
-      Developer
-    </title>
-    <!-- Prevent flash of wrong theme by setting data-theme before first paint -->
+    <title>{title}</title>
     <script is:inline>
       (function () {
-        const stored =
-          localStorage.getItem("theme");
         const prefersDark =
           window.matchMedia(
             "(prefers-color-scheme: dark)",
           ).matches;
-        document.documentElement.dataset.theme =
-          stored ||
-          (prefersDark
-            ? "dark"
-            : "light");
+        try {
+          const stored =
+            localStorage.getItem(
+              "theme",
+            );
+          document.documentElement.dataset.theme =
+            stored === "light" ||
+            stored === "dark"
+              ? stored
+              : prefersDark
+                ? "dark"
+                : "light";
+        } catch {
+          document.documentElement.dataset.theme =
+            prefersDark
+              ? "dark"
+              : "light";
+        }
       })();
     </script>
     <link
@@ -60,19 +78,143 @@ import BgSvg from "../components/BgSvg.astro";
       rel="stylesheet"
     />
   </head>
-  <body class="bg-background">
-    <BgSvg />
-    <div class="page-content">
-      <Header />
-      <slot />
-      <Footer />
+  <body>
+    <slot />
+    <div
+      id="theme-overlay"
+      aria-hidden="true"
+    >
     </div>
+
+    <script>
+      import { animate } from "animejs";
+
+      const html =
+        document.documentElement;
+      const overlay =
+        document.getElementById(
+          "theme-overlay",
+        );
+
+      const CANVAS = {
+        dark: "#0c1320",
+        light: "#f6f1e7",
+      } as const;
+
+      type ThemeName =
+        keyof typeof CANVAS;
+
+      function isTheme(
+        value: string | undefined,
+      ): value is ThemeName {
+        return (
+          value === "dark" ||
+          value === "light"
+        );
+      }
+
+      function persist(
+        theme: ThemeName,
+      ) {
+        try {
+          localStorage.setItem(
+            "theme",
+            theme,
+          );
+        } catch {
+          /* ignore */
+        }
+      }
+
+      function applyTheme(
+        theme: ThemeName,
+      ) {
+        html.dataset.theme = theme;
+        persist(theme);
+      }
+
+      function bind(
+        button: HTMLButtonElement,
+      ) {
+        button.addEventListener(
+          "click",
+          () => {
+            const current = isTheme(
+              html.dataset.theme,
+            )
+              ? html.dataset.theme
+              : "dark";
+            const next: ThemeName =
+              current === "light"
+                ? "dark"
+                : "light";
+
+            const reduce =
+              window.matchMedia(
+                "(prefers-reduced-motion: reduce)",
+              ).matches;
+
+            if (!overlay || reduce) {
+              applyTheme(next);
+              return;
+            }
+
+            const rect =
+              button.getBoundingClientRect();
+            const cx =
+              rect.left +
+              rect.width / 2;
+            const cy =
+              rect.top +
+              rect.height / 2;
+            const w = window.innerWidth;
+            const h =
+              window.innerHeight;
+            const radius = Math.hypot(
+              Math.max(cx, w - cx),
+              Math.max(cy, h - cy),
+            );
+
+            overlay.style.background =
+              CANVAS[next];
+            overlay.style.clipPath = `circle(0px at ${cx}px ${cy}px)`;
+
+            const state = { r: 0 };
+            animate(state, {
+              r: radius,
+              duration: 700,
+              ease: "cubicBezier(0.22, 1, 0.36, 1)",
+              onUpdate: () => {
+                overlay.style.clipPath = `circle(${state.r}px at ${cx}px ${cy}px)`;
+              },
+              onComplete: () => {
+                applyTheme(next);
+                overlay.style.clipPath = `circle(0px at ${cx}px ${cy}px)`;
+              },
+            });
+          },
+        );
+      }
+
+      function init() {
+        const button =
+          document.getElementById(
+            "theme-toggle",
+          ) as HTMLButtonElement | null;
+        if (button) bind(button);
+      }
+
+      if (
+        document.readyState ===
+        "loading"
+      ) {
+        document.addEventListener(
+          "DOMContentLoaded",
+          init,
+        );
+      } else {
+        init();
+      }
+    </script>
   </body>
 </html>
-
-<style>
-  .page-content {
-    position: relative;
-    z-index: 1;
-  }
-</style>

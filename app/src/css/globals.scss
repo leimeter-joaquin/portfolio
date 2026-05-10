@@ -1,338 +1,222 @@
-@import "config";
-@import "../../../node_modules/gorko/gorko.scss";
-@import "./reset";
-@import "./utilities/section-wrapper";
+@use "sass:map";
+@use "tokens" as *;
 
-// ── Theme-aware CSS custom properties ────────────────────────────────────────
-// Dark mode (default)
-:root {
-  // Semantic surfaces
-  --bg: #{map-get(
-      $gorko-colors,
-      "background"
+@mixin emit-color-vars($m) {
+  --color-canvas: #{map.get(
+      $m,
+      "canvas"
     )};
-  --bg-surface: #{map-get(
-      $gorko-colors,
+  --color-canvas-rgb: #{map.get(
+      $m,
+      "canvas-rgb"
+    )};
+  --color-surface: #{map.get(
+      $m,
       "surface"
     )};
-  --bg-surface-alt: #{map-get(
-      $gorko-colors,
-      "surface-alt"
+  --color-surface-strong: #{map.get(
+      $m,
+      "surface-strong"
     )};
-  --border-color: #{map-get(
-      $gorko-colors,
+  --color-surface-muted: #{map.get(
+      $m,
+      "surface-muted"
+    )};
+  --color-border: #{map.get(
+      $m,
       "border"
     )};
-
-  // Text
-  --color-heading: #{map-get(
-      $gorko-colors,
-      "white"
+  --color-border-strong: #{map.get(
+      $m,
+      "border-strong"
     )};
-  --color-text: #{map-get(
-      $gorko-colors,
-      "secondary"
+  --color-text: #{map.get($m, "text")};
+  --color-text-muted: #{map.get(
+      $m,
+      "text-muted"
     )};
-  --color-text-muted: #{map-get(
-      $gorko-colors,
-      "muted"
+  --color-text-subtle: #{map.get(
+      $m,
+      "text-subtle"
     )};
-
-  // Accent
-  --accent: #{map-get(
-      $gorko-colors,
-      "primary"
+  --color-accent: #{map.get(
+      $m,
+      "accent"
     )};
-  --accent2: #{map-get(
-      $gorko-colors,
-      "primary2"
+  --color-accent-rgb: #{map.get(
+      $m,
+      "accent-rgb"
     )};
-  --accent-rgb: 245, 158, 11;
-  --accent2-rgb: 251, 146, 60;
-  --primary-color: #{map-get(
-      $gorko-colors,
-      "primary"
+  --color-accent-strong: #{map.get(
+      $m,
+      "accent-strong"
     )};
-  --secondary: #{map-get(
-      $gorko-colors,
-      "secondary"
+  --color-accent-strong-rgb: #{map.get(
+      $m,
+      "accent-strong-rgb"
     )};
-  --background: #{map-get(
-      $gorko-colors,
-      "background"
+  --shadow: #{map.get($m, "shadow")};
+  --shadow-hover: #{map.get(
+      $m,
+      "shadow-hover"
     )};
-
-  // Background as rgb triplet (for rgba() gradients)
-  --bg-rgb: 14, 11, 4;
-
-  // Glass / transparency effects
-  --glass-bg: rgba(
-    255,
-    255,
-    255,
-    0.025
-  );
-  --glass-bg-hover: rgba(
-    255,
-    255,
-    255,
-    0.04
-  );
-  --glass-bg-minimal: rgba(
-    255,
-    255,
-    255,
-    0.01
-  );
-  --glass-border: rgba(
-    255,
-    255,
-    255,
-    0.08
-  );
-  --glass-border-subtle: rgba(
-    255,
-    255,
-    255,
-    0.05
-  );
-  --glass-border-faint: rgba(
-    255,
-    255,
-    255,
-    0.07
-  );
-
-  // Component-specific
-  --tagline-color: #e0d0b0;
-  --scroll-indicator-color: rgba(
-    255,
-    255,
-    255,
-    0.2
-  );
-  --label-color: rgba(
-    255,
-    255,
-    255,
-    0.5
-  );
-  --user-bubble-bg: rgba(
-    255,
-    255,
-    255,
-    0.07
-  );
-  --user-bubble-border: rgba(
-    255,
-    255,
-    255,
-    0.08
-  );
-  --user-bubble-color: rgba(
-    255,
-    255,
-    255,
-    0.88
-  );
-  --header-frosted-bg: rgba(
-    14,
-    11,
-    4,
-    0.88
-  );
-  --header-frosted-border: rgba(
-    255,
-    255,
-    255,
-    0.05
-  );
-  --outline-border: #{map-get(
-      $gorko-colors,
-      "outline"
-    )};
-  --chat-box-shadow: 0 16px 48px
-    rgba(0, 0, 0, 0.4);
 }
 
-// Light mode overrides
+:root {
+  color-scheme: dark;
+  @include emit-color-vars($color-dark);
+
+  --text-300: #{map.get(
+      $type-scale,
+      "300"
+    )};
+  --text-400: #{map.get(
+      $type-scale,
+      "400"
+    )};
+  --text-500: #{map.get(
+      $type-scale,
+      "500"
+    )};
+  --text-600: #{map.get(
+      $type-scale,
+      "600"
+    )};
+  --text-700: #{map.get(
+      $type-scale,
+      "700"
+    )};
+  --text-800: #{map.get(
+      $type-scale,
+      "800"
+    )};
+  --text-900: #{map.get(
+      $type-scale,
+      "900"
+    )};
+  --text-display: #{map.get(
+      $type-scale,
+      "display"
+    )};
+
+  --space-100: #{map.get($space, "100")};
+  --space-200: #{map.get($space, "200")};
+  --space-300: #{map.get($space, "300")};
+  --space-400: #{map.get($space, "400")};
+  --space-500: #{map.get($space, "500")};
+  --space-600: #{map.get($space, "600")};
+  --space-700: #{map.get($space, "700")};
+  --space-800: #{map.get($space, "800")};
+  --space-900: #{map.get($space, "900")};
+
+  --radius-sm: #{map.get($radii, "sm")};
+  --radius-md: #{map.get($radii, "md")};
+  --radius-lg: #{map.get($radii, "lg")};
+  --radius-xl: #{map.get($radii, "xl")};
+  --radius-pill: #{map.get(
+      $radii,
+      "pill"
+    )};
+
+  --shell-padding-x: clamp(
+    1.25rem,
+    4vw,
+    3rem
+  );
+  --shell-max-width: 1180px;
+}
+
 html[data-theme="light"] {
-  --bg: #fdf8f0;
-  --bg-surface: #f5ede0;
-  --bg-surface-alt: #ede3d4;
-  --border-color: #d4b896;
-
-  --color-heading: #1a1008;
-  --color-text: #3d2e10;
-  --color-text-muted: #7a6040;
-
-  --accent: #b87a00;
-  --accent2: #c45c00;
-  --accent-rgb: 184, 122, 0;
-  --accent2-rgb: 196, 92, 0;
-  --primary-color: #b87a00;
-
-  --bg-rgb: 253, 248, 240;
-  --glass-bg: rgba(0, 0, 0, 0.02);
-  --glass-bg-hover: rgba(0, 0, 0, 0.04);
-  --glass-bg-minimal: rgba(
-    0,
-    0,
-    0,
-    0.01
+  color-scheme: light;
+  @include emit-color-vars(
+    $color-light
   );
-  --glass-border: rgba(0, 0, 0, 0.09);
-  --glass-border-subtle: rgba(
-    0,
-    0,
-    0,
-    0.06
-  );
-  --glass-border-faint: rgba(
-    0,
-    0,
-    0,
-    0.07
-  );
-
-  --tagline-color: #5a3a10;
-  --scroll-indicator-color: rgba(
-    0,
-    0,
-    0,
-    0.2
-  );
-  --label-color: rgba(0, 0, 0, 0.45);
-  --user-bubble-bg: rgba(0, 0, 0, 0.05);
-  --user-bubble-border: rgba(
-    0,
-    0,
-    0,
-    0.07
-  );
-  --user-bubble-color: rgba(
-    0,
-    0,
-    0,
-    0.85
-  );
-  --header-frosted-bg: rgba(
-    253,
-    248,
-    240,
-    0.92
-  );
-  --header-frosted-border: rgba(
-    0,
-    0,
-    0,
-    0.06
-  );
-  --outline-border: #a0845a;
-  --chat-box-shadow: 0 4px 20px
-    rgba(0, 0, 0, 0.07);
-
-  // Override Gorko utility classes
-  &.bg-background,
-  .bg-background {
-    background: var(--bg);
-  }
-  .bg-surface {
-    background: var(--bg-surface);
-  }
-  .bg-surface-alt {
-    background: var(--bg-surface-alt);
-  }
-  // "white" in dark mode = headings; remap to dark in light mode
-  .color-white {
-    color: var(--color-heading);
-  }
-  .color-secondary {
-    color: var(--color-text);
-  }
-  .color-muted {
-    color: var(--color-text-muted);
-  }
-  .color-primary {
-    color: var(--accent);
-  }
-  .bg-primary {
-    background: var(--accent);
-  }
 }
 
-// ── Base ──────────────────────────────────────────────────────────────────────
-html {
-  scroll-behavior: smooth;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 html,
 body {
-  font-family:
-    "Plus Jakarta Sans", sans-serif;
   margin: 0;
-  width: 100%;
-  height: 100%;
+  padding: 0;
+}
+
+html {
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  font-family:
+    "Plus Jakarta Sans",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: var(--text-400);
+  line-height: 1.5;
   color: var(--color-text);
-  background: var(--bg);
+  background: var(--color-canvas);
+  -webkit-font-smoothing: antialiased;
 }
 
-// ── Theme transition — expanding circle via View Transitions API ──────────────
-@keyframes theme-expand {
-  from {
-    clip-path: circle(
-      0% at var(--ripple-x, 50%)
-        var(--ripple-y, 50%)
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul,
+ol,
+figure {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid
+    rgba(
+      var(--color-accent-strong-rgb),
+      0.7
     );
-  }
-  to {
-    clip-path: circle(
-      200vmax at var(--ripple-x, 50%)
-        var(--ripple-y, 50%)
-    );
-  }
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
-::view-transition-old(root) {
-  animation: none;
-}
-
-::view-transition-new(root) {
-  animation: theme-expand 1.4s
-    cubic-bezier(0.4, 0, 0.2, 1)
-    forwards;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-new(root) {
-    animation: none;
-  }
-}
-
-// ── Global utilities ──────────────────────────────────────────────────────────
-.glow-primary {
-  box-shadow:
-    0 10px 15px -3px
-      rgba(var(--accent-rgb), 0.25),
-    0 4px 6px -4px
-      rgba(var(--accent-rgb), 0.25);
-
-  &:hover {
-    box-shadow:
-      0 10px 20px -3px
-        rgba(var(--accent-rgb), 0.4),
-      0 4px 8px -4px
-        rgba(var(--accent-rgb), 0.4);
-  }
-}
-
-.text-gradient-primary {
-  background: linear-gradient(
-    135deg,
-    var(--accent),
-    var(--accent2)
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+#theme-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: var(--color-canvas);
+  clip-path: circle(0px at 50% 50%);
 }

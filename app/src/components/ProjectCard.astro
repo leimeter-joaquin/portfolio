@@ -1,0 +1,174 @@
+---
+import type { Project } from "@data/mock";
+
+interface Props {
+  project: Project;
+  featured?: boolean;
+}
+
+const { project, featured = false } =
+  Astro.props;
+const [from, to] = project.gradient;
+const modifier = featured
+  ? "project-card--featured"
+  : "";
+---
+
+<article
+  class={`project-card ${modifier}`.trim()}
+>
+  <a
+    class="project-card__link"
+    href={project.href ?? "#"}
+    aria-label={`${project.title} — ${project.summary}`}
+  >
+    <div
+      class="project-card__thumb"
+      style={`background: linear-gradient(135deg, ${from}, ${to});`}
+    >
+      <span
+        class="project-card__thumb-label"
+        >{
+          project.thumbnailLabel ??
+            project.title
+        }</span
+      >
+    </div>
+    <div class="project-card__body">
+      <header
+        class="project-card__head"
+      >
+        <h3 class="project-card__title">
+          {project.title}
+        </h3>
+        <span
+          class="project-card__summary"
+          >{project.summary}</span
+        >
+        <span
+          class="project-card__arrow"
+          aria-hidden="true">→</span
+        >
+      </header>
+      <ul class="project-card__tags">
+        {
+          project.tags.map((tag) => (
+            <li>{tag}</li>
+          ))
+        }
+      </ul>
+    </div>
+  </a>
+</article>
+
+<style lang="scss">
+  .project-card {
+    position: relative;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    border: 1px solid
+      var(--color-border);
+    transition:
+      transform 0.25s ease,
+      box-shadow 0.25s ease,
+      border-color 0.25s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+      border-color: var(
+        --color-border-strong
+      );
+    }
+  }
+
+  .project-card__link {
+    display: block;
+    overflow: hidden;
+    border-radius: inherit;
+  }
+
+  .project-card__thumb {
+    aspect-ratio: 16 / 7;
+    display: grid;
+    place-items: center;
+    color: var(--color-text-subtle);
+    font-size: var(--text-300);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .project-card--featured
+    .project-card__thumb {
+    aspect-ratio: 16 / 5;
+  }
+
+  .project-card__thumb-label {
+    opacity: 0.55;
+  }
+
+  .project-card__body {
+    padding: var(--space-500);
+    background: var(
+      --color-surface-strong
+    );
+    border-top: 1px solid
+      var(--color-border);
+  }
+
+  .project-card__head {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: baseline;
+    gap: var(--space-400);
+  }
+
+  .project-card__title {
+    font-size: var(--text-500);
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .project-card__title::after {
+    content: "—";
+    margin: 0 0.4em;
+    color: var(--color-text-subtle);
+    font-weight: 400;
+  }
+
+  .project-card__summary {
+    color: var(--color-text-muted);
+    font-size: var(--text-400);
+  }
+
+  .project-card__arrow {
+    color: var(--color-text-subtle);
+    font-size: var(--text-500);
+  }
+
+  .project-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-300);
+    margin-top: var(--space-400);
+    color: var(--color-text-subtle);
+    font-size: var(--text-300);
+  }
+
+  .project-card__tags li::before {
+    content: "#";
+    margin-right: 0.15em;
+  }
+
+  @media (max-width: 720px) {
+    .project-card__head {
+      grid-template-columns: 1fr auto;
+    }
+    .project-card__summary {
+      grid-column: 1 / -1;
+    }
+    .project-card__title::after {
+      display: none;
+    }
+  }
+</style>

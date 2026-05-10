@@ -1,14 +1,22 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Hero from "../components/sections/Hero.astro";
-import Expertise from "../components/sections/Expertise.astro";
-import Projects from "../components/sections/Projects.astro";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
+import Hero from "@components/sections/Hero.astro";
+import Projects from "@components/sections/Projects.astro";
+import Experience from "@components/sections/Experience.astro";
 ---
 
-<Layout>
+<Layout
+  title="Joaquin Leimeter — Full Stack Developer"
+  description="Joaquin Leimeter — full stack developer building from interface to infrastructure."
+>
+  <a id="top" tabindex="-1"></a>
+  <Header />
   <main>
     <Hero />
-    <Expertise />
     <Projects />
+    <Experience />
   </main>
+  <Footer />
 </Layout>

@@ -1,334 +1,257 @@
 ---
-import Button from "./button.astro";
+import ThemeToggle from "@components/ThemeToggle.astro";
+import { contact } from "@data/mock";
+
+const navItems = [
+  { href: "#work", label: "Work" },
+  { href: "#about", label: "About" },
+  { href: "#stack", label: "Stack" },
+];
 ---
 
-<header class="header" id="site-header">
-  <div
-    class="header__inner section-wrapper"
-  >
+<header class="header">
+  <div class="header__inner">
     <a
-      href="/"
-      class="header__brand color-white"
+      class="header__brand"
+      href="#top"
+      aria-label="Joaquin Leimeter — home"
     >
-      <div class="header__monogram">
-        JL
-      </div>
-      <span class="weight-bold"
+      <span
+        class="header__brand-mark"
+        aria-hidden="true"></span>
+      <span class="header__brand-name"
         >Joaquin Leimeter</span
+      >
+      <span class="header__brand-tag"
+        >Full Stack Developer</span
       >
     </a>
 
-    <nav>
-      <ul
-        class="header__nav"
-        role="list"
-      >
-        <li>
-          <Button
-            text="Projects"
-            href="#projects"
-            variant="link"
-          />
-        </li>
-        <li>
-          <Button
-            text="Technologies"
-            href="#expertise"
-            variant="link"
-          />
-        </li>
-        <li>
-          <Button
-            text="Contact"
-            href="/contact"
-            variant="link"
-          />
-        </li>
-        <li>
-          <button
-            id="theme-toggle"
-            class="header__theme-toggle"
-            aria-label="Toggle light/dark mode"
-          >
-            <!-- Sun: visible in dark mode, click switches to light -->
-            <svg
-              class="theme-icon theme-icon--sun"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle
-                cx="12"
-                cy="12"
-                r="5"></circle>
-              <line
-                x1="12"
-                y1="1"
-                x2="12"
-                y2="3"></line>
-              <line
-                x1="12"
-                y1="21"
-                x2="12"
-                y2="23"></line>
-              <line
-                x1="4.22"
-                y1="4.22"
-                x2="5.64"
-                y2="5.64"></line>
-              <line
-                x1="18.36"
-                y1="18.36"
-                x2="19.78"
-                y2="19.78"></line>
-              <line
-                x1="1"
-                y1="12"
-                x2="3"
-                y2="12"></line>
-              <line
-                x1="21"
-                y1="12"
-                x2="23"
-                y2="12"></line>
-              <line
-                x1="4.22"
-                y1="19.78"
-                x2="5.64"
-                y2="18.36"></line>
-              <line
-                x1="18.36"
-                y1="5.64"
-                x2="19.78"
-                y2="4.22"></line>
-            </svg>
-            <!-- Moon: visible in light mode, click switches to dark -->
-            <svg
-              class="theme-icon theme-icon--moon"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
-              ></path>
-            </svg>
-          </button>
-        </li>
-        <li>
-          <Button
-            text="Hire Me"
-            href="#hero"
-            glow
-            pill
-          />
-        </li>
+    <nav
+      class="header__nav"
+      aria-label="Primary"
+    >
+      <ul class="header__nav-list">
+        {
+          navItems.map((item) => (
+            <li>
+              <a
+                class="header__nav-link"
+                href={item.href}
+                data-nav-target={item.href.slice(
+                  1,
+                )}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
       </ul>
     </nav>
+
+    <div class="header__actions">
+      <ThemeToggle />
+      <a
+        class="header__cta"
+        href={`mailto:${contact.email}`}
+      >
+        Let's Talk
+      </a>
+    </div>
   </div>
 </header>
 
-<style lang="scss">
-  @use "../css/config" as *;
+<script>
+  const links = Array.from(
+    document.querySelectorAll<HTMLAnchorElement>(
+      ".header__nav-link",
+    ),
+  );
+  const map = new Map<
+    string,
+    HTMLAnchorElement
+  >();
+  links.forEach((link) => {
+    const target =
+      link.dataset.navTarget;
+    if (target) map.set(target, link);
+  });
 
-  .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    padding: 0 2rem;
-    background: transparent;
-    border-bottom: 1px solid transparent;
-    transition:
-      background 0.35s ease,
-      border-color 0.35s ease,
-      backdrop-filter 0.35s ease;
+  const sections = Array.from(
+    map.keys(),
+  )
+    .map((id) =>
+      document.getElementById(id),
+    )
+    .filter(
+      (el): el is HTMLElement =>
+        el !== null,
+    );
+
+  if (sections.length > 0) {
+    const observer =
+      new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const link = map.get(
+              entry.target.id,
+            );
+            if (!link) return;
+            if (entry.isIntersecting) {
+              links.forEach((l) =>
+                l.removeAttribute(
+                  "aria-current",
+                ),
+              );
+              link.setAttribute(
+                "aria-current",
+                "true",
+              );
+            }
+          });
+        },
+        {
+          rootMargin:
+            "-40% 0px -55% 0px",
+          threshold: 0,
+        },
+      );
+
+    sections.forEach((section) =>
+      observer.observe(section),
+    );
   }
+</script>
 
-  .header--scrolled {
-    background: var(
-      --header-frosted-bg
+<style lang="scss">
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: var(--space-400)
+      var(--shell-padding-x);
+    background: rgba(
+      var(--color-canvas-rgb),
+      0.85
     );
-    backdrop-filter: blur(20px)
-      saturate(1.4);
-    -webkit-backdrop-filter: blur(20px)
-      saturate(1.4);
-    border-bottom-color: var(
-      --header-frosted-border
-    );
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid
+      var(--color-border);
   }
 
   .header__inner {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    height: 68px;
-    flex-wrap: nowrap;
+    gap: var(--space-500);
+    max-width: var(--shell-max-width);
+    margin: 0 auto;
   }
 
   .header__brand {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.625rem;
-    text-decoration: none;
-    font-size: 0.9375rem;
+    gap: var(--space-300);
+    font-size: var(--text-400);
   }
 
-  .header__monogram {
-    width: 30px;
-    height: 30px;
-    border-radius: 0.5rem;
-    background: var(--accent);
-    display: grid;
-    place-items: center;
-    font-size: 0.6875rem;
-    font-weight: 800;
-    color: #fff;
-    box-shadow: 0 4px 12px
-      rgba(var(--accent-rgb), 0.4);
-    flex-shrink: 0;
+  .header__brand-mark {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: var(--radius-pill);
+    background: var(
+      --color-accent-strong
+    );
+  }
+
+  .header__brand-name {
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .header__brand-tag {
+    color: var(--color-text-subtle);
+    font-size: var(--text-300);
   }
 
   .header__nav {
-    list-style: none;
-    display: flex;
-    align-items: center;
-    gap: 1.75rem;
-    padding: 0;
+    margin-left: auto;
   }
 
-  .header__theme-toggle {
-    background: none;
-    border: 1px solid
-      var(--glass-border);
-    border-radius: 0.5rem;
-    width: 36px;
-    height: 36px;
-    display: grid;
-    place-items: center;
-    cursor: pointer;
-    color: var(--color-text-muted);
-    transition:
-      color 0.2s ease,
-      border-color 0.2s ease,
-      background 0.2s ease;
+  .header__nav-list {
+    display: flex;
+    gap: var(--space-500);
+  }
 
-    &:hover {
-      color: var(--accent);
-      border-color: rgba(
-        var(--accent-rgb),
+  .header__nav-link {
+    color: var(--color-text-muted);
+    font-size: var(--text-400);
+    transition: color 0.2s ease;
+
+    &:hover,
+    &[aria-current="true"] {
+      color: var(--color-text);
+    }
+  }
+
+  .header__actions {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-300);
+  }
+
+  .header__cta {
+    padding: 0.55rem 1.1rem;
+    border-radius: var(--radius-pill);
+    background: var(
+      --color-accent-strong
+    );
+    color: #ffffff;
+    font-weight: 600;
+    font-size: var(--text-300);
+    box-shadow: 0 8px 24px
+      rgba(
+        var(--color-accent-strong-rgb),
         0.35
       );
-      background: rgba(
-        var(--accent-rgb),
-        0.07
-      );
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px
+        rgba(
+          var(
+            --color-accent-strong-rgb
+          ),
+          0.45
+        );
     }
   }
 
-  // Icon visibility controlled by JS (avoids hydration flicker)
-  .theme-icon {
-    display: none;
+  @media (max-width: 640px) {
+    .header__inner {
+      flex-wrap: wrap;
+      gap: var(--space-300);
+    }
+
+    .header__brand-tag {
+      display: none;
+    }
+
+    .header__nav {
+      order: 3;
+      flex-basis: 100%;
+      margin-left: 0;
+    }
+
+    .header__nav-list {
+      gap: var(--space-400);
+    }
+
+    .header__actions {
+      margin-left: auto;
+    }
   }
 </style>
-
-<script>
-  const html = document.documentElement;
-  const btn = document.getElementById(
-    "theme-toggle",
-  );
-  const sunIcon = btn?.querySelector(
-    ".theme-icon--sun",
-  ) as HTMLElement | null;
-  const moonIcon = btn?.querySelector(
-    ".theme-icon--moon",
-  ) as HTMLElement | null;
-
-  function applyTheme(theme: string) {
-    html.dataset.theme = theme;
-    localStorage.setItem(
-      "theme",
-      theme,
-    );
-    if (sunIcon && moonIcon) {
-      const isDark = theme !== "light";
-      sunIcon.style.display = isDark
-        ? "block"
-        : "none";
-      moonIcon.style.display = isDark
-        ? "none"
-        : "block";
-    }
-  }
-
-  // Init icon on load
-  applyTheme(
-    html.dataset.theme || "dark",
-  );
-
-  btn?.addEventListener("click", () => {
-    const targetTheme =
-      html.dataset.theme === "light"
-        ? "dark"
-        : "light";
-
-    // Pin the clip-path origin to the toggle button centre
-    const rect =
-      btn.getBoundingClientRect();
-    html.style.setProperty(
-      "--ripple-x",
-      `${rect.left + rect.width / 2}px`,
-    );
-    html.style.setProperty(
-      "--ripple-y",
-      `${rect.top + rect.height / 2}px`,
-    );
-
-    // View Transitions API: captures old/new snapshots and clips the
-    // new-theme snapshot to an expanding circle — real colors reveal as it sweeps.
-    if (
-      "startViewTransition" in document
-    ) {
-      document.startViewTransition(
-        () => {
-          applyTheme(targetTheme);
-        },
-      );
-    } else {
-      applyTheme(targetTheme);
-    }
-  });
-
-  // Frosted-on-scroll
-  const header =
-    document.getElementById(
-      "site-header",
-    );
-  if (header) {
-    const fn = () => {
-      header.classList.toggle(
-        "header--scrolled",
-        window.scrollY > 50,
-      );
-    };
-    window.addEventListener(
-      "scroll",
-      fn,
-      {
-        passive: true,
-      },
-    );
-    fn();
-  }
-</script>

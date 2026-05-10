@@ -1,313 +1,249 @@
 ---
-import Button from "../button.astro";
-import AIChat from "../AIChat.vue";
-import content from "@portfolio/content/data";
+import {
+  heroCopy,
+  contact,
+} from "@data/mock";
 
-const { hero } = content;
-const [firstName, ...rest] =
-  hero.name.split(" ");
-const lastName = rest.join(" ");
+const {
+  eyebrow,
+  headline,
+  accentPhrase,
+  bio,
+} = heroCopy;
+const idx = headline.indexOf(
+  accentPhrase,
+);
+const before =
+  idx >= 0
+    ? headline.slice(0, idx)
+    : headline;
+const after =
+  idx >= 0
+    ? headline.slice(
+        idx + accentPhrase.length,
+      )
+    : "";
+const accent =
+  idx >= 0 ? accentPhrase : "";
 ---
 
-<section id="hero" class="hero">
-  <div class="hero__content">
-    <span class="hero__badge">
-      <span class="hero__badge-dot"
-      ></span>
-      {hero.statusBadge}
-    </span>
-
-    <h1 class="hero__title">
-      <span class="color-white"
-        >{firstName}
-      </span><span
-        class="text-gradient-primary"
-        >{lastName}</span
+<section id="about" class="hero">
+  <div class="hero__inner">
+    <div class="hero__main">
+      <p class="hero__eyebrow">
+        {eyebrow}
+      </p>
+      <h1
+        class="hero__headline"
+        data-headline
       >
-    </h1>
-
-    <p
-      class="hero__tagline weight-light"
-    >
-      {hero.tagline}
-    </p>
-
-    <div class="hero__chat-wrapper">
-      <AIChat client:load />
+        {before}<span
+          class="hero__accent"
+          >{accent}</span
+        >{after}
+      </h1>
+      <p class="hero__bio">{bio}</p>
     </div>
 
-    <p
-      class="hero__description color-secondary"
+    <aside
+      id="stack"
+      class="hero__meta"
     >
-      {hero.description}
-    </p>
-
-    <div class="hero__actions">
-      <Button
-        text="View My Work"
-        href="#projects"
-        glow
-      />
-      <Button
-        text="Contact Me"
-        href="/contact"
-        variant="outline"
-      />
-    </div>
+      <dl class="hero__meta-list">
+        <div class="hero__meta-row">
+          <dt>Location</dt>
+          <dd>{contact.location}</dd>
+        </div>
+        <div class="hero__meta-row">
+          <dt>Email</dt>
+          <dd>
+            <a
+              href={`mailto:${contact.email}`}
+              >{contact.email}</a
+            >
+          </dd>
+        </div>
+        <div class="hero__meta-row">
+          <dt>GitHub</dt>
+          <dd>
+            <a
+              href={contact.github}
+              rel="noopener noreferrer"
+              target="_blank"
+              >github.com/joaquinleimeter</a
+            >
+          </dd>
+        </div>
+        <div class="hero__meta-row">
+          <dt>LinkedIn</dt>
+          <dd>
+            <a
+              href={contact.linkedin}
+              rel="noopener noreferrer"
+              target="_blank"
+              >linkedin.com/in/joaquinleimeter</a
+            >
+          </dd>
+        </div>
+      </dl>
+    </aside>
   </div>
-
-  <a
-    href="#expertise"
-    class="hero__scroll"
-    aria-label="Scroll down"
-  >
-    <svg
-      width="20"
-      height="28"
-      viewBox="0 0 20 28"
-      fill="none"
-    >
-      <rect
-        x="1.5"
-        y="1.5"
-        width="17"
-        height="25"
-        rx="8.5"
-        stroke="currentColor"
-        stroke-width="1.5"></rect>
-      <rect
-        x="9"
-        y="6"
-        width="2"
-        height="5"
-        rx="1"
-        fill="currentColor"></rect>
-    </svg>
-  </a>
 </section>
 
+<script>
+  import {
+    animate,
+    stagger,
+  } from "animejs";
+
+  const headline =
+    document.querySelector<HTMLElement>(
+      "[data-headline]",
+    );
+  if (
+    headline &&
+    !window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches
+  ) {
+    const text =
+      headline.textContent ?? "";
+    const accentEl =
+      headline.querySelector(
+        ".hero__accent",
+      );
+    const accentText =
+      accentEl?.textContent ?? "";
+    const words = text.split(/(\s+)/);
+    headline.innerHTML = words
+      .map((token) => {
+        if (/^\s+$/.test(token))
+          return token;
+        const isAccent =
+          accentText.includes(token) &&
+          accentText.length > 0;
+        const cls = isAccent
+          ? "hero__word hero__word--accent"
+          : "hero__word";
+        return `<span class="${cls}">${token}</span>`;
+      })
+      .join("");
+
+    animate(".hero__word", {
+      opacity: [0, 1],
+      translateY: [16, 0],
+      delay: stagger(60),
+      duration: 700,
+      easing:
+        "cubicBezier(0.22, 1, 0.36, 1)",
+    });
+  }
+</script>
+
 <style lang="scss">
-  @use "../../css/config" as *;
-
   .hero {
-    display: grid;
-    place-items: center;
-    min-height: 100svh;
-    padding: 90px 2rem 60px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
+    padding: var(--space-800)
+      var(--shell-padding-x)
+      var(--space-700);
   }
 
-  .hero__content {
+  .hero__inner {
     display: grid;
-    gap: 2rem;
-    justify-items: center;
-    position: relative;
-    z-index: 1;
-    max-width: 900px;
-    width: 100%;
+    grid-template-columns: 1.6fr 1fr;
+    gap: var(--space-700);
+    max-width: var(--shell-max-width);
+    margin: 0 auto;
   }
 
-  .hero__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.07em;
+  .hero__eyebrow {
+    color: var(--color-text-subtle);
+    font-size: var(--text-300);
+    font-weight: 600;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--accent);
-    background: rgba(
-      var(--accent-rgb),
-      0.1
-    );
-    border: 1px solid
-      rgba(var(--accent-rgb), 0.25);
-    border-radius: 9999px;
-    padding: 0.3125rem 1rem;
-    opacity: 0;
+    margin-bottom: var(--space-500);
   }
 
-  .hero__badge-dot {
-    position: relative;
-    width: 0.4375rem;
-    height: 0.4375rem;
-    border-radius: 50%;
-    background: var(--accent);
-    animation: pulse-dot 2.5s
-      ease-in-out infinite;
-
-    &::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      background: var(--accent);
-      opacity: 0.4;
-      animation: ring-out 2.5s ease-out
-        infinite;
-    }
-  }
-
-  @keyframes pulse-dot {
-    0%,
-    100% {
-      opacity: 1;
-      box-shadow: 0 0 0 0
-        rgba(var(--accent-rgb), 0.5);
-    }
-    50% {
-      opacity: 0.6;
-      box-shadow: 0 0 0 6px
-        rgba(var(--accent-rgb), 0);
-    }
-  }
-
-  @keyframes ring-out {
-    0% {
-      transform: scale(1);
-      opacity: 0.5;
-    }
-    100% {
-      transform: scale(2.4);
-      opacity: 0;
-    }
-  }
-
-  .hero__title {
-    font-size: clamp(
-      3.4rem,
-      9vw,
-      6.8rem
-    );
+  .hero__headline {
+    font-size: var(--text-display);
     font-weight: 800;
-    line-height: 0.97;
-    letter-spacing: -0.05em;
-    opacity: 0;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--color-text);
+    max-width: 18ch;
   }
 
-  .hero__tagline {
-    font-size: clamp(
-      1.05rem,
-      2.5vw,
-      1.3rem
+  .hero__headline :global(.hero__word) {
+    display: inline-block;
+    will-change: opacity, transform;
+  }
+
+  .hero__accent,
+  .hero__headline
+    :global(.hero__word--accent) {
+    color: var(--color-accent-strong);
+  }
+
+  .hero__bio {
+    margin-top: var(--space-500);
+    max-width: 52ch;
+    color: var(--color-text-muted);
+    font-size: var(--text-400);
+    line-height: 1.65;
+  }
+
+  .hero__meta {
+    align-self: start;
+    padding-top: calc(
+      var(--space-500) + 1.5rem
     );
-    line-height: 1.45;
-    color: var(--tagline-color);
-    opacity: 0;
   }
 
-  .hero__chat-wrapper {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    opacity: 0;
+  .hero__meta-list {
+    display: grid;
+    gap: var(--space-300);
   }
 
-  .hero__description {
-    font-size: 0.9375rem;
-    line-height: 1.75;
-    max-width: 500px;
-    opacity: 0;
+  .hero__meta-row {
+    display: grid;
+    grid-template-columns: 5.5rem 1fr;
+    gap: var(--space-300);
+    font-size: var(--text-300);
   }
 
-  .hero__actions {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    opacity: 0;
+  .hero__meta-row dt {
+    color: var(--color-text-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
   }
 
-  .hero__scroll {
-    position: absolute;
-    bottom: 1.75rem;
-    left: 50%;
-    transform: translateX(-50%);
-    color: var(
-      --scroll-indicator-color
-    );
-    text-decoration: none;
-    animation: scroll-bob 2.5s
-      ease-in-out infinite;
-    z-index: 1;
+  .hero__meta-row dd {
+    color: var(--color-text);
+    margin: 0;
+    word-break: break-word;
   }
 
-  @keyframes scroll-bob {
-    0%,
-    100% {
-      transform: translateX(-50%)
-        translateY(0);
+  .hero__meta-row a {
+    color: inherit;
+    border-bottom: 1px solid
+      var(--color-border-strong);
+    transition: border-color 0.2s ease;
+
+    &:hover {
+      border-color: var(
+        --color-accent-strong
+      );
     }
-    50% {
-      transform: translateX(-50%)
-        translateY(6px);
+  }
+
+  @media (max-width: 900px) {
+    .hero__inner {
+      grid-template-columns: 1fr;
+      gap: var(--space-600);
+    }
+
+    .hero__meta {
+      padding-top: 0;
     }
   }
 </style>
-
-<script>
-  import { createTimeline } from "animejs";
-
-  window.addEventListener(
-    "DOMContentLoaded",
-    () => {
-      createTimeline({})
-        .add(
-          ".hero__badge",
-          {
-            opacity: [0, 1],
-            y: [22, 0],
-            duration: 600,
-          },
-          150,
-        )
-        .add(
-          ".hero__title",
-          {
-            opacity: [0, 1],
-            y: [22, 0],
-            duration: 650,
-          },
-          350,
-        )
-        .add(
-          ".hero__tagline",
-          {
-            opacity: [0, 1],
-            y: [18, 0],
-            duration: 600,
-          },
-          520,
-        )
-        .add(
-          ".hero__chat-wrapper",
-          {
-            opacity: [0, 1],
-            y: [22, 0],
-            duration: 700,
-          },
-          650,
-        )
-        .add(
-          ".hero__description",
-          {
-            opacity: [0, 1],
-            y: [16, 0],
-            duration: 600,
-          },
-          900,
-        )
-        .add(
-          ".hero__actions",
-          {
-            opacity: [0, 1],
-            y: [16, 0],
-            duration: 600,
-          },
-          1050,
-        );
-    },
-  );
-</script>
