@@ -212,11 +212,35 @@ svg {
   border-radius: 2px;
 }
 
-#theme-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  background: var(--color-canvas);
-  clip-path: circle(0px at 50% 50%);
+@keyframes theme-expand {
+  from {
+    clip-path: circle(
+      0px at var(--ripple-x, 50%)
+        var(--ripple-y, 50%)
+    );
+  }
+  to {
+    clip-path: circle(
+      var(--ripple-r, 200vmax) at
+        var(--ripple-x, 50%)
+        var(--ripple-y, 50%)
+    );
+  }
+}
+
+::view-transition-old(root) {
+  animation: none;
+}
+
+::view-transition-new(root) {
+  animation: theme-expand 700ms
+    cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-new(root),
+  ::view-transition-old(root) {
+    animation: none;
+  }
 }

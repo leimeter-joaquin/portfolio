@@ -102,7 +102,7 @@ export const contact: Contact = {
     "Rosario / Santa Fe, Argentina",
   email: "leimeter.joaquin@gmail.com",
   github:
-    "https://github.com/joaquinleimeter",
+    "https://github.com/leimeter-joaquin",
   linkedin:
-    "https://linkedin.com/in/joaquinleimeter",
+    "",
 };

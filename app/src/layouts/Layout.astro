@@ -80,29 +80,12 @@ const {
   </head>
   <body>
     <slot />
-    <div
-      id="theme-overlay"
-      aria-hidden="true"
-    >
-    </div>
 
     <script>
-      import { animate } from "animejs";
-
       const html =
         document.documentElement;
-      const overlay =
-        document.getElementById(
-          "theme-overlay",
-        );
 
-      const CANVAS = {
-        dark: "#0c1320",
-        light: "#f6f1e7",
-      } as const;
-
-      type ThemeName =
-        keyof typeof CANVAS;
+      type ThemeName = "dark" | "light";
 
       function isTheme(
         value: string | undefined,
@@ -149,16 +132,6 @@ const {
                 ? "dark"
                 : "light";
 
-            const reduce =
-              window.matchMedia(
-                "(prefers-reduced-motion: reduce)",
-              ).matches;
-
-            if (!overlay || reduce) {
-              applyTheme(next);
-              return;
-            }
-
             const rect =
               button.getBoundingClientRect();
             const cx =
@@ -175,23 +148,45 @@ const {
               Math.max(cy, h - cy),
             );
 
-            overlay.style.background =
-              CANVAS[next];
-            overlay.style.clipPath = `circle(0px at ${cx}px ${cy}px)`;
+            html.style.setProperty(
+              "--ripple-x",
+              `${cx}px`,
+            );
+            html.style.setProperty(
+              "--ripple-y",
+              `${cy}px`,
+            );
+            html.style.setProperty(
+              "--ripple-r",
+              `${radius}px`,
+            );
 
-            const state = { r: 0 };
-            animate(state, {
-              r: radius,
-              duration: 700,
-              ease: "cubicBezier(0.22, 1, 0.36, 1)",
-              onUpdate: () => {
-                overlay.style.clipPath = `circle(${state.r}px at ${cx}px ${cy}px)`;
-              },
-              onComplete: () => {
+            const supports =
+              "startViewTransition" in
+              document;
+            const reduce =
+              window.matchMedia(
+                "(prefers-reduced-motion: reduce)",
+              ).matches;
+
+            if (!supports || reduce) {
+              applyTheme(next);
+              return;
+            }
+
+            (
+              document as Document & {
+                startViewTransition: (
+                  cb: () => void,
+                ) => {
+                  finished: Promise<void>;
+                };
+              }
+            ).startViewTransition(
+              () => {
                 applyTheme(next);
-                overlay.style.clipPath = `circle(0px at ${cx}px ${cy}px)`;
               },
-            });
+            );
           },
         );
       }
