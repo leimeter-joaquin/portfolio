@@ -1,30 +1,20 @@
 ---
-import {
-  heroCopy,
-  contact,
-} from "@data/mock";
-
-const {
-  eyebrow,
-  headline,
-  accentPhrase,
-  bio,
-} = heroCopy;
-const idx = headline.indexOf(
-  accentPhrase,
-);
-const before =
-  idx >= 0
-    ? headline.slice(0, idx)
-    : headline;
+const eyebrow = "Full Stack Developer";
+const before = "I build the ";
+const accent = "whole system";
 const after =
-  idx >= 0
-    ? headline.slice(
-        idx + accentPhrase.length,
-      )
-    : "";
-const accent =
-  idx >= 0 ? accentPhrase : "";
+  ", interface to infrastructure.";
+const bio =
+  "I'm a web developer with a solid foundation in both front and back ends. Across teams and roles I've worked through every stage of the product lifecycle — discovery, design, implementation, release. Lately I'm expanding into DevOps and infrastructure, with a focus on AWS. The goal: own the system end to end, from interface to infrastructure.";
+
+const contact = {
+  location:
+    "Rosario / Santa Fe, Argentina",
+  email: "leimeter.joaquin@gmail.com",
+  github:
+    "https://github.com/leimeter-joaquin",
+  linkedin: "",
+};
 ---
 
 <section id="about" class="hero">
@@ -106,36 +96,47 @@ const accent =
       "(prefers-reduced-motion: reduce)",
     ).matches
   ) {
-    const text =
-      headline.textContent ?? "";
     const accentEl =
       headline.querySelector(
         ".hero__accent",
       );
-    const accentText =
-      accentEl?.textContent ?? "";
-    const words = text.split(/(\s+)/);
-    headline.innerHTML = words
-      .map((token) => {
-        if (/^\s+$/.test(token))
-          return token;
+    const accentWords = new Set(
+      (accentEl?.textContent ?? "")
+        .trim()
+        .split(/\s+/),
+    );
+    const text = (
+      headline.textContent ?? ""
+    )
+      .trim()
+      .replace(/\s+/g, " ");
+    headline.innerHTML = text
+      .split(" ")
+      .map((word) => {
+        const m = word.match(
+          /^([\p{L}\p{N}']+)([^\p{L}\p{N}']*)$/u,
+        );
+        const core = m ? m[1] : word;
+        const tail = m ? m[2] : "";
         const isAccent =
-          accentText.includes(token) &&
-          accentText.length > 0;
-        const cls = isAccent
+          accentWords.has(core);
+        const coreCls = isAccent
           ? "hero__word hero__word--accent"
           : "hero__word";
-        return `<span class="${cls}">${token}</span>`;
+        const tailSpan = tail
+          ? `<span class="hero__word">${tail}</span>`
+          : "";
+        return `<span class="${coreCls}">${core}</span>${tailSpan}`;
       })
-      .join("");
+      .join(" ");
 
     animate(".hero__word", {
       opacity: [0, 1],
-      translateY: [16, 0],
+      translateX: [16, 0],
+      // scale: [0.92, 1],
       delay: stagger(60),
       duration: 700,
-      easing:
-        "cubicBezier(0.22, 1, 0.36, 1)",
+      ease: "cubicBezier(.22, 1, .36, 1)",
     });
   }
 </script>
@@ -175,6 +176,7 @@ const accent =
 
   .hero__headline :global(.hero__word) {
     display: inline-block;
+    opacity: 0;
     will-change: opacity, transform;
   }
 
