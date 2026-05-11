@@ -32,7 +32,12 @@ const contact = {
           >{accent}</span
         >{after}
       </h1>
-      <p class="hero__bio">{bio}</p>
+      <p
+        class="hero__bio"
+        data-bio
+      >
+        {bio}
+      </p>
     </div>
 
     <aside
@@ -139,6 +144,85 @@ const contact = {
       ease: "cubicBezier(.22, 1, .36, 1)",
     });
   }
+
+  const bioEl =
+    document.querySelector<HTMLElement>(
+      "[data-bio]",
+    );
+  if (
+    bioEl &&
+    !window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches
+  ) {
+    const full = (
+      bioEl.textContent ?? ""
+    ).trim();
+    bioEl.textContent = "";
+    bioEl.classList.add(
+      "hero__bio--typing",
+    );
+    const headlineWordCount =
+      document.querySelectorAll(
+        ".hero__word",
+      ).length;
+    const startDelay =
+      headlineWordCount * 60 + 400;
+    const sentences = full.match(
+      /[^.!?]+[.!?]+\s*/g,
+    ) ?? [full];
+    const charMs = 22;
+    const pauseMs = 450;
+
+    const wait = (ms: number) =>
+      new Promise((r) =>
+        setTimeout(r, ms),
+      );
+
+    const typeSentence = (
+      from: number,
+      to: number,
+    ) =>
+      new Promise<void>((resolve) => {
+        const state = { i: from };
+        animate(state, {
+          i: to,
+          duration:
+            (to - from) * charMs,
+          ease: "linear",
+          onUpdate: () => {
+            bioEl.textContent =
+              full.slice(
+                0,
+                Math.round(state.i),
+              );
+          },
+          onComplete: () => resolve(),
+        });
+      });
+
+    (async () => {
+      await wait(startDelay);
+      let cursor = 0;
+      for (const s of sentences) {
+        const end = cursor + s.length;
+        await typeSentence(
+          cursor,
+          end,
+        );
+        cursor = end;
+        if (
+          cursor < full.length
+        ) {
+          await wait(pauseMs);
+        }
+      }
+      bioEl.textContent = full;
+      bioEl.classList.remove(
+        "hero__bio--typing",
+      );
+    })();
+  }
 </script>
 
 <style lang="scss">
@@ -192,6 +276,22 @@ const contact = {
     color: var(--color-text-muted);
     font-size: var(--text-400);
     line-height: 1.65;
+    min-height: 1.65em;
+  }
+
+  .hero__bio--typing::after {
+    content: "▋";
+    display: inline-block;
+    margin-left: 2px;
+    color: var(--color-accent-strong);
+    animation: hero-caret 0.9s
+      steps(1) infinite;
+  }
+
+  @keyframes hero-caret {
+    50% {
+      opacity: 0;
+    }
   }
 
   .hero__meta {
