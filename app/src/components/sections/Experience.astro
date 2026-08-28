@@ -1,15 +1,16 @@
 ---
 import { timelineEntries } from "@data/content";
 
-const current =
-  timelineEntries[0];
+const current = timelineEntries[0];
 
+// Floor keeps short stints legible (room for 3 lines of text); the rest
+// scales with duration so the line visibly tracks how long each role ran.
 function segmentPx(
   months: number,
 ): number {
   return Math.max(
-    40,
-    Math.min(170, months * 6),
+    70,
+    Math.min(220, months * 10),
   );
 }
 ---
@@ -18,145 +19,187 @@ function segmentPx(
   id="experience"
   class="timeline"
 >
-  <div class="timeline__inner">
-    <header class="timeline__header">
-      <p class="timeline__eyebrow">
-        Experience
-      </p>
-      <h2 class="timeline__title">
-        Where I've worked.
-      </h2>
-      <p class="timeline__hint">
-        Newest role first — line
-        length traces how long each one
-        lasted.
-      </p>
-    </header>
+  <div
+    class="timeline__track"
+    data-timeline-track
+  >
+    <div class="timeline__pin">
+      <div class="timeline__inner">
+        <header
+          class="timeline__header"
+        >
+          <p class="timeline__eyebrow">
+            Experience
+          </p>
+          <h2 class="timeline__title">
+            Where I've worked.
+          </h2>
+          <p class="timeline__hint">
+            Most recent role first.
+          </p>
+        </header>
 
-    <div class="timeline__layout">
-      <ol class="timeline__rail">
-        {
-          timelineEntries.map(
-            (entry, i) => (
-              <li class="timeline__item">
-                <button
-                  type="button"
-                  class={`timeline__row${i === 0 ? " timeline__row--active" : ""}`}
-                  data-timeline-open={
-                    entry.id
-                  }
-                  aria-current={
-                    i === 0
-                      ? "true"
-                      : undefined
-                  }
-                >
-                  <span class="timeline__rail-line">
-                    <span class="timeline__dot" />
-                    {i <
-                      timelineEntries.length -
-                        1 && (
-                      <span
-                        class={`timeline__segment${entry.isCurrent ? " timeline__segment--ongoing" : ""}`}
-                        style={`height: ${segmentPx(entry.durationMonths)}px;`}
-                      />
-                    )}
-                  </span>
-                  <span class="timeline__row-body">
-                    <span class="timeline__row-date">
-                      {entry.range}
-                    </span>
-                    <span class="timeline__row-company">
-                      {entry.company}
-                    </span>
-                    {entry.role && (
-                      <span class="timeline__row-role">
-                        {entry.role}
+        <div class="timeline__layout">
+          <ol class="timeline__rail">
+            <span
+              class="timeline__marker"
+              data-timeline-marker
+              aria-hidden="true"></span>
+            {
+              timelineEntries.map(
+                (entry, i) => (
+                  <li class="timeline__item">
+                    <button
+                      type="button"
+                      class={`timeline__row${i === 0 ? " timeline__row--active" : ""}`}
+                      data-timeline-open={
+                        entry.id
+                      }
+                      aria-current={
+                        i === 0
+                          ? "true"
+                          : undefined
+                      }
+                    >
+                      <span class="timeline__rail-line">
+                        <span class="timeline__dot" />
+                        {i <
+                          timelineEntries.length -
+                            1 && (
+                          <span
+                            class={`timeline__segment${entry.isCurrent ? " timeline__segment--ongoing" : ""}`}
+                            style={`--seg: ${segmentPx(entry.durationMonths)};`}
+                          >
+                            {entry.durationMonths >
+                              1 &&
+                              Array.from(
+                                {
+                                  length:
+                                    entry.durationMonths -
+                                    1,
+                                },
+                              ).map(
+                                (
+                                  _,
+                                  ti,
+                                ) => (
+                                  <span
+                                    class="timeline__tick"
+                                    style={`top: ${(((ti + 1) / entry.durationMonths) * 100).toFixed(2)}%;`}
+                                  />
+                                ),
+                              )}
+                          </span>
+                        )}
                       </span>
-                    )}
-                  </span>
-                </button>
-              </li>
-            ),
-          )
-        }
-      </ol>
+                      <span class="timeline__row-body">
+                        <span class="timeline__row-date">
+                          {entry.range}
+                        </span>
+                        <span class="timeline__row-company">
+                          {
+                            entry.company
+                          }
+                        </span>
+                        {entry.role && (
+                          <span class="timeline__row-role">
+                            {entry.role}
+                          </span>
+                        )}
+                      </span>
+                    </button>
+                  </li>
+                ),
+              )
+            }
+          </ol>
 
-      <aside
-        class="timeline__detail"
-        data-timeline-panel
-        aria-live="polite"
-      >
-        <p
-          class="timeline__detail-range"
-          data-tl-range
-        >
-          {current.range}
-        </p>
-        <h3
-          class="timeline__detail-company"
-          data-tl-company
-        >
-          {current.company}
-        </h3>
-        <p
-          class="timeline__detail-role"
-          data-tl-role
-        >
-          {current.role}
-        </p>
-        <div
-          class="timeline__detail-body"
-          data-tl-body
-        >
-          {current.paragraphs.map(
-            (p) => <p>{p}</p>,
-          )}
-        </div>
-        {current.highlights.length >
-          0 && (
-          <div
-            class="timeline__detail-section"
-            data-tl-highlights-wrap
+          <aside
+            class="timeline__detail"
+            data-timeline-panel
+            aria-live="polite"
           >
-            <p class="timeline__detail-label">
-              Highlights
-            </p>
-            <ul
-              class="timeline__detail-highlights"
-              data-tl-highlights
+            <p
+              class="timeline__detail-range"
+              data-tl-range
             >
-              {current.highlights.map(
-                (h) => <li>{h}</li>,
-              )}
-            </ul>
-          </div>
-        )}
-        {current.stack.length > 0 && (
-          <ul
-            class="timeline__detail-stack"
-            data-tl-stack
-          >
-            {current.stack.map(
-              (s) => <li>{s}</li>,
-            )}
-          </ul>
-        )}
-        <a
-          class="timeline__detail-link"
-          data-tl-link
-          href={current.href}
-          style={
-            current.href
-              ? undefined
-              : "display: none;"
-          }
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Visit site →
-        </a>
-      </aside>
+              {current.range}
+            </p>
+            <h3
+              class="timeline__detail-company"
+              data-tl-company
+            >
+              {current.company}
+            </h3>
+            <p
+              class="timeline__detail-role"
+              data-tl-role
+            >
+              {current.role}
+            </p>
+            <div
+              class="timeline__detail-body"
+              data-tl-body
+            >
+              {
+                current.paragraphs.map(
+                  (p) => <p>{p}</p>,
+                )
+              }
+            </div>
+            {
+              current.highlights
+                .length > 0 && (
+                <div
+                  class="timeline__detail-section"
+                  data-tl-highlights-wrap
+                >
+                  <p class="timeline__detail-label">
+                    Highlights
+                  </p>
+                  <ul
+                    class="timeline__detail-highlights"
+                    data-tl-highlights
+                  >
+                    {current.highlights.map(
+                      (h) => (
+                        <li>{h}</li>
+                      ),
+                    )}
+                  </ul>
+                </div>
+              )
+            }
+            {
+              current.stack.length >
+                0 && (
+                <ul
+                  class="timeline__detail-stack"
+                  data-tl-stack
+                >
+                  {current.stack.map(
+                    (s) => (
+                      <li>{s}</li>
+                    ),
+                  )}
+                </ul>
+              )
+            }
+            <a
+              class="timeline__detail-link"
+              data-tl-link
+              href={current.href}
+              style={current.href
+                ? undefined
+                : "display: none;"}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Visit site →
+            </a>
+          </aside>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -406,6 +449,42 @@ function segmentPx(
 
   let lastTrigger: HTMLElement | null =
     null;
+  let activeId: string | null =
+    rows[0]?.dataset.timelineOpen ??
+    null;
+
+  function selectRow(
+    btn: HTMLButtonElement,
+  ) {
+    const id = btn.dataset.timelineOpen;
+    const entry = id
+      ? byId.get(id)
+      : undefined;
+    if (
+      !entry ||
+      !panel ||
+      id === activeId
+    )
+      return;
+    activeId = id ?? null;
+    fillFields(panel, entry);
+    rows.forEach((r) => {
+      const on = r === btn;
+      r.classList.toggle(
+        "timeline__row--active",
+        on,
+      );
+      if (on)
+        r.setAttribute(
+          "aria-current",
+          "true",
+        );
+      else
+        r.removeAttribute(
+          "aria-current",
+        );
+    });
+  }
 
   rows.forEach((btn) => {
     btn.addEventListener(
@@ -422,25 +501,7 @@ function segmentPx(
           desktopQuery.matches &&
           panel
         ) {
-          fillFields(panel, entry);
-          rows.forEach((r) =>
-            r.classList.remove(
-              "timeline__row--active",
-            ),
-          );
-          btn.classList.add(
-            "timeline__row--active",
-          );
-          btn.setAttribute(
-            "aria-current",
-            "true",
-          );
-          rows.forEach((r) => {
-            if (r !== btn)
-              r.removeAttribute(
-                "aria-current",
-              );
-          });
+          selectRow(btn);
           return;
         }
 
@@ -455,6 +516,109 @@ function segmentPx(
       },
     );
   });
+
+  // Desktop: the section is pinned while the page scrolls through the
+  // track, so nothing moves on screen except the marker travelling down
+  // the rail — the row it reaches takes over the detail panel.
+  const track =
+    document.querySelector<HTMLElement>(
+      "[data-timeline-track]",
+    );
+  const marker =
+    document.querySelector<HTMLElement>(
+      "[data-timeline-marker]",
+    );
+
+  // Vertical centre of a row's dot, relative to the rail.
+  function dotCentre(
+    row: HTMLButtonElement,
+  ): number {
+    const dot =
+      row.querySelector<HTMLElement>(
+        ".timeline__dot",
+      );
+    if (!dot) return row.offsetTop;
+    const railTop = row
+      .closest<HTMLElement>(
+        ".timeline__rail",
+      )!
+      .getBoundingClientRect().top;
+    const box =
+      dot.getBoundingClientRect();
+    return (
+      box.top - railTop + box.height / 2
+    );
+  }
+
+  let ticking = false;
+  function syncToScroll() {
+    ticking = false;
+    if (
+      !desktopQuery.matches ||
+      !panel ||
+      !track ||
+      !marker ||
+      rows.length === 0
+    )
+      return;
+
+    const trackTop =
+      track.getBoundingClientRect()
+        .top + window.scrollY;
+    const travel =
+      track.offsetHeight -
+      window.innerHeight;
+    const passed =
+      window.scrollY - trackTop;
+    const progress =
+      travel > 0
+        ? Math.min(
+            1,
+            Math.max(
+              0,
+              passed / travel,
+            ),
+          )
+        : 0;
+
+    const first = dotCentre(rows[0]);
+    const last = dotCentre(
+      rows[rows.length - 1],
+    );
+    const y =
+      first + progress * (last - first);
+    marker.style.transform = `translateY(${y}px)`;
+
+    let nearest = rows[0];
+    let nearestDist = Infinity;
+    rows.forEach((r) => {
+      const d = Math.abs(
+        dotCentre(r) - y,
+      );
+      if (d < nearestDist) {
+        nearestDist = d;
+        nearest = r;
+      }
+    });
+    selectRow(nearest);
+  }
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(
+        syncToScroll,
+      );
+    },
+    { passive: true },
+  );
+  window.addEventListener(
+    "resize",
+    syncToScroll,
+  );
+  syncToScroll();
 
   if (modal) {
     const close = () => {
@@ -491,10 +655,31 @@ function segmentPx(
 
 <style lang="scss">
   .timeline {
-    padding: var(--space-800) 0;
     background: var(
       --color-surface-muted
     );
+  }
+
+  .timeline__track {
+    padding: var(--space-800) 0;
+  }
+
+  // Desktop pins the section: the page keeps scrolling through the track
+  // while the panel stays put and only the marker moves.
+  @media (min-width: 881px) {
+    .timeline__track {
+      height: calc(100vh + 1600px);
+      padding: 0;
+    }
+
+    .timeline__pin {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
   }
 
   .timeline__inner {
@@ -529,10 +714,8 @@ function segmentPx(
   .timeline__layout {
     margin-top: var(--space-700);
     display: grid;
-    grid-template-columns: minmax(
-        260px,
-        340px
-      )
+    grid-template-columns:
+      minmax(260px, 340px)
       1fr;
     gap: var(--space-700);
     align-items: start;
@@ -550,8 +733,38 @@ function segmentPx(
 
   // --- Rail --------------------------------------------------------------------
   .timeline__rail {
+    position: relative;
     display: flex;
     flex-direction: column;
+  }
+
+  .timeline__marker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0.9rem;
+    height: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .timeline__marker::before {
+    content: "";
+    width: 1.15rem;
+    height: 2px;
+    border-radius: var(--radius-pill);
+    background: var(
+      --color-accent-strong
+    );
+  }
+
+  @media (min-width: 881px) {
+    .timeline__marker {
+      display: flex;
+    }
   }
 
   .timeline__row {
@@ -593,13 +806,40 @@ function segmentPx(
     transform: scale(1.3);
   }
 
+  // flex-grow keeps the line reaching the next dot when the text is taller
+  // than the duration; min-height is what encodes the duration itself.
   .timeline__segment {
+    position: relative;
     width: 2px;
     flex: 1;
+    min-height: calc(var(--seg) * 1px);
     margin-top: var(--space-200);
     background: var(
       --color-border-strong
     );
+  }
+
+  // Pinned desktop has one viewport to work with, so the rail is compressed
+  // proportionally — the relative lengths still read the same.
+  @media (min-width: 881px) {
+    .timeline__segment {
+      min-height: calc(
+        var(--seg) * 0.52px
+      );
+    }
+  }
+
+  // One tick per month boundary, so the gaps between them read as a month.
+  .timeline__tick {
+    position: absolute;
+    left: 50%;
+    width: 7px;
+    height: 1px;
+    transform: translateX(-50%);
+    background: var(
+      --color-border-strong
+    );
+    opacity: 0.65;
   }
 
   .timeline__segment--ongoing {
@@ -610,7 +850,7 @@ function segmentPx(
   }
 
   .timeline__row-body {
-    padding-bottom: var(--space-500);
+    padding-bottom: var(--space-400);
   }
 
   .timeline__row-date {
@@ -631,9 +871,7 @@ function segmentPx(
 
   .timeline__row--active
     .timeline__row-company {
-    color: var(
-      --color-accent-strong
-    );
+    color: var(--color-accent-strong);
   }
 
   .timeline__row-role {
@@ -644,16 +882,14 @@ function segmentPx(
 
   // --- Detail panel (desktop) --------------------------------------------------
   .timeline__detail {
-    position: sticky;
-    top: calc(
-      4.5rem + var(--space-600)
-    );
     padding: var(--space-700);
     border: 1px solid
       var(--color-border-strong);
     border-radius: var(--radius-lg);
     background: var(--color-surface);
     box-shadow: var(--shadow-hover);
+    max-height: 74vh;
+    overflow-y: auto;
   }
 
   // --- Shared detail-content styles (panel + modal) -----------------------------
