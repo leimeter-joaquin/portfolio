@@ -1,0 +1,190 @@
+---
+// Decorative skyline of the Chaltén massif, mirrored so Fitz Roy falls on
+// the right. Traced from a photograph by sampling the horizon column by
+// column, so the profile is the real one. Purely ornamental.
+const ridge =
+  "M0 418 L3 418 L4 409 L15 407 L39 409 L40 417 L45 417 L47 408 L48 413 L62 413 L68 405 L73 389 L82 381 L87 380 L94 371 L103 371 L111 367 L117 367 L131 351 L137 351 L145 343 L175 325 L180 320 L204 309 L210 303 L220 303 L223 313 L238 313 L240 315 L249 315 L252 309 L256 307 L262 309 L264 317 L268 318 L273 318 L279 311 L283 312 L284 317 L290 317 L297 304 L303 308 L308 327 L313 329 L317 335 L318 343 L326 343 L347 327 L352 320 L359 294 L375 272 L376 264 L384 260 L388 254 L402 251 L410 250 L423 256 L428 256 L432 266 L437 266 L449 259 L452 261 L461 261 L462 263 L483 261 L488 268 L490 280 L500 291 L510 293 L512 287 L516 285 L521 289 L524 296 L532 304 L534 308 L539 308 L541 305 L558 298 L561 298 L568 306 L573 306 L578 298 L583 298 L585 302 L590 302 L592 291 L595 283 L598 280 L603 280 L613 299 L621 299 L623 296 L626 300 L632 302 L633 309 L643 317 L651 322 L657 322 L667 309 L685 267 L690 265 L702 234 L712 220 L723 193 L730 179 L754 102 L765 102 L777 107 L782 107 L794 81 L808 59 L814 43 L822 36 L831 23 L843 20 L865 7 L872 7 L890 12 L899 21 L903 22 L913 34 L933 43 L944 52 L964 62 L970 68 L977 68 L991 63 L993 67 L1001 69 L1020 95 L1023 95 L1028 103 L1033 116 L1043 130 L1047 146 L1064 167 L1071 188 L1074 189 L1076 196 L1085 207 L1089 223 L1095 223 L1098 219 L1108 219 L1110 217 L1114 205 L1118 206 L1119 211 L1124 211 L1128 203 L1132 200 L1138 184 L1144 184 L1148 177 L1153 178 L1166 192 L1172 191 L1179 178 L1182 178 L1186 183 L1191 183 L1201 135 L1207 119 L1213 119 L1227 105 L1239 117 L1246 115 L1250 118 L1252 126 L1256 126 L1265 143 L1271 145 L1280 160 L1284 172 L1291 181 L1305 209 L1322 228 L1338 257 L1352 275 L1356 290 L1361 295 L1362 304 L1371 313 L1373 325 L1375 355 L1381 359 L1382 371 L1387 371 L1388 363 L1392 361 L1393 357 L1400 354 L1414 337 L1416 319 L1422 305 L1429 299 L1439 295 L1440 295";
+---
+
+<div
+  class="range"
+  aria-hidden="true"
+  data-range
+>
+  <svg
+    class="range__svg"
+    viewBox="0 0 1440 440"
+    preserveAspectRatio="none"
+    fill="none"
+  >
+    <defs>
+      <linearGradient
+        id="range-fill"
+        x1="0"
+        y1="0"
+        x2="0"
+        y2="1"
+      >
+        <stop
+          class="range__stop range__stop--top"
+          offset="0%"></stop>
+        <stop
+          class="range__stop range__stop--bottom"
+          offset="100%"></stop>
+      </linearGradient>
+
+      <clipPath
+        id="range-reveal"
+        clipPathUnits="userSpaceOnUse"
+      >
+        <rect
+          data-reveal
+          x="0"
+          y="0"
+          width="1440"
+          height="440"></rect>
+      </clipPath>
+    </defs>
+
+    <g clip-path="url(#range-reveal)">
+      <path
+        class="range__fill"
+        d={`${ridge} L1440 440 L0 440 Z`}
+        fill="url(#range-fill)"></path>
+
+      <path
+        class="range__ridge"
+        d={ridge}></path>
+    </g>
+  </svg>
+</div>
+
+<script>
+  import { animate } from "animejs";
+
+  const range =
+    document.querySelector<HTMLElement>(
+      "[data-range]",
+    );
+  const reduce = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  if (range && !reduce) {
+    // The ridge is revealed by a clip rect that widens across the viewBox,
+    // rather than by a stroke dash: dash lengths resolve in a different unit
+    // space than the path measures in once the SVG is stretched to the hero,
+    // which left the tail of the line permanently inside a dash gap.
+    const reveal =
+      range.querySelector<SVGRectElement>(
+        "[data-reveal]",
+      );
+
+    if (reveal) {
+      reveal.setAttribute("width", "0");
+      animate(reveal, {
+        width: [0, 1440],
+        duration: 2200,
+        ease: "cubicBezier(.33, 1, .68, 1)",
+      });
+    }
+
+    animate(".range__fill", {
+      opacity: [0, 1],
+      duration: 1600,
+      delay: 400,
+      ease: "outQuad",
+    });
+  }
+</script>
+
+<style lang="scss">
+  .range {
+    /* Glacier blue, kept well under the text contrast — background detail only. */
+    --range-color: #8ab6de;
+    --range-stroke-opacity: 0.2;
+    --range-fill-opacity: 0.09;
+
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    /* Never narrower than the viewBox: below 1440px the range keeps its size
+       and slides off to the right, so the big peaks stay clear of the copy. */
+    width: max(100%, 1440px);
+    height: clamp(220px, 44vh, 440px);
+    pointer-events: none;
+    z-index: 0;
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 10%,
+      #000 90%,
+      transparent
+    );
+  }
+
+  :global(html[data-theme="light"])
+    .range {
+    --range-color: #6f9ec9;
+    --range-stroke-opacity: 0.28;
+    --range-fill-opacity: 0.12;
+  }
+
+  .range__stop {
+    stop-color: var(--range-color);
+  }
+
+  .range__stop--top {
+    stop-opacity: var(
+      --range-fill-opacity
+    );
+  }
+
+  .range__stop--bottom {
+    stop-opacity: 0;
+  }
+
+  .range__svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .range__ridge {
+    fill: none;
+    stroke: var(--range-color);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    stroke-opacity: var(
+      --range-stroke-opacity
+    );
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* Below 900px the hero stacks the meta list under the copy, so nothing sits
+     to the right for the range to run into — let it span the full width. */
+  @media (max-width: 900px) {
+    .range {
+      /* Stretched 30% past the viewport so the profile keeps some width
+         instead of squashing into the narrow screen; the tail runs off the
+         right edge. */
+      width: 130%;
+      /* The whole range now sits right under the copy, so soften it further. */
+      --range-stroke-opacity: 0.12;
+      --range-fill-opacity: 0.05;
+    }
+
+    :global(html[data-theme="light"])
+      .range {
+      --range-stroke-opacity: 0.18;
+      --range-fill-opacity: 0.07;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .range__fill {
+      opacity: 0;
+    }
+  }
+</style>

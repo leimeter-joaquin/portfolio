@@ -1,4 +1,5 @@
 ---
+import MountainRange from "@components/MountainRange.astro";
 import {
   hero,
   site,
@@ -43,6 +44,8 @@ const linkedinLabel =
 ---
 
 <section id="about" class="hero">
+  <MountainRange />
+
   <div class="hero__inner">
     <div class="hero__main">
       <p class="hero__eyebrow">
@@ -293,12 +296,15 @@ const linkedinLabel =
     align-items: center;
     /* Fill the viewport below the sticky header. svh keeps mobile chrome from clipping. */
     min-height: calc(100svh - 4.5rem);
+    overflow: hidden;
     padding: var(--space-800)
       var(--shell-padding-x)
       var(--space-900);
   }
 
   .hero__inner {
+    position: relative;
+    z-index: 1;
     display: grid;
     grid-template-columns: 1.6fr 1fr;
     gap: var(--space-700);
@@ -348,6 +354,7 @@ const linkedinLabel =
 
   .hero__scroll {
     position: absolute;
+    z-index: 1;
     left: 50%;
     bottom: var(--space-500);
     transform: translateX(-50%);
