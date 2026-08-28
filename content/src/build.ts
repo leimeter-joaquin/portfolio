@@ -13,6 +13,11 @@ import {
 } from "./schemas/hero.js";
 import z, { ZodTypeAny } from "zod";
 import { TechDocument, TechFontmatterSchema } from "./schemas/tech.js";
+import { SiteDocument, SiteFontmatterSchema } from "./schemas/site.js";
+import {
+  ExperienceDocument,
+  ExperienceFrontmatterSchema,
+} from "./schemas/experience.js";
 
 const CONTENT_ROOT = path.resolve(process.cwd(), "src");
 const OUT_DIR = path.resolve(process.cwd(), "dist");
@@ -71,14 +76,17 @@ function main() {
   const allFiles = walk(CONTENT_ROOT).filter((f) => f.endsWith(".md"));
 
   let hero: HeroDocument | undefined;
+  let site: SiteDocument | undefined;
   const projects: ProjectDocument[] = [];
   const techs: TechDocument[] = [];
+  const experience: ExperienceDocument[] = [];
 
   for (const file of allFiles) {
-    console.log("test files ---------", file);
     if (file.includes("hero")) {
-      console.log("found hero");
       hero = loadFile(file, HeroFontmatterSchema);
+    }
+    if (file.includes("site")) {
+      site = loadFile(file, SiteFontmatterSchema);
     }
     if (file.includes("projects")) {
       projects.push(loadFile(file, ProjectFrontmatterSchema));
@@ -86,7 +94,13 @@ function main() {
     if (file.includes("techs")) {
       techs.push(loadFile(file, TechFontmatterSchema));
     }
+    if (file.includes("experience")) {
+      experience.push(loadFile(file, ExperienceFrontmatterSchema));
+    }
   }
+
+  // Stable chronological order: most recent first (current roles lead).
+  experience.sort((a, b) => b.dateStart.localeCompare(a.dateStart));
 
   // TODO: add other documents to AI flat structure.
   // “documents” is a flattened AI-friendly view of the same content
@@ -103,12 +117,12 @@ function main() {
   const index = {
     generatedAt: new Date().toISOString(),
     hero,
+    site,
     projects,
     techs,
+    experience,
     documents,
   };
-
-  console.log("test ----------------", index.hero);
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.writeFileSync(OUT_FILE, JSON.stringify(index, null, 2), "utf8");

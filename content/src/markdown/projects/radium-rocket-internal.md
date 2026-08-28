@@ -15,6 +15,7 @@ tags:
   - internal-tools
   - team-lead
   - database
+  - ai
 links:
   repo: null
   live: https://radiumrocket.com
@@ -22,6 +23,7 @@ highlights:
   - Led a cross-functional team of 6 (2 FE, 2 BE, 1 QA, 1 designer) delivering internal tooling.
   - Coordinated the technical merge of two employee-management applications.
   - Worked with a BE and SQL engineer to deduplicate, normalize, and migrate two separate databases into one.
+  - Building agent-based workflows for Radium Rocket to improve how the company uses AI in delivery.
 ---
 
 Tech lead period at Radium Rocket, my employer throughout my career, where I am staffed onto both client and internal projects.
@@ -29,3 +31,5 @@ Tech lead period at Radium Rocket, my employer throughout my career, where I am 
 The largest effort was consolidating two existing employee-management applications into a single system. I coordinated the work across separate front-end and back-end teams, and worked closely with a back-end and SQL engineer on the database side — deduplicating records, writing normalization scripts, and migrating data from two separate schemas into a unified one.
 
 I also led the cross-functional team: two front-end developers, two back-end developers, one QA, and one designer.
+
+Alongside client work, I am building agent-based workflows for Radium Rocket — tooling and practices that help the company use AI agents effectively in real delivery work.

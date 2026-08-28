@@ -1,12 +1,6 @@
 ---
 import ThemeToggle from "@components/ThemeToggle.astro";
-import { contact } from "@data/mock";
-
-const navItems = [
-  { href: "#work", label: "Work" },
-  { href: "#about", label: "About" },
-  { href: "#stack", label: "Stack" },
-];
+import { site } from "@data/content";
 ---
 
 <header class="header">
@@ -27,102 +21,18 @@ const navItems = [
       >
     </a>
 
-    <nav
-      class="header__nav"
-      aria-label="Primary"
-    >
-      <ul class="header__nav-list">
-        {
-          navItems.map((item) => (
-            <li>
-              <a
-                class="header__nav-link"
-                href={item.href}
-                data-nav-target={item.href.slice(
-                  1,
-                )}
-              >
-                {item.label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
-
     <div class="header__actions">
       <ThemeToggle />
       <a
         class="header__cta"
-        href={`mailto:${contact.email}`}
+        href={site.cv.path}
+        download
       >
-        Let's Talk
+        {site.cv.label}
       </a>
     </div>
   </div>
 </header>
-
-<script>
-  const links = Array.from(
-    document.querySelectorAll<HTMLAnchorElement>(
-      ".header__nav-link",
-    ),
-  );
-  const map = new Map<
-    string,
-    HTMLAnchorElement
-  >();
-  links.forEach((link) => {
-    const target =
-      link.dataset.navTarget;
-    if (target) map.set(target, link);
-  });
-
-  const sections = Array.from(
-    map.keys(),
-  )
-    .map((id) =>
-      document.getElementById(id),
-    )
-    .filter(
-      (el): el is HTMLElement =>
-        el !== null,
-    );
-
-  if (sections.length > 0) {
-    const observer =
-      new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            const link = map.get(
-              entry.target.id,
-            );
-            if (!link) return;
-            if (entry.isIntersecting) {
-              links.forEach((l) =>
-                l.removeAttribute(
-                  "aria-current",
-                ),
-              );
-              link.setAttribute(
-                "aria-current",
-                "true",
-              );
-            }
-          });
-        },
-        {
-          rootMargin:
-            "-40% 0px -55% 0px",
-          threshold: 0,
-        },
-      );
-
-    sections.forEach((section) =>
-      observer.observe(section),
-    );
-  }
-</script>
 
 <style lang="scss">
   .header {
@@ -174,30 +84,11 @@ const navItems = [
     font-size: var(--text-300);
   }
 
-  .header__nav {
-    margin-left: auto;
-  }
-
-  .header__nav-list {
-    display: flex;
-    gap: var(--space-500);
-  }
-
-  .header__nav-link {
-    color: var(--color-text-muted);
-    font-size: var(--text-400);
-    transition: color 0.2s ease;
-
-    &:hover,
-    &[aria-current="true"] {
-      color: var(--color-text);
-    }
-  }
-
   .header__actions {
     display: inline-flex;
     align-items: center;
     gap: var(--space-300);
+    margin-left: auto;
   }
 
   .header__cta {
@@ -238,20 +129,6 @@ const navItems = [
 
     .header__brand-tag {
       display: none;
-    }
-
-    .header__nav {
-      order: 3;
-      flex-basis: 100%;
-      margin-left: 0;
-    }
-
-    .header__nav-list {
-      gap: var(--space-400);
-    }
-
-    .header__actions {
-      margin-left: auto;
     }
   }
 </style>

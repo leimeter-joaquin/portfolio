@@ -1,8 +1,8 @@
 ---
-import type { Project } from "@data/mock";
+import type { ProjectCard } from "@data/content";
 
 interface Props {
-  project: Project;
+  project: ProjectCard;
   featured?: boolean;
 }
 
@@ -35,21 +35,12 @@ const modifier = featured
       >
     </div>
     <div class="project-card__body">
-      <header
-        class="project-card__head"
-      >
-        <h3 class="project-card__title">
-          {project.title}
-        </h3>
-        <span
-          class="project-card__summary"
-          >{project.summary}</span
-        >
-        <span
-          class="project-card__arrow"
-          aria-hidden="true">→</span
-        >
-      </header>
+      <h3 class="project-card__title">
+        {project.title}
+      </h3>
+      <p class="project-card__summary">
+        {project.summary}
+      </p>
       <ul class="project-card__tags">
         {
           project.tags.map((tag) => (
@@ -64,6 +55,8 @@ const modifier = featured
 <style lang="scss">
   .project-card {
     position: relative;
+    width: 100%;
+    height: 100%;
     border-radius: var(--radius-lg);
     background: var(--color-surface);
     border: 1px solid
@@ -83,7 +76,9 @@ const modifier = featured
   }
 
   .project-card__link {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     overflow: hidden;
     border-radius: inherit;
   }
@@ -96,6 +91,8 @@ const modifier = featured
     font-size: var(--text-300);
     letter-spacing: 0.16em;
     text-transform: uppercase;
+    text-align: center;
+    padding: var(--space-400);
   }
 
   .project-card--featured
@@ -108,6 +105,9 @@ const modifier = featured
   }
 
   .project-card__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     padding: var(--space-500);
     background: var(
       --color-surface-strong
@@ -116,41 +116,26 @@ const modifier = featured
       var(--color-border);
   }
 
-  .project-card__head {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: baseline;
-    gap: var(--space-400);
-  }
-
   .project-card__title {
     font-size: var(--text-500);
     font-weight: 700;
     color: var(--color-text);
-  }
-
-  .project-card__title::after {
-    content: "—";
-    margin: 0 0.4em;
-    color: var(--color-text-subtle);
-    font-weight: 400;
+    line-height: 1.2;
   }
 
   .project-card__summary {
+    margin-top: var(--space-300);
     color: var(--color-text-muted);
     font-size: var(--text-400);
-  }
-
-  .project-card__arrow {
-    color: var(--color-text-subtle);
-    font-size: var(--text-500);
+    line-height: 1.55;
   }
 
   .project-card__tags {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-300);
-    margin-top: var(--space-400);
+    margin-top: auto;
+    padding-top: var(--space-500);
     color: var(--color-text-subtle);
     font-size: var(--text-300);
   }
@@ -158,17 +143,5 @@ const modifier = featured
   .project-card__tags li::before {
     content: "#";
     margin-right: 0.15em;
-  }
-
-  @media (max-width: 720px) {
-    .project-card__head {
-      grid-template-columns: 1fr auto;
-    }
-    .project-card__summary {
-      grid-column: 1 / -1;
-    }
-    .project-card__title::after {
-      display: none;
-    }
   }
 </style>

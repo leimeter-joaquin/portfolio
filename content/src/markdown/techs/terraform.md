@@ -6,7 +6,7 @@ description: "Currently learning infrastructure as code with Terraform as I expa
 
 # Where I Am with Terraform
 
-Terraform is something I'm actively learning. My background is primarily front-end and full-stack JavaScript/TypeScript, but I've become increasingly interested in the infrastructure layer — how applications are deployed, what they run on, and how that infrastructure is managed over time.
+Terraform is something I'm actively learning. My background is full-stack JavaScript/TypeScript, but I've become increasingly interested in the infrastructure layer — how applications are deployed, what they run on, and how that infrastructure is managed over time.
 
 Terraform's declarative model appeals to me for the same reasons typed languages do: you describe the desired state, and the tool figures out how to get there. It makes infrastructure reviewable, version-controlled, and reproducible.
 

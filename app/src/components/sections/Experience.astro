@@ -1,100 +1,372 @@
 ---
-import { experience } from "@data/mock";
-
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
-function formatPart(
-  iso: string,
-): string {
-  const [y, m] = iso.split("-");
-  const idx = Math.max(
-    0,
-    Math.min(11, Number(m) - 1),
-  );
-  return `${MONTHS[idx]} ${y}`;
-}
-
-function formatRange(
-  start: string,
-  end: string | "present",
-): string {
-  const tail =
-    end === "present"
-      ? "Present"
-      : formatPart(end);
-  return `${formatPart(start)} — ${tail}`;
-}
+import { timelineEntries } from "@data/content";
 ---
 
 <section
   id="experience"
-  class="experience"
+  class="timeline"
 >
-  <div class="experience__inner">
-    <header class="experience__header">
-      <p class="experience__eyebrow">
+  <div class="timeline__inner">
+    <header class="timeline__header">
+      <p class="timeline__eyebrow">
         Experience
       </p>
-      <h2 class="experience__title">
+      <h2 class="timeline__title">
         Where I've worked.
       </h2>
+      <p class="timeline__hint">
+        Scroll back through time — click
+        a role for details.
+      </p>
     </header>
+  </div>
 
-    <ol class="experience__list">
+  <div
+    class="timeline__scroller"
+    data-timeline-scroller
+    tabindex="0"
+    role="group"
+    aria-label="Career timeline, scroll horizontally"
+  >
+    <ol class="timeline__track">
       {
-        experience.map((role) => (
-          <li class="experience__row">
-            <span class="experience__range">
-              {formatRange(
-                role.start,
-                role.end,
-              )}
-            </span>
-            <div class="experience__role">
-              <span class="experience__title-line">
-                {role.title}
+        timelineEntries.map((entry) => (
+          <li class="timeline__item">
+            <button
+              type="button"
+              class="timeline__node"
+              data-timeline-open={
+                entry.id
+              }
+              aria-haspopup="dialog"
+            >
+              <span class="timeline__node-date">
+                {entry.range}
               </span>
-              {role.note && (
-                <span class="experience__note">
-                  {role.note}
+              <span class="timeline__dot-row">
+                <span class="timeline__dot" />
+              </span>
+              <span class="timeline__node-body">
+                <span class="timeline__node-company">
+                  {entry.company}
                 </span>
-              )}
-            </div>
-            <span class="experience__company">
-              {role.company}
-            </span>
+                {entry.role && (
+                  <span class="timeline__node-role">
+                    {entry.role}
+                  </span>
+                )}
+              </span>
+            </button>
           </li>
         ))
       }
     </ol>
   </div>
+
+  <dialog
+    class="tl-modal"
+    data-timeline-modal
+    aria-label="Role details"
+  >
+    <div class="tl-modal__card">
+      <button
+        type="button"
+        class="tl-modal__close"
+        data-timeline-close
+        aria-label="Close"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <line
+            x1="18"
+            y1="6"
+            x2="6"
+            y2="18"></line>
+          <line
+            x1="6"
+            y1="6"
+            x2="18"
+            y2="18"></line>
+        </svg>
+      </button>
+      <p
+        class="tl-modal__range"
+        data-tl-range
+      >
+      </p>
+      <h3
+        class="tl-modal__company"
+        data-tl-company
+      >
+      </h3>
+      <p
+        class="tl-modal__role"
+        data-tl-role
+      >
+      </p>
+      <div
+        class="tl-modal__body"
+        data-tl-body
+      >
+      </div>
+      <div
+        class="tl-modal__section"
+        data-tl-highlights-wrap
+      >
+        <p class="tl-modal__label">
+          Highlights
+        </p>
+        <ul
+          class="tl-modal__highlights"
+          data-tl-highlights
+        >
+        </ul>
+      </div>
+      <ul
+        class="tl-modal__stack"
+        data-tl-stack
+      >
+      </ul>
+      <a
+        class="tl-modal__link"
+        data-tl-link
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Visit site →
+      </a>
+    </div>
+  </dialog>
+
+  <script
+    type="application/json"
+    id="timeline-data"
+    is:inline
+    set:html={JSON.stringify(
+      timelineEntries,
+    )}
+  />
 </section>
 
-<style lang="scss">
-  .experience {
-    padding: var(--space-800)
-      var(--shell-padding-x);
+<script>
+  type TimelineEntry = {
+    id: string;
+    company: string;
+    role: string;
+    range: string;
+    year: string;
+    paragraphs: string[];
+    highlights: string[];
+    stack: string[];
+    href?: string;
+  };
+
+  const dataEl =
+    document.getElementById(
+      "timeline-data",
+    );
+  const entries: TimelineEntry[] =
+    dataEl
+      ? JSON.parse(
+          dataEl.textContent ?? "[]",
+        )
+      : [];
+  const byId = new Map(
+    entries.map((e) => [e.id, e]),
+  );
+
+  const scroller =
+    document.querySelector<HTMLElement>(
+      "[data-timeline-scroller]",
+    );
+  // Start at the most recent (right) end so the visitor scrolls back in time.
+  if (scroller) {
+    requestAnimationFrame(() => {
+      scroller.scrollLeft =
+        scroller.scrollWidth;
+    });
   }
 
-  .experience__inner {
+  const modal =
+    document.querySelector<HTMLDialogElement>(
+      "[data-timeline-modal]",
+    );
+
+  const setText = (
+    sel: string,
+    value: string,
+  ) => {
+    const el =
+      modal?.querySelector<HTMLElement>(
+        sel,
+      );
+    if (el) el.textContent = value;
+  };
+
+  function fillModal(
+    entry: TimelineEntry,
+  ) {
+    if (!modal) return;
+    setText(
+      "[data-tl-range]",
+      entry.range,
+    );
+    setText(
+      "[data-tl-company]",
+      entry.company,
+    );
+    setText(
+      "[data-tl-role]",
+      entry.role,
+    );
+
+    const body =
+      modal.querySelector<HTMLElement>(
+        "[data-tl-body]",
+      );
+    if (body) {
+      body.innerHTML = "";
+      for (const p of entry.paragraphs) {
+        const para =
+          document.createElement("p");
+        para.textContent = p;
+        body.appendChild(para);
+      }
+    }
+
+    const hlWrap =
+      modal.querySelector<HTMLElement>(
+        "[data-tl-highlights-wrap]",
+      );
+    const hl =
+      modal.querySelector<HTMLElement>(
+        "[data-tl-highlights]",
+      );
+    if (hl && hlWrap) {
+      hl.innerHTML = "";
+      entry.highlights.forEach((h) => {
+        const li =
+          document.createElement("li");
+        li.textContent = h;
+        hl.appendChild(li);
+      });
+      hlWrap.style.display =
+        entry.highlights.length > 0
+          ? ""
+          : "none";
+    }
+
+    const stack =
+      modal.querySelector<HTMLElement>(
+        "[data-tl-stack]",
+      );
+    if (stack) {
+      stack.innerHTML = "";
+      entry.stack.forEach((s) => {
+        const li =
+          document.createElement("li");
+        li.textContent = s;
+        stack.appendChild(li);
+      });
+      stack.style.display =
+        entry.stack.length > 0
+          ? ""
+          : "none";
+    }
+
+    const link =
+      modal.querySelector<HTMLAnchorElement>(
+        "[data-tl-link]",
+      );
+    if (link) {
+      if (entry.href) {
+        link.href = entry.href;
+        link.style.display = "";
+      } else {
+        link.removeAttribute("href");
+        link.style.display = "none";
+      }
+    }
+  }
+
+  let lastTrigger: HTMLElement | null =
+    null;
+
+  document
+    .querySelectorAll<HTMLButtonElement>(
+      "[data-timeline-open]",
+    )
+    .forEach((btn) => {
+      btn.addEventListener(
+        "click",
+        () => {
+          const id =
+            btn.dataset.timelineOpen;
+          const entry = id
+            ? byId.get(id)
+            : undefined;
+          if (!entry || !modal) return;
+          lastTrigger = btn;
+          fillModal(entry);
+          modal.showModal();
+        },
+      );
+    });
+
+  if (modal) {
+    const close = () => {
+      modal.close();
+    };
+
+    modal
+      .querySelector(
+        "[data-timeline-close]",
+      )
+      ?.addEventListener(
+        "click",
+        close,
+      );
+
+    // Click on the backdrop (outside the card) closes the dialog.
+    modal.addEventListener(
+      "click",
+      (event) => {
+        if (event.target === modal)
+          close();
+      },
+    );
+
+    modal.addEventListener(
+      "close",
+      () => {
+        lastTrigger?.focus();
+        lastTrigger = null;
+      },
+    );
+  }
+</script>
+
+<style lang="scss">
+  .timeline {
+    padding: var(--space-800) 0;
+  }
+
+  .timeline__inner {
     max-width: var(--shell-max-width);
     margin: 0 auto;
+    padding: 0 var(--shell-padding-x);
   }
 
-  .experience__eyebrow {
+  .timeline__eyebrow {
     color: var(--color-text-subtle);
     font-size: var(--text-300);
     font-weight: 600;
@@ -103,70 +375,290 @@ function formatRange(
     margin-bottom: var(--space-300);
   }
 
-  .experience__title {
+  .timeline__title {
     font-size: var(--text-800);
     font-weight: 800;
     letter-spacing: -0.02em;
     color: var(--color-text);
-    margin-bottom: var(--space-600);
   }
 
-  .experience__list {
-    display: grid;
+  .timeline__hint {
+    margin-top: var(--space-300);
+    color: var(--color-text-muted);
+    font-size: var(--text-300);
   }
 
-  .experience__row {
-    display: grid;
-    grid-template-columns: 12rem 1fr auto;
-    gap: var(--space-500);
+  .timeline__scroller {
+    margin-top: var(--space-700);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+
+    &:focus-visible {
+      outline: 2px solid
+        rgba(
+          var(
+            --color-accent-strong-rgb
+          ),
+          0.6
+        );
+      outline-offset: 4px;
+    }
+  }
+
+  .timeline__track {
+    position: relative;
+    display: inline-flex;
     align-items: start;
-    padding: var(--space-500) 0;
-    border-top: 1px solid
-      var(--color-border);
+    gap: var(--space-700);
+    min-width: max-content;
+    padding: 0 var(--shell-padding-x)
+      var(--space-500);
   }
 
-  .experience__row:last-child {
-    border-bottom: 1px solid
-      var(--color-border);
+  // Continuous line aligned with the dot row (date row height + half dot row).
+  .timeline__track::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 2.25rem;
+    height: 2px;
+    background: var(
+      --color-border-strong
+    );
   }
 
-  .experience__range {
+  .timeline__item {
+    scroll-snap-align: center;
+  }
+
+  .timeline__node {
+    display: grid;
+    grid-template-rows: 1.5rem 1.5rem auto;
+    justify-items: center;
+    text-align: center;
+    width: 13.5rem;
+    color: var(--color-text);
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  .timeline__node-date {
+    height: 1.5rem;
+    line-height: 1.5rem;
     color: var(--color-text-subtle);
     font-size: var(--text-300);
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .timeline__dot-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.5rem;
+  }
+
+  .timeline__dot {
+    position: relative;
+    z-index: 1;
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: var(--radius-pill);
+    background: var(
+      --color-accent-strong
+    );
+    box-shadow: 0 0 0 4px
+      var(--color-canvas);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .timeline__node:hover .timeline__dot {
+    transform: scale(1.25);
+  }
+
+  .timeline__node-body {
+    display: grid;
+    gap: var(--space-100);
+    margin-top: var(--space-300);
+  }
+
+  .timeline__node-company {
+    font-weight: 700;
+    font-size: var(--text-400);
+    color: var(--color-text);
+  }
+
+  .timeline__node-role {
+    color: var(--color-text-muted);
+    font-size: var(--text-300);
+  }
+
+  // --- Modal -----------------------------------------------------------------
+  .tl-modal {
+    width: min(
+      40rem,
+      calc(100vw - 2rem)
+    );
+    max-height: calc(100vh - 4rem);
+    padding: 0;
+    border: 1px solid
+      var(--color-border-strong);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: var(--shadow-hover);
+
+    &::backdrop {
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(2px);
+    }
+  }
+
+  .tl-modal__card {
+    position: relative;
+    padding: var(--space-700);
+    overflow-y: auto;
+    max-height: calc(100vh - 4rem);
+  }
+
+  .tl-modal__close {
+    position: absolute;
+    top: var(--space-400);
+    right: var(--space-400);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-pill);
+    color: var(--color-text-muted);
+    transition:
+      color 0.2s ease,
+      background 0.2s ease;
+
+    &:hover {
+      color: var(--color-text);
+      background: var(
+        --color-surface-muted
+      );
+    }
+  }
+
+  .tl-modal__range {
+    color: var(--color-text-subtle);
+    font-size: var(--text-300);
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
-  .experience__role {
-    display: grid;
-    gap: var(--space-200);
+  .tl-modal__company {
+    margin-top: var(--space-200);
+    font-size: var(--text-700);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    padding-right: var(--space-600);
   }
 
-  .experience__title-line {
-    color: var(--color-text);
-    font-weight: 700;
-    font-size: var(--text-500);
-  }
-
-  .experience__note {
-    color: var(--color-text-muted);
-    font-size: var(--text-400);
-    max-width: 60ch;
-  }
-
-  .experience__company {
-    color: var(--color-text);
+  .tl-modal__role {
+    margin-top: var(--space-200);
+    color: var(--color-accent-strong);
     font-weight: 600;
     font-size: var(--text-400);
-    text-align: right;
   }
 
-  @media (max-width: 720px) {
-    .experience__row {
-      grid-template-columns: 1fr;
+  .tl-modal__body {
+    margin-top: var(--space-500);
+    display: grid;
+    gap: var(--space-400);
+    color: var(--color-text-muted);
+    font-size: var(--text-400);
+    line-height: 1.65;
+  }
+
+  .tl-modal__section {
+    margin-top: var(--space-600);
+  }
+
+  .tl-modal__label {
+    color: var(--color-text-subtle);
+    font-size: var(--text-300);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: var(--space-300);
+  }
+
+  .tl-modal__highlights {
+    display: grid;
+    gap: var(--space-300);
+    color: var(--color-text-muted);
+    font-size: var(--text-400);
+    line-height: 1.55;
+  }
+
+  .tl-modal__highlights li {
+    position: relative;
+    padding-left: var(--space-500);
+  }
+
+  .tl-modal__highlights li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: var(--radius-pill);
+    background: var(
+      --color-accent-strong
+    );
+  }
+
+  .tl-modal__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-300);
+    margin-top: var(--space-600);
+    color: var(--color-text-subtle);
+    font-size: var(--text-300);
+  }
+
+  .tl-modal__stack li {
+    padding: 0.25rem 0.6rem;
+    border: 1px solid
+      var(--color-border);
+    border-radius: var(--radius-pill);
+  }
+
+  .tl-modal__link {
+    display: inline-block;
+    margin-top: var(--space-600);
+    color: var(--color-accent-strong);
+    font-weight: 600;
+    font-size: var(--text-400);
+
+    &:hover {
+      text-decoration: underline;
     }
-    .experience__company {
-      text-align: left;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .timeline__scroller {
+      scroll-behavior: auto;
+    }
+    .timeline__node,
+    .timeline__dot {
+      transition: none;
     }
   }
 </style>

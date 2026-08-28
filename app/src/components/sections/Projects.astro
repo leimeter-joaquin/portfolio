@@ -1,13 +1,6 @@
 ---
 import ProjectCard from "@components/ProjectCard.astro";
-import { projects } from "@data/mock";
-
-const featured = projects.find(
-  (p) => p.featured,
-);
-const secondaries = projects
-  .filter((p) => !p.featured)
-  .slice(0, 2);
+import { projectCards } from "@data/content";
 ---
 
 <section id="work" class="projects">
@@ -16,44 +9,27 @@ const secondaries = projects
       <p class="projects__eyebrow">
         Selected work
       </p>
-      <div
-        class="projects__heading-row"
-      >
-        <h2 class="projects__title">
-          Things I've shipped.
-        </h2>
-        <a
-          class="projects__more"
-          href="#work">All projects →</a
-        >
-      </div>
+      <h2 class="projects__title">
+        Things I've shipped.
+      </h2>
     </header>
 
     <ul class="projects__grid">
       {
-        featured && (
-          <li class="projects__row projects__row--featured">
+        projectCards.map((p) => (
+          <li
+            class={
+              p.featured
+                ? "projects__cell projects__cell--featured"
+                : "projects__cell"
+            }
+          >
             <ProjectCard
-              project={featured}
-              featured
+              project={p}
+              featured={p.featured}
             />
           </li>
-        )
-      }
-      {
-        secondaries.length > 0 && (
-          <li class="projects__row projects__row--secondary">
-            <ul class="projects__pair">
-              {secondaries.map((p) => (
-                <li>
-                  <ProjectCard
-                    project={p}
-                  />
-                </li>
-              ))}
-            </ul>
-          </li>
-        )
+        ))
       }
     </ul>
   </div>
@@ -82,47 +58,38 @@ const secondaries = projects
     margin-bottom: var(--space-300);
   }
 
-  .projects__heading-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-400);
-    margin-bottom: var(--space-600);
-  }
-
   .projects__title {
     font-size: var(--text-800);
     font-weight: 800;
     color: var(--color-text);
     letter-spacing: -0.02em;
-  }
-
-  .projects__more {
-    color: var(--color-accent-strong);
-    font-size: var(--text-300);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
+    margin-bottom: var(--space-600);
   }
 
   .projects__grid {
     display: grid;
+    grid-template-columns: repeat(
+      2,
+      1fr
+    );
     gap: var(--space-500);
+    align-items: stretch;
   }
 
-  .projects__pair {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-500);
+  .projects__cell {
+    display: flex;
+  }
+
+  .projects__cell--featured {
+    grid-column: 1 / -1;
   }
 
   @media (max-width: 720px) {
-    .projects__pair {
+    .projects__grid {
       grid-template-columns: 1fr;
     }
-    .projects__heading-row {
-      flex-direction: column;
-      align-items: flex-start;
+    .projects__cell--featured {
+      grid-column: auto;
     }
   }
 </style>

@@ -1,20 +1,45 @@
 ---
-const eyebrow = "Full Stack Developer";
-const before = "I build the ";
-const accent = "whole system";
-const after =
-  ", interface to infrastructure.";
-const bio =
-  "I'm a web developer with a solid foundation in both front and back ends. Across teams and roles I've worked through every stage of the product lifecycle — discovery, design, implementation, release. Lately I'm expanding into DevOps and infrastructure, with a focus on AWS. The goal: own the system end to end, from interface to infrastructure.";
+import {
+  hero,
+  site,
+} from "@data/content";
 
-const contact = {
-  location:
-    "Rosario / Santa Fe, Argentina",
-  email: "leimeter.joaquin@gmail.com",
-  github:
-    "https://github.com/leimeter-joaquin",
-  linkedin: "",
-};
+const {
+  eyebrow,
+  headline,
+  accentPhrase,
+  bio,
+} = hero;
+const { contact } = site;
+
+// Split the headline around the accent phrase so it can be color-highlighted.
+const accentIndex = headline.indexOf(
+  accentPhrase,
+);
+const before =
+  accentIndex >= 0
+    ? headline.slice(0, accentIndex)
+    : headline;
+const accent =
+  accentIndex >= 0 ? accentPhrase : "";
+const after =
+  accentIndex >= 0
+    ? headline.slice(
+        accentIndex +
+          accentPhrase.length,
+      )
+    : "";
+
+const githubLabel =
+  contact.github.replace(
+    /^https?:\/\//,
+    "",
+  );
+const linkedinLabel =
+  contact.linkedin.replace(
+    /^https?:\/\//,
+    "",
+  );
 ---
 
 <section id="about" class="hero">
@@ -32,10 +57,7 @@ const contact = {
           >{accent}</span
         >{after}
       </h1>
-      <p
-        class="hero__bio"
-        data-bio
-      >
+      <p class="hero__bio" data-bio>
         {bio}
       </p>
     </div>
@@ -51,11 +73,57 @@ const contact = {
         </div>
         <div class="hero__meta-row">
           <dt>Email</dt>
-          <dd>
+          <dd class="hero__meta-email">
             <a
               href={`mailto:${contact.email}`}
               >{contact.email}</a
             >
+            <button
+              type="button"
+              class="hero__copy"
+              data-copy-email={contact.email}
+              aria-label="Copy email to clipboard"
+            >
+              <svg
+                class="hero__copy-icon hero__copy-icon--copy"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect
+                  x="9"
+                  y="9"
+                  width="13"
+                  height="13"
+                  rx="2"
+                  ry="2"></rect>
+                <path
+                  d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                ></path>
+              </svg>
+              <svg
+                class="hero__copy-icon hero__copy-icon--check"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <polyline
+                  points="20 6 9 17 4 12"
+                ></polyline>
+              </svg>
+            </button>
           </dd>
         </div>
         <div class="hero__meta-row">
@@ -65,7 +133,7 @@ const contact = {
               href={contact.github}
               rel="noopener noreferrer"
               target="_blank"
-              >github.com/leimeter-joaquin</a
+              >{githubLabel}</a
             >
           </dd>
         </div>
@@ -76,13 +144,42 @@ const contact = {
               href={contact.linkedin}
               rel="noopener noreferrer"
               target="_blank"
-              >linkedin.com/in/joaquinleimeter</a
+              >{linkedinLabel}</a
             >
           </dd>
         </div>
       </dl>
     </aside>
   </div>
+
+  <a
+    class="hero__scroll"
+    href="#work"
+    aria-label="Scroll to projects"
+  >
+    <span class="hero__scroll-label"
+      >Scroll</span
+    >
+    <span
+      class="hero__scroll-chevron"
+      aria-hidden="true"
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polyline
+          points="6 9 12 15 18 9"
+        ></polyline>
+      </svg>
+    </span>
+  </a>
 </section>
 
 <script>
@@ -145,97 +242,67 @@ const contact = {
     });
   }
 
-  const bioEl =
-    document.querySelector<HTMLElement>(
-      "[data-bio]",
+  const copyBtn =
+    document.querySelector<HTMLButtonElement>(
+      "[data-copy-email]",
     );
-  if (
-    bioEl &&
-    !window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches
-  ) {
-    const full = (
-      bioEl.textContent ?? ""
-    ).trim();
-    bioEl.textContent = "";
-    bioEl.classList.add(
-      "hero__bio--typing",
-    );
-    const headlineWordCount =
-      document.querySelectorAll(
-        ".hero__word",
-      ).length;
-    const startDelay =
-      headlineWordCount * 60 + 400;
-    const sentences = full.match(
-      /[^.!?]+[.!?]+\s*/g,
-    ) ?? [full];
-    const charMs = 22;
-    const pauseMs = 450;
-
-    const wait = (ms: number) =>
-      new Promise((r) =>
-        setTimeout(r, ms),
-      );
-
-    const typeSentence = (
-      from: number,
-      to: number,
-    ) =>
-      new Promise<void>((resolve) => {
-        const state = { i: from };
-        animate(state, {
-          i: to,
-          duration:
-            (to - from) * charMs,
-          ease: "linear",
-          onUpdate: () => {
-            bioEl.textContent =
-              full.slice(
-                0,
-                Math.round(state.i),
-              );
-          },
-          onComplete: () => resolve(),
-        });
-      });
-
-    (async () => {
-      await wait(startDelay);
-      let cursor = 0;
-      for (const s of sentences) {
-        const end = cursor + s.length;
-        await typeSentence(
-          cursor,
-          end,
-        );
-        cursor = end;
-        if (
-          cursor < full.length
-        ) {
-          await wait(pauseMs);
+  if (copyBtn) {
+    let resetTimer: number | undefined;
+    copyBtn.addEventListener(
+      "click",
+      async () => {
+        const email =
+          copyBtn.dataset.copyEmail ??
+          "";
+        try {
+          await navigator.clipboard.writeText(
+            email,
+          );
+        } catch {
+          return;
         }
-      }
-      bioEl.textContent = full;
-      bioEl.classList.remove(
-        "hero__bio--typing",
-      );
-    })();
+        copyBtn.classList.add(
+          "hero__copy--copied",
+        );
+        copyBtn.setAttribute(
+          "aria-label",
+          "Email copied",
+        );
+        window.clearTimeout(resetTimer);
+        resetTimer = window.setTimeout(
+          () => {
+            copyBtn.classList.remove(
+              "hero__copy--copied",
+            );
+            copyBtn.setAttribute(
+              "aria-label",
+              "Copy email to clipboard",
+            );
+          },
+          1600,
+        );
+      },
+    );
   }
 </script>
 
 <style lang="scss">
   .hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    /* Fill the viewport below the sticky header. svh keeps mobile chrome from clipping. */
+    min-height: calc(100svh - 4.5rem);
     padding: var(--space-800)
       var(--shell-padding-x)
-      var(--space-700);
+      var(--space-900);
   }
 
   .hero__inner {
     display: grid;
     grid-template-columns: 1.6fr 1fr;
     gap: var(--space-700);
+    width: 100%;
     max-width: var(--shell-max-width);
     margin: 0 auto;
   }
@@ -279,18 +346,45 @@ const contact = {
     min-height: 1.65em;
   }
 
-  .hero__bio--typing::after {
-    content: "▋";
-    display: inline-block;
-    margin-left: 2px;
-    color: var(--color-accent-strong);
-    animation: hero-caret 0.9s
-      steps(1) infinite;
+  .hero__scroll {
+    position: absolute;
+    left: 50%;
+    bottom: var(--space-500);
+    transform: translateX(-50%);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-200);
+    color: var(--color-text-subtle);
+    font-size: var(--text-300);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--color-text);
+    }
   }
 
-  @keyframes hero-caret {
+  .hero__scroll-chevron {
+    display: inline-flex;
+    animation: hero-bounce 1.8s
+      ease-in-out infinite;
+  }
+
+  @keyframes hero-bounce {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
     50% {
-      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__scroll-chevron {
+      animation: none;
     }
   }
 
@@ -336,6 +430,59 @@ const contact = {
         --color-accent-strong
       );
     }
+  }
+
+  .hero__meta-email {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-300);
+  }
+
+  .hero__copy {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-subtle);
+    transition:
+      color 0.2s ease,
+      background 0.2s ease;
+
+    &:hover {
+      color: var(--color-text);
+      background: var(
+        --color-surface-muted
+      );
+    }
+  }
+
+  .hero__copy-icon {
+    position: absolute;
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  .hero__copy-icon--check {
+    opacity: 0;
+    transform: scale(0.6);
+    color: var(--color-accent-strong);
+  }
+
+  .hero__copy--copied
+    .hero__copy-icon--copy {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  .hero__copy--copied
+    .hero__copy-icon--check {
+    opacity: 1;
+    transform: scale(1);
   }
 
   @media (max-width: 900px) {

@@ -20,4 +20,4 @@ The language itself is approachable coming from a JavaScript background, but the
 
 ## Context
 
-This is early-stage learning — I would not yet claim production Python experience. I'm including it here because it is a deliberate part of how I am expanding beyond front-end work, and I see it becoming more relevant as I work closer to infrastructure and AI-driven tooling.
+This is early-stage learning — I would not yet claim production Python experience. I'm including it here because it is a deliberate part of how I am expanding beyond application-layer work, and I see it becoming more relevant as I work closer to infrastructure and AI-driven tooling.
