@@ -214,15 +214,39 @@ svg {
   border-radius: 2px;
 }
 
-// The circular wipe is driven from Layout.astro via the Web Animations
-// API, so the old snapshot just sits still underneath while the new one
-// is clipped open over it.
-::view-transition-old(root),
-::view-transition-new(root) {
+// Origin and radius come from Layout.astro as percentages — the
+// view-transition snapshot box does not share the viewport's pixel
+// coordinate space, so pixels would land somewhere else entirely.
+@keyframes theme-expand {
+  from {
+    clip-path: circle(
+      0% at var(--ripple-x, 50%)
+        var(--ripple-y, 50%)
+    );
+  }
+  to {
+    clip-path: circle(
+      var(--ripple-r, 150%) at
+        var(--ripple-x, 50%)
+        var(--ripple-y, 50%)
+    );
+  }
+}
+
+::view-transition-old(root) {
   animation: none;
-  mix-blend-mode: normal;
 }
 
 ::view-transition-new(root) {
-  z-index: 1;
+  animation: theme-expand 700ms
+    cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
+  mix-blend-mode: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-new(root),
+  ::view-transition-old(root) {
+    animation: none;
+  }
 }

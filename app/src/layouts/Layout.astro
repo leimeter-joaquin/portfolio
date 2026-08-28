@@ -142,16 +142,39 @@ const {
             // viewport's coordinate space (device pixel ratio, scrollbars),
             // and a pixel offset that lands mid-screen there reads as a
             // wipe starting from the centre.
-            const cx =
-              ((rect.left +
-                rect.width / 2) /
-                w) *
+            const px =
+              rect.left +
+              rect.width / 2;
+            const py =
+              rect.top +
+              rect.height / 2;
+            const cx = (px / w) * 100;
+            const cy = (py / h) * 100;
+            // Radius as a percentage too. circle()'s percentage resolves
+            // against hypot(w, h) / sqrt(2), so convert the distance to
+            // the farthest corner through that same reference.
+            const reach = Math.hypot(
+              Math.max(px, w - px),
+              Math.max(py, h - py),
+            );
+            const radius =
+              (reach /
+                (Math.hypot(w, h) /
+                  Math.SQRT2)) *
               100;
-            const cy =
-              ((rect.top +
-                rect.height / 2) /
-                h) *
-              100;
+
+            html.style.setProperty(
+              "--ripple-x",
+              `${cx}%`,
+            );
+            html.style.setProperty(
+              "--ripple-y",
+              `${cy}%`,
+            );
+            html.style.setProperty(
+              "--ripple-r",
+              `${radius}%`,
+            );
 
             const supports =
               "startViewTransition" in
@@ -166,12 +189,14 @@ const {
               return;
             }
 
-            const transition = (
+            // The keyframe in globals.scss reads the properties set
+            // above and runs with the transition rather than a tick
+            // after it, which keeps the wipe from stuttering on start.
+            (
               document as Document & {
                 startViewTransition: (
                   cb: () => void,
                 ) => {
-                  ready: Promise<void>;
                   finished: Promise<void>;
                 };
               }
@@ -180,34 +205,6 @@ const {
                 applyTheme(next);
               },
             );
-
-            // Animate the pseudo-element directly with literal values.
-            // Driving this from CSS custom properties relies on them
-            // inheriting into the view-transition pseudo tree, which
-            // browsers disagree on — when it fails the keyframe falls
-            // back to 50% 50% and the wipe starts from screen centre.
-            transition.ready
-              .then(() => {
-                html.animate(
-                  {
-                    // 150% clears the far corner from any origin.
-                    clipPath: [
-                      `circle(0% at ${cx}% ${cy}%)`,
-                      `circle(150% at ${cx}% ${cy}%)`,
-                    ],
-                  },
-                  {
-                    duration: 700,
-                    easing:
-                      "cubic-bezier(0.22, 1, 0.36, 1)",
-                    pseudoElement:
-                      "::view-transition-new(root)",
-                  },
-                );
-              })
-              // An aborted transition still applied the theme; there is
-              // just nothing left to animate.
-              .catch(() => {});
           },
         );
       }
