@@ -1,5 +1,17 @@
 ---
 import { timelineEntries } from "@data/content";
+
+const current =
+  timelineEntries[0];
+
+function segmentPx(
+  months: number,
+): number {
+  return Math.max(
+    40,
+    Math.min(170, months * 6),
+  );
+}
 ---
 
 <section
@@ -15,52 +27,137 @@ import { timelineEntries } from "@data/content";
         Where I've worked.
       </h2>
       <p class="timeline__hint">
-        Scroll back through time — click
-        a role for details.
+        Newest role first — line
+        length traces how long each one
+        lasted.
       </p>
     </header>
-  </div>
 
-  <div
-    class="timeline__scroller"
-    data-timeline-scroller
-    tabindex="0"
-    role="group"
-    aria-label="Career timeline, scroll horizontally"
-  >
-    <ol class="timeline__track">
-      {
-        timelineEntries.map((entry) => (
-          <li class="timeline__item">
-            <button
-              type="button"
-              class="timeline__node"
-              data-timeline-open={
-                entry.id
-              }
-              aria-haspopup="dialog"
-            >
-              <span class="timeline__node-date">
-                {entry.range}
-              </span>
-              <span class="timeline__dot-row">
-                <span class="timeline__dot" />
-              </span>
-              <span class="timeline__node-body">
-                <span class="timeline__node-company">
-                  {entry.company}
-                </span>
-                {entry.role && (
-                  <span class="timeline__node-role">
-                    {entry.role}
+    <div class="timeline__layout">
+      <ol class="timeline__rail">
+        {
+          timelineEntries.map(
+            (entry, i) => (
+              <li class="timeline__item">
+                <button
+                  type="button"
+                  class={`timeline__row${i === 0 ? " timeline__row--active" : ""}`}
+                  data-timeline-open={
+                    entry.id
+                  }
+                  aria-current={
+                    i === 0
+                      ? "true"
+                      : undefined
+                  }
+                >
+                  <span class="timeline__rail-line">
+                    <span class="timeline__dot" />
+                    {i <
+                      timelineEntries.length -
+                        1 && (
+                      <span
+                        class={`timeline__segment${entry.isCurrent ? " timeline__segment--ongoing" : ""}`}
+                        style={`height: ${segmentPx(entry.durationMonths)}px;`}
+                      />
+                    )}
                   </span>
-                )}
-              </span>
-            </button>
-          </li>
-        ))
-      }
-    </ol>
+                  <span class="timeline__row-body">
+                    <span class="timeline__row-date">
+                      {entry.range}
+                    </span>
+                    <span class="timeline__row-company">
+                      {entry.company}
+                    </span>
+                    {entry.role && (
+                      <span class="timeline__row-role">
+                        {entry.role}
+                      </span>
+                    )}
+                  </span>
+                </button>
+              </li>
+            ),
+          )
+        }
+      </ol>
+
+      <aside
+        class="timeline__detail"
+        data-timeline-panel
+        aria-live="polite"
+      >
+        <p
+          class="timeline__detail-range"
+          data-tl-range
+        >
+          {current.range}
+        </p>
+        <h3
+          class="timeline__detail-company"
+          data-tl-company
+        >
+          {current.company}
+        </h3>
+        <p
+          class="timeline__detail-role"
+          data-tl-role
+        >
+          {current.role}
+        </p>
+        <div
+          class="timeline__detail-body"
+          data-tl-body
+        >
+          {current.paragraphs.map(
+            (p) => <p>{p}</p>,
+          )}
+        </div>
+        {current.highlights.length >
+          0 && (
+          <div
+            class="timeline__detail-section"
+            data-tl-highlights-wrap
+          >
+            <p class="timeline__detail-label">
+              Highlights
+            </p>
+            <ul
+              class="timeline__detail-highlights"
+              data-tl-highlights
+            >
+              {current.highlights.map(
+                (h) => <li>{h}</li>,
+              )}
+            </ul>
+          </div>
+        )}
+        {current.stack.length > 0 && (
+          <ul
+            class="timeline__detail-stack"
+            data-tl-stack
+          >
+            {current.stack.map(
+              (s) => <li>{s}</li>,
+            )}
+          </ul>
+        )}
+        <a
+          class="timeline__detail-link"
+          data-tl-link
+          href={current.href}
+          style={
+            current.href
+              ? undefined
+              : "display: none;"
+          }
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Visit site →
+        </a>
+      </aside>
+    </div>
   </div>
 
   <dialog
@@ -164,6 +261,8 @@ import { timelineEntries } from "@data/content";
     role: string;
     range: string;
     year: string;
+    durationMonths: number;
+    isCurrent: boolean;
     paragraphs: string[];
     highlights: string[];
     stack: string[];
@@ -184,38 +283,27 @@ import { timelineEntries } from "@data/content";
     entries.map((e) => [e.id, e]),
   );
 
-  const scroller =
-    document.querySelector<HTMLElement>(
-      "[data-timeline-scroller]",
-    );
-  // Start at the most recent (right) end so the visitor scrolls back in time.
-  if (scroller) {
-    requestAnimationFrame(() => {
-      scroller.scrollLeft =
-        scroller.scrollWidth;
-    });
-  }
-
-  const modal =
-    document.querySelector<HTMLDialogElement>(
-      "[data-timeline-modal]",
+  const desktopQuery =
+    window.matchMedia(
+      "(min-width: 880px)",
     );
 
-  const setText = (
-    sel: string,
-    value: string,
-  ) => {
-    const el =
-      modal?.querySelector<HTMLElement>(
-        sel,
-      );
-    if (el) el.textContent = value;
-  };
-
-  function fillModal(
+  // Fill any container (the sticky detail panel or the modal card) that
+  // shares the same data-tl-* field markup.
+  function fillFields(
+    root: HTMLElement,
     entry: TimelineEntry,
   ) {
-    if (!modal) return;
+    const setText = (
+      sel: string,
+      value: string,
+    ) => {
+      const el =
+        root.querySelector<HTMLElement>(
+          sel,
+        );
+      if (el) el.textContent = value;
+    };
     setText(
       "[data-tl-range]",
       entry.range,
@@ -230,7 +318,7 @@ import { timelineEntries } from "@data/content";
     );
 
     const body =
-      modal.querySelector<HTMLElement>(
+      root.querySelector<HTMLElement>(
         "[data-tl-body]",
       );
     if (body) {
@@ -244,11 +332,11 @@ import { timelineEntries } from "@data/content";
     }
 
     const hlWrap =
-      modal.querySelector<HTMLElement>(
+      root.querySelector<HTMLElement>(
         "[data-tl-highlights-wrap]",
       );
     const hl =
-      modal.querySelector<HTMLElement>(
+      root.querySelector<HTMLElement>(
         "[data-tl-highlights]",
       );
     if (hl && hlWrap) {
@@ -266,7 +354,7 @@ import { timelineEntries } from "@data/content";
     }
 
     const stack =
-      modal.querySelector<HTMLElement>(
+      root.querySelector<HTMLElement>(
         "[data-tl-stack]",
       );
     if (stack) {
@@ -284,7 +372,7 @@ import { timelineEntries } from "@data/content";
     }
 
     const link =
-      modal.querySelector<HTMLAnchorElement>(
+      root.querySelector<HTMLAnchorElement>(
         "[data-tl-link]",
       );
     if (link) {
@@ -298,29 +386,75 @@ import { timelineEntries } from "@data/content";
     }
   }
 
+  const panel =
+    document.querySelector<HTMLElement>(
+      "[data-timeline-panel]",
+    );
+  const modal =
+    document.querySelector<HTMLDialogElement>(
+      "[data-timeline-modal]",
+    );
+  const modalCard =
+    modal?.querySelector<HTMLElement>(
+      ".tl-modal__card",
+    ) ?? modal;
+
+  const rows =
+    document.querySelectorAll<HTMLButtonElement>(
+      "[data-timeline-open]",
+    );
+
   let lastTrigger: HTMLElement | null =
     null;
 
-  document
-    .querySelectorAll<HTMLButtonElement>(
-      "[data-timeline-open]",
-    )
-    .forEach((btn) => {
-      btn.addEventListener(
-        "click",
-        () => {
-          const id =
-            btn.dataset.timelineOpen;
-          const entry = id
-            ? byId.get(id)
-            : undefined;
-          if (!entry || !modal) return;
+  rows.forEach((btn) => {
+    btn.addEventListener(
+      "click",
+      () => {
+        const id =
+          btn.dataset.timelineOpen;
+        const entry = id
+          ? byId.get(id)
+          : undefined;
+        if (!entry) return;
+
+        if (
+          desktopQuery.matches &&
+          panel
+        ) {
+          fillFields(panel, entry);
+          rows.forEach((r) =>
+            r.classList.remove(
+              "timeline__row--active",
+            ),
+          );
+          btn.classList.add(
+            "timeline__row--active",
+          );
+          btn.setAttribute(
+            "aria-current",
+            "true",
+          );
+          rows.forEach((r) => {
+            if (r !== btn)
+              r.removeAttribute(
+                "aria-current",
+              );
+          });
+          return;
+        }
+
+        if (modal && modalCard) {
           lastTrigger = btn;
-          fillModal(entry);
+          fillFields(
+            modalCard as HTMLElement,
+            entry,
+          );
           modal.showModal();
-        },
-      );
-    });
+        }
+      },
+    );
+  });
 
   if (modal) {
     const close = () => {
@@ -391,122 +525,249 @@ import { timelineEntries } from "@data/content";
     font-size: var(--text-300);
   }
 
-  .timeline__scroller {
+  // --- Layout: rail + sticky detail panel ------------------------------------
+  .timeline__layout {
     margin-top: var(--space-700);
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x proximity;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
+    display: grid;
+    grid-template-columns: minmax(
+        260px,
+        340px
+      )
+      1fr;
+    gap: var(--space-700);
+    align-items: start;
+  }
 
-    &:focus-visible {
-      outline: 2px solid
-        rgba(
-          var(
-            --color-accent-strong-rgb
-          ),
-          0.6
-        );
-      outline-offset: 4px;
+  @media (max-width: 880px) {
+    .timeline__layout {
+      grid-template-columns: 1fr;
+    }
+
+    .timeline__detail {
+      display: none;
     }
   }
 
-  .timeline__track {
-    position: relative;
-    display: inline-flex;
-    align-items: start;
-    gap: var(--space-700);
-    min-width: max-content;
-    padding: 0 var(--shell-padding-x)
-      var(--space-500);
+  // --- Rail --------------------------------------------------------------------
+  .timeline__rail {
+    display: flex;
+    flex-direction: column;
   }
 
-  // Continuous line aligned with the dot row (date row height + half dot row).
-  .timeline__track::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 2.25rem;
-    height: 2px;
+  .timeline__row {
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-400);
+    width: 100%;
+    text-align: left;
+    color: var(--color-text);
+  }
+
+  .timeline__rail-line {
+    flex: none;
+    width: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .timeline__dot {
+    flex: none;
+    width: 0.7rem;
+    height: 0.7rem;
+    margin-top: 0.2rem;
+    border-radius: var(--radius-pill);
+    background: var(
+      --color-text-subtle
+    );
+    transition:
+      background 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .timeline__row--active
+    .timeline__dot {
+    background: var(
+      --color-accent-strong
+    );
+    transform: scale(1.3);
+  }
+
+  .timeline__segment {
+    width: 2px;
+    flex: 1;
+    margin-top: var(--space-200);
     background: var(
       --color-border-strong
     );
   }
 
-  .timeline__item {
-    scroll-snap-align: center;
+  .timeline__segment--ongoing {
+    background: linear-gradient(
+      var(--color-accent-strong),
+      var(--color-border-strong)
+    );
   }
 
-  .timeline__node {
-    display: grid;
-    grid-template-rows: 1.5rem 1.5rem auto;
-    justify-items: center;
-    text-align: center;
-    width: 13.5rem;
-    color: var(--color-text);
-    transition: transform 0.2s ease;
-
-    &:hover {
-      transform: translateY(-2px);
-    }
+  .timeline__row-body {
+    padding-bottom: var(--space-500);
   }
 
-  .timeline__node-date {
-    height: 1.5rem;
-    line-height: 1.5rem;
+  .timeline__row-date {
+    display: block;
     color: var(--color-text-subtle);
     font-size: var(--text-300);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    white-space: nowrap;
   }
 
-  .timeline__dot-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 1.5rem;
-  }
-
-  .timeline__dot {
-    position: relative;
-    z-index: 1;
-    width: 0.8rem;
-    height: 0.8rem;
-    border-radius: var(--radius-pill);
-    background: var(
-      --color-accent-strong
-    );
-    box-shadow: 0 0 0 4px
-      var(--color-canvas);
-    transition:
-      transform 0.2s ease,
-      box-shadow 0.2s ease;
-  }
-
-  .timeline__node:hover .timeline__dot {
-    transform: scale(1.25);
-  }
-
-  .timeline__node-body {
-    display: grid;
-    gap: var(--space-100);
-    margin-top: var(--space-300);
-  }
-
-  .timeline__node-company {
+  .timeline__row-company {
+    display: block;
+    margin-top: var(--space-100);
     font-weight: 700;
     font-size: var(--text-400);
-    color: var(--color-text);
+    transition: color 0.2s ease;
   }
 
-  .timeline__node-role {
+  .timeline__row--active
+    .timeline__row-company {
+    color: var(
+      --color-accent-strong
+    );
+  }
+
+  .timeline__row-role {
+    display: block;
     color: var(--color-text-muted);
     font-size: var(--text-300);
   }
 
-  // --- Modal -----------------------------------------------------------------
+  // --- Detail panel (desktop) --------------------------------------------------
+  .timeline__detail {
+    position: sticky;
+    top: calc(
+      4.5rem + var(--space-600)
+    );
+    padding: var(--space-700);
+    border: 1px solid
+      var(--color-border-strong);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-hover);
+  }
+
+  // --- Shared detail-content styles (panel + modal) -----------------------------
+  .timeline__detail-range,
+  .tl-modal__range {
+    color: var(--color-text-subtle);
+    font-size: var(--text-300);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .timeline__detail-company,
+  .tl-modal__company {
+    margin-top: var(--space-200);
+    font-size: var(--text-700);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .timeline__detail-role,
+  .tl-modal__role {
+    margin-top: var(--space-200);
+    color: var(--color-accent-strong);
+    font-weight: 600;
+    font-size: var(--text-400);
+  }
+
+  .timeline__detail-body,
+  .tl-modal__body {
+    margin-top: var(--space-500);
+    display: grid;
+    gap: var(--space-400);
+    color: var(--color-text-muted);
+    font-size: var(--text-400);
+    line-height: 1.65;
+  }
+
+  .timeline__detail-section,
+  .tl-modal__section {
+    margin-top: var(--space-600);
+  }
+
+  .timeline__detail-label,
+  .tl-modal__label {
+    color: var(--color-text-subtle);
+    font-size: var(--text-300);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: var(--space-300);
+  }
+
+  .timeline__detail-highlights,
+  .tl-modal__highlights {
+    display: grid;
+    gap: var(--space-300);
+    color: var(--color-text-muted);
+    font-size: var(--text-400);
+    line-height: 1.55;
+  }
+
+  .timeline__detail-highlights li,
+  .tl-modal__highlights li {
+    position: relative;
+    padding-left: var(--space-500);
+  }
+
+  .timeline__detail-highlights
+    li::before,
+  .tl-modal__highlights li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: var(--radius-pill);
+    background: var(
+      --color-accent-strong
+    );
+  }
+
+  .timeline__detail-stack,
+  .tl-modal__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-300);
+    margin-top: var(--space-600);
+    color: var(--color-text-subtle);
+    font-size: var(--text-300);
+  }
+
+  .timeline__detail-stack li,
+  .tl-modal__stack li {
+    padding: 0.25rem 0.6rem;
+    border: 1px solid
+      var(--color-border);
+    border-radius: var(--radius-pill);
+  }
+
+  .timeline__detail-link,
+  .tl-modal__link {
+    display: inline-block;
+    margin-top: var(--space-600);
+    color: var(--color-accent-strong);
+    font-weight: 600;
+    font-size: var(--text-400);
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  // --- Modal (mobile / tablet) ---------------------------------------------------
   .tl-modal {
     width: min(
       40rem,
@@ -557,110 +818,13 @@ import { timelineEntries } from "@data/content";
     }
   }
 
-  .tl-modal__range {
-    color: var(--color-text-subtle);
-    font-size: var(--text-300);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
   .tl-modal__company {
-    margin-top: var(--space-200);
-    font-size: var(--text-700);
-    font-weight: 800;
-    letter-spacing: -0.01em;
     padding-right: var(--space-600);
   }
 
-  .tl-modal__role {
-    margin-top: var(--space-200);
-    color: var(--color-accent-strong);
-    font-weight: 600;
-    font-size: var(--text-400);
-  }
-
-  .tl-modal__body {
-    margin-top: var(--space-500);
-    display: grid;
-    gap: var(--space-400);
-    color: var(--color-text-muted);
-    font-size: var(--text-400);
-    line-height: 1.65;
-  }
-
-  .tl-modal__section {
-    margin-top: var(--space-600);
-  }
-
-  .tl-modal__label {
-    color: var(--color-text-subtle);
-    font-size: var(--text-300);
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    margin-bottom: var(--space-300);
-  }
-
-  .tl-modal__highlights {
-    display: grid;
-    gap: var(--space-300);
-    color: var(--color-text-muted);
-    font-size: var(--text-400);
-    line-height: 1.55;
-  }
-
-  .tl-modal__highlights li {
-    position: relative;
-    padding-left: var(--space-500);
-  }
-
-  .tl-modal__highlights li::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0.6em;
-    width: 0.4rem;
-    height: 0.4rem;
-    border-radius: var(--radius-pill);
-    background: var(
-      --color-accent-strong
-    );
-  }
-
-  .tl-modal__stack {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-300);
-    margin-top: var(--space-600);
-    color: var(--color-text-subtle);
-    font-size: var(--text-300);
-  }
-
-  .tl-modal__stack li {
-    padding: 0.25rem 0.6rem;
-    border: 1px solid
-      var(--color-border);
-    border-radius: var(--radius-pill);
-  }
-
-  .tl-modal__link {
-    display: inline-block;
-    margin-top: var(--space-600);
-    color: var(--color-accent-strong);
-    font-weight: 600;
-    font-size: var(--text-400);
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    .timeline__scroller {
-      scroll-behavior: auto;
-    }
-    .timeline__node,
-    .timeline__dot {
+    .timeline__dot,
+    .timeline__row-company {
       transition: none;
     }
   }

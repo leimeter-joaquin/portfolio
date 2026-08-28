@@ -113,7 +113,7 @@ export const projectCards: ProjectCard[] =
   );
 
 // --- Experience timeline -----------------------------------------------------
-// A horizontal, date-ordered (oldest → newest) view. Each entry joins a
+// A vertical, date-ordered (newest → oldest) view. Each entry joins a
 // project's dates + rich body with the matching experience role label.
 
 const MONTHS = [
@@ -149,12 +149,35 @@ function formatRange(
   return `${formatMonth(start)} — ${end ? formatMonth(end) : "Present"}`;
 }
 
+// Inclusive month count between two "YYYY-MM" strings; open-ended roles count through today.
+function monthsBetween(
+  start: string,
+  end: string | null,
+): number {
+  const [sy, sm] = start
+    .split("-")
+    .map(Number);
+  const now = new Date();
+  const [ey, em] = end
+    ? end.split("-").map(Number)
+    : [
+        now.getFullYear(),
+        now.getMonth() + 1,
+      ];
+  return Math.max(
+    1,
+    (ey - sy) * 12 + (em - sm) + 1,
+  );
+}
+
 export type TimelineEntry = {
   id: string;
   company: string;
   role: string;
   range: string;
   year: string;
+  durationMonths: number;
+  isCurrent: boolean;
   paragraphs: string[];
   highlights: string[];
   stack: string[];
@@ -164,8 +187,8 @@ export type TimelineEntry = {
 export const timelineEntries: TimelineEntry[] =
   [...projects]
     .sort((a, b) =>
-      a.dateStart.localeCompare(
-        b.dateStart,
+      b.dateStart.localeCompare(
+        a.dateStart,
       ),
     )
     .map((p) => {
@@ -181,6 +204,11 @@ export const timelineEntries: TimelineEntry[] =
           p.dateEnd ?? null,
         ),
         year: p.dateStart.split("-")[0],
+        durationMonths: monthsBetween(
+          p.dateStart,
+          p.dateEnd ?? null,
+        ),
+        isCurrent: !p.dateEnd,
         paragraphs: p.bodyMarkdown
           .split(/\n\n+/)
           .map((s) => s.trim())
