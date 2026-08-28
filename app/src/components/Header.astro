@@ -1,4 +1,5 @@
 ---
+import LogoMark from "@components/LogoMark.astro";
 import ThemeToggle from "@components/ThemeToggle.astro";
 import { site } from "@data/content";
 ---
@@ -10,9 +11,7 @@ import { site } from "@data/content";
       href="#top"
       aria-label="Joaquin Leimeter — home"
     >
-      <span
-        class="header__brand-mark"
-        aria-hidden="true"></span>
+      <LogoMark />
       <span class="header__brand-name"
         >Joaquin Leimeter</span
       >
@@ -63,15 +62,6 @@ import { site } from "@data/content";
     align-items: center;
     gap: var(--space-300);
     font-size: var(--text-400);
-  }
-
-  .header__brand-mark {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: var(--radius-pill);
-    background: var(
-      --color-accent-strong
-    );
   }
 
   .header__brand-name {
