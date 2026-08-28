@@ -124,6 +124,8 @@
     3rem
   );
   --shell-max-width: 1180px;
+  // Height of the sticky site header; sections offset themselves by it.
+  --header-height: 4.5rem;
 }
 
 html[data-theme="light"] {

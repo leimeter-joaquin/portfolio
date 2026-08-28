@@ -34,9 +34,6 @@ function segmentPx(
           <h2 class="timeline__title">
             Where I've worked.
           </h2>
-          <p class="timeline__hint">
-            Most recent role first.
-          </p>
         </header>
 
         <div class="timeline__layout">
@@ -502,6 +499,9 @@ function segmentPx(
           panel
         ) {
           selectRow(btn);
+          // Move the page to the point in the track where the marker
+          // lines up with this row, so click and scroll stay in sync.
+          scrollToRow(btn);
           return;
         }
 
@@ -528,6 +528,10 @@ function segmentPx(
     document.querySelector<HTMLElement>(
       "[data-timeline-marker]",
     );
+  const pin =
+    document.querySelector<HTMLElement>(
+      ".timeline__pin",
+    );
 
   // Vertical centre of a row's dot, relative to the rail.
   function dotCentre(
@@ -550,6 +554,59 @@ function segmentPx(
     );
   }
 
+  // Where the track starts scrolling and how far it runs. The pin sits
+  // below the site header, so travel is measured against the pin's own
+  // height, not the full viewport.
+  function trackGeometry() {
+    const trackTop =
+      track!.getBoundingClientRect()
+        .top + window.scrollY;
+    const pinH =
+      pin?.offsetHeight ??
+      window.innerHeight;
+    const headerH =
+      window.innerHeight - pinH;
+    return {
+      start: trackTop - headerH,
+      travel:
+        track!.offsetHeight - pinH,
+    };
+  }
+
+  // Scroll the page to the point where the marker meets this row.
+  function scrollToRow(
+    btn: HTMLButtonElement,
+  ) {
+    if (
+      !desktopQuery.matches ||
+      !track ||
+      rows.length < 2
+    )
+      return;
+    const first = dotCentre(rows[0]);
+    const last = dotCentre(
+      rows[rows.length - 1],
+    );
+    if (last === first) return;
+    const target = dotCentre(btn);
+    const ratio =
+      (target - first) / (last - first);
+    const { start, travel } =
+      trackGeometry();
+    // Snap the marker to the row right away; the scroll that follows
+    // keeps it there rather than being what moves it.
+    if (marker)
+      marker.style.transform = `translateY(${target}px)`;
+    window.scrollTo({
+      top: start + ratio * travel,
+      behavior: window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches
+        ? "auto"
+        : "smooth",
+    });
+  }
+
   let ticking = false;
   function syncToScroll() {
     ticking = false;
@@ -562,14 +619,10 @@ function segmentPx(
     )
       return;
 
-    const trackTop =
-      track.getBoundingClientRect()
-        .top + window.scrollY;
-    const travel =
-      track.offsetHeight -
-      window.innerHeight;
+    const { start, travel } =
+      trackGeometry();
     const passed =
-      window.scrollY - trackTop;
+      window.scrollY - start;
     const progress =
       travel > 0
         ? Math.min(
@@ -672,10 +725,13 @@ function segmentPx(
       padding: 0;
     }
 
+    // Parks below the sticky site header rather than under it.
     .timeline__pin {
       position: sticky;
-      top: 0;
-      height: 100vh;
+      top: var(--header-height);
+      height: calc(
+        100vh - var(--header-height)
+      );
       display: flex;
       align-items: center;
       overflow: hidden;
@@ -719,6 +775,17 @@ function segmentPx(
       1fr;
     gap: var(--space-700);
     align-items: start;
+  }
+
+  // Desktop: the panel is sized off the viewport, never off its contents, so
+  // switching roles never resizes it — long entries scroll inside instead.
+  @media (min-width: 881px) {
+    .timeline__detail {
+      height: calc(
+        100vh - var(--header-height) -
+          11rem
+      );
+    }
   }
 
   @media (max-width: 880px) {
@@ -824,7 +891,7 @@ function segmentPx(
   @media (min-width: 881px) {
     .timeline__segment {
       min-height: calc(
-        var(--seg) * 0.52px
+        var(--seg) * 0.06vh
       );
     }
   }
@@ -888,8 +955,8 @@ function segmentPx(
     border-radius: var(--radius-lg);
     background: var(--color-surface);
     box-shadow: var(--shadow-hover);
-    max-height: 74vh;
     overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   // --- Shared detail-content styles (panel + modal) -----------------------------
