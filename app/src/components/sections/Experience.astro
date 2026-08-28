@@ -839,6 +839,8 @@ function segmentPx(
     align-items: stretch;
     gap: var(--space-400);
     width: 100%;
+    // The UA button padding would otherwise break the line between rows.
+    padding: 0;
     text-align: left;
     color: var(--color-text);
   }
@@ -880,7 +882,10 @@ function segmentPx(
     width: 2px;
     flex: 1;
     min-height: calc(var(--seg) * 1px);
-    margin-top: var(--space-200);
+    // Butt against the dot above, and run the next dot's own top margin
+    // out so the line meets it instead of stopping short.
+    margin-top: 0;
+    margin-bottom: -0.2rem;
     background: var(
       --color-border-strong
     );
