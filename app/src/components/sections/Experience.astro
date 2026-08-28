@@ -64,7 +64,7 @@ function segmentPx(
                           timelineEntries.length -
                             1 && (
                           <span
-                            class={`timeline__segment${entry.isCurrent ? " timeline__segment--ongoing" : ""}`}
+                            class="timeline__segment"
                             style={`--seg: ${segmentPx(entry.durationMonths)};`}
                           >
                             {entry.durationMonths >
@@ -912,13 +912,6 @@ function segmentPx(
       --color-border-strong
     );
     opacity: 0.65;
-  }
-
-  .timeline__segment--ongoing {
-    background: linear-gradient(
-      var(--color-accent-strong),
-      var(--color-border-strong)
-    );
   }
 
   .timeline__row-body {
