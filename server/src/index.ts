@@ -226,6 +226,9 @@ const LOCATION_KEY = "location:current";
 // Past this, fall back to the static location rather than claiming he is still
 // wherever he last checked in from.
 const LOCATION_MAX_AGE = 14 * 24 * 60 * 60 * 1000;
+// Failed check-in attempts tolerated per IP before locking it out for an hour.
+const LOCATION_MAX_ATTEMPTS = 10;
+const LOCATION_ATTEMPT_TTL = 60 * 60;
 
 type StoredLocation = {
   city: string;
@@ -242,10 +245,25 @@ function regionName(code: string): string {
 }
 
 app.post("/api/location", async (c) => {
+  // The token is short by choice, so cap the guessing instead. The token is
+  // checked first so a wrong guess from the same IP can never lock out the
+  // real check-in; only failures count towards the limit.
+  const ip = c.req.header("cf-connecting-ip") ?? "unknown";
+  const attemptsKey = `location:attempts:${ip}`;
   const token = c.env.LOCATION_TOKEN;
+
   if (!token || c.req.header("authorization") !== `Bearer ${token}`) {
-    return c.json({ error: "unauthorized" }, 401);
+    const attempts =
+      Number((await c.env.SESSIONS?.get(attemptsKey)) ?? "0") + 1;
+    await c.env.SESSIONS?.put(attemptsKey, String(attempts), {
+      expirationTtl: LOCATION_ATTEMPT_TTL,
+    });
+    return attempts > LOCATION_MAX_ATTEMPTS
+      ? c.json({ error: "too_many_requests" }, 429)
+      : c.json({ error: "unauthorized" }, 401);
   }
+
+  await c.env.SESSIONS?.delete(attemptsKey);
 
   const cf = (c.req.raw as Request & { cf?: IncomingRequestCfProperties }).cf;
   const city = cf?.city;
