@@ -148,19 +148,6 @@ const {
               Math.max(cy, h - cy),
             );
 
-            html.style.setProperty(
-              "--ripple-x",
-              `${cx}px`,
-            );
-            html.style.setProperty(
-              "--ripple-y",
-              `${cy}px`,
-            );
-            html.style.setProperty(
-              "--ripple-r",
-              `${radius}px`,
-            );
-
             const supports =
               "startViewTransition" in
               document;
@@ -174,11 +161,12 @@ const {
               return;
             }
 
-            (
+            const transition = (
               document as Document & {
                 startViewTransition: (
                   cb: () => void,
                 ) => {
+                  ready: Promise<void>;
                   finished: Promise<void>;
                 };
               }
@@ -187,6 +175,33 @@ const {
                 applyTheme(next);
               },
             );
+
+            // Animate the pseudo-element directly with literal values.
+            // Driving this from CSS custom properties relies on them
+            // inheriting into the view-transition pseudo tree, which
+            // browsers disagree on — when it fails the keyframe falls
+            // back to 50% 50% and the wipe starts from screen centre.
+            transition.ready
+              .then(() => {
+                html.animate(
+                  {
+                    clipPath: [
+                      `circle(0px at ${cx}px ${cy}px)`,
+                      `circle(${radius}px at ${cx}px ${cy}px)`,
+                    ],
+                  },
+                  {
+                    duration: 700,
+                    easing:
+                      "cubic-bezier(0.22, 1, 0.36, 1)",
+                    pseudoElement:
+                      "::view-transition-new(root)",
+                  },
+                );
+              })
+              // An aborted transition still applied the theme; there is
+              // just nothing left to animate.
+              .catch(() => {});
           },
         );
       }
