@@ -134,19 +134,24 @@ const {
 
             const rect =
               button.getBoundingClientRect();
-            const cx =
-              rect.left +
-              rect.width / 2;
-            const cy =
-              rect.top +
-              rect.height / 2;
             const w = window.innerWidth;
             const h =
               window.innerHeight;
-            const radius = Math.hypot(
-              Math.max(cx, w - cx),
-              Math.max(cy, h - cy),
-            );
+            // As percentages of the viewport, not pixels: the
+            // view-transition snapshot box is not guaranteed to share the
+            // viewport's coordinate space (device pixel ratio, scrollbars),
+            // and a pixel offset that lands mid-screen there reads as a
+            // wipe starting from the centre.
+            const cx =
+              ((rect.left +
+                rect.width / 2) /
+                w) *
+              100;
+            const cy =
+              ((rect.top +
+                rect.height / 2) /
+                h) *
+              100;
 
             const supports =
               "startViewTransition" in
@@ -185,9 +190,10 @@ const {
               .then(() => {
                 html.animate(
                   {
+                    // 150% clears the far corner from any origin.
                     clipPath: [
-                      `circle(0px at ${cx}px ${cy}px)`,
-                      `circle(${radius}px at ${cx}px ${cy}px)`,
+                      `circle(0% at ${cx}% ${cy}%)`,
+                      `circle(150% at ${cx}% ${cy}%)`,
                     ],
                   },
                   {
