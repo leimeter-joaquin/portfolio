@@ -84,7 +84,7 @@ const modifier = featured
   }
 
   .project-card__thumb {
-    aspect-ratio: 16 / 7;
+    aspect-ratio: 16 / 9;
     display: grid;
     place-items: center;
     color: var(--color-text-subtle);
@@ -92,12 +92,7 @@ const modifier = featured
     letter-spacing: 0.16em;
     text-transform: uppercase;
     text-align: center;
-    padding: var(--space-400);
-  }
-
-  .project-card--featured
-    .project-card__thumb {
-    aspect-ratio: 16 / 5;
+    padding: var(--space-300);
   }
 
   .project-card__thumb-label {
@@ -108,7 +103,7 @@ const modifier = featured
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: var(--space-500);
+    padding: var(--space-400);
     background: var(
       --color-surface-strong
     );
@@ -117,25 +112,25 @@ const modifier = featured
   }
 
   .project-card__title {
-    font-size: var(--text-500);
+    font-size: var(--text-400);
     font-weight: 700;
     color: var(--color-text);
     line-height: 1.2;
   }
 
   .project-card__summary {
-    margin-top: var(--space-300);
+    margin-top: var(--space-200);
     color: var(--color-text-muted);
-    font-size: var(--text-400);
-    line-height: 1.55;
+    font-size: var(--text-300);
+    line-height: 1.5;
   }
 
   .project-card__tags {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-300);
+    gap: var(--space-200);
     margin-top: auto;
-    padding-top: var(--space-500);
+    padding-top: var(--space-400);
     color: var(--color-text-subtle);
     font-size: var(--text-300);
   }

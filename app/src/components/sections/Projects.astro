@@ -39,9 +39,6 @@ import { projectCards } from "@data/content";
   .projects {
     padding: var(--space-800)
       var(--shell-padding-x);
-    background: var(
-      --color-surface-muted
-    );
   }
 
   .projects__inner {
@@ -69,10 +66,10 @@ import { projectCards } from "@data/content";
   .projects__grid {
     display: grid;
     grid-template-columns: repeat(
-      2,
+      3,
       1fr
     );
-    gap: var(--space-500);
+    gap: var(--space-400);
     align-items: stretch;
   }
 
@@ -80,16 +77,18 @@ import { projectCards } from "@data/content";
     display: flex;
   }
 
-  .projects__cell--featured {
-    grid-column: 1 / -1;
+  @media (max-width: 960px) {
+    .projects__grid {
+      grid-template-columns: repeat(
+        2,
+        1fr
+      );
+    }
   }
 
-  @media (max-width: 720px) {
+  @media (max-width: 640px) {
     .projects__grid {
       grid-template-columns: 1fr;
-    }
-    .projects__cell--featured {
-      grid-column: auto;
     }
   }
 </style>
