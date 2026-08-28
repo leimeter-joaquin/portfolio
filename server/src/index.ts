@@ -6,6 +6,7 @@ import content from "@portfolio/content/data";
 type Bindings = {
   SESSIONS: KVNamespace;
   OPEN_ROUTER_API_KEY: string;
+  LOCATION_TOKEN?: string;
   APP_ORIGIN?: string;
   ENVIRONMENT?: string;
 };
@@ -90,7 +91,10 @@ function corsHeaders(c: {
   ];
   if (allowed.includes(origin) || origin.endsWith(".pages.dev")) {
     c.header("Access-Control-Allow-Origin", origin);
-    c.header("Access-Control-Allow-Headers", "Content-Type, X-Client-ID");
+    c.header(
+      "Access-Control-Allow-Headers",
+      "Content-Type, X-Client-ID, Authorization",
+    );
     c.header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
   }
 }
@@ -111,7 +115,7 @@ app.use("/api/*", (c, next) => {
     origin: (origin) =>
       allowed.includes(origin) || origin.endsWith(".pages.dev") ? origin : null,
     allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
-    allowHeaders: ["Content-Type", "X-Client-ID"],
+    allowHeaders: ["Content-Type", "X-Client-ID", "Authorization"],
   })(c, next);
 });
 
@@ -211,6 +215,69 @@ app.delete("/api/session", async (c) => {
   }
   await c.env.SESSIONS.delete(clientId);
   return new Response(null, { status: 204 });
+});
+
+// --- Current location --------------------------------------------------------
+// Joaquin's own machine POSTs here on a schedule; Cloudflare resolves the city
+// from that request's IP, so nothing external is called and no coordinates are
+// ever stored. Visitors only ever read the result.
+
+const LOCATION_KEY = "location:current";
+// Past this, fall back to the static location rather than claiming he is still
+// wherever he last checked in from.
+const LOCATION_MAX_AGE = 14 * 24 * 60 * 60 * 1000;
+
+type StoredLocation = {
+  city: string;
+  country: string;
+  updatedAt: number;
+};
+
+function regionName(code: string): string {
+  try {
+    return new Intl.DisplayNames(["en"], { type: "region" }).of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
+app.post("/api/location", async (c) => {
+  const token = c.env.LOCATION_TOKEN;
+  if (!token || c.req.header("authorization") !== `Bearer ${token}`) {
+    return c.json({ error: "unauthorized" }, 401);
+  }
+
+  const cf = (c.req.raw as Request & { cf?: IncomingRequestCfProperties }).cf;
+  const city = cf?.city;
+  const country = cf?.country;
+  if (!city || !country) {
+    return c.json({ error: "no_geo" }, 422);
+  }
+
+  const value: StoredLocation = {
+    city,
+    country: regionName(country),
+    updatedAt: Date.now(),
+  };
+  await withRetry(() =>
+    c.env.SESSIONS.put(LOCATION_KEY, JSON.stringify(value)),
+  );
+  return c.json(value);
+});
+
+app.get("/api/location", async (c) => {
+  if (!c.env.SESSIONS) return c.json({ location: null });
+  const raw = await withRetry(() => c.env.SESSIONS.get(LOCATION_KEY));
+  if (!raw) return c.json({ location: null });
+
+  const stored = JSON.parse(raw) as StoredLocation;
+  if (Date.now() - stored.updatedAt > LOCATION_MAX_AGE) {
+    return c.json({ location: null });
+  }
+  return c.json({
+    location: `${stored.city}, ${stored.country}`,
+    updatedAt: stored.updatedAt,
+  });
 });
 
 export default app;

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Hourly location check-in. Install with:
+
+    cp scripts/com.joaquinleimeter.portfolio-location.plist ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/com.joaquinleimeter.portfolio-location.plist
+
+  Adjust the paths below if the repo does not live at ~/workspace/portfolio.
+-->
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.joaquinleimeter.portfolio-location</string>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/Users/joaquinleimeter/workspace/portfolio/scripts/report-location.sh</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>StartInterval</key>
+    <integer>3600</integer>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/joaquinleimeter/.config/portfolio/location.log</string>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+  </dict>
+</plist>

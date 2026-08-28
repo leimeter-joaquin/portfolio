@@ -72,7 +72,9 @@ const linkedinLabel =
       <dl class="hero__meta-list">
         <div class="hero__meta-row">
           <dt>Location</dt>
-          <dd>{contact.location}</dd>
+          <dd data-location>
+            {contact.location}
+          </dd>
         </div>
         <div class="hero__meta-row">
           <dt>Email</dt>
@@ -190,6 +192,38 @@ const linkedinLabel =
     animate,
     stagger,
   } from "animejs";
+
+  // Where Joaquin currently is, checked in from his own machine. The static
+  // location from content is already rendered, so a failure here just leaves
+  // that in place.
+  const locationEl =
+    document.querySelector<HTMLElement>(
+      "[data-location]",
+    );
+  if (locationEl) {
+    const api =
+      (import.meta.env
+        .PUBLIC_API_URL as
+        | string
+        | undefined) ??
+      "http://localhost:3001";
+    fetch(`${api}/api/location`)
+      .then((r) =>
+        r.ok ? r.json() : null,
+      )
+      .then(
+        (
+          data: {
+            location?: string | null;
+          } | null,
+        ) => {
+          if (data?.location)
+            locationEl.textContent =
+              data.location;
+        },
+      )
+      .catch(() => {});
+  }
 
   const headline =
     document.querySelector<HTMLElement>(
