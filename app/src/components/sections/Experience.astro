@@ -3,6 +3,13 @@ import { timelineEntries } from "@data/content";
 
 const current = timelineEntries[0];
 
+// Anchors must always carry a real href so crawlers can discover the linked
+// sites even before the client-side script swaps it per selected entry.
+const fallbackHref =
+  timelineEntries.find((e) => e.href)
+    ?.href ??
+  "https://portfolio-app-26n.pages.dev/";
+
 // Floor keeps short stints legible (room for 3 lines of text); the rest
 // scales with duration so the line visibly tracks how long each role ran.
 function segmentPx(
@@ -185,7 +192,8 @@ function segmentPx(
             <a
               class="timeline__detail-link"
               data-tl-link
-              href={current.href}
+              href={current.href ??
+                fallbackHref}
               style={current.href
                 ? undefined
                 : "display: none;"}
@@ -276,6 +284,8 @@ function segmentPx(
       <a
         class="tl-modal__link"
         data-tl-link
+        href={current.href ??
+          fallbackHref}
         target="_blank"
         rel="noopener noreferrer"
       >

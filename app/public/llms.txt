@@ -1,0 +1,16 @@
+# Joaquin Leimeter
+
+> Full stack developer building from interface to infrastructure. Specializes in React and Vue ecosystems, with growing focus on DevOps and AWS infrastructure.
+
+Joaquin is a full stack developer based in Rosario / Santa Fe, Argentina, with experience across the full product lifecycle - discovery, design, implementation, release. He currently builds agent-based workflows at Radium Rocket and leads AI-adoption practices on client teams such as AlixPartners.
+
+## Site
+
+- [Portfolio home](https://portfolio-app-26n.pages.dev/): intro, stack, and experience.
+- [Experience timeline](https://portfolio-app-26n.pages.dev/#experience): work history at Radium Rocket, AlixPartners, PwC, Paytient, Instaseat, and Brookfield Residential.
+- [Resume (PDF)](https://portfolio-app-26n.pages.dev/cv/joaquin-leimeter-cv.pdf): downloadable CV.
+
+## Profiles
+
+- [GitHub](https://github.com/leimeter-joaquin)
+- [LinkedIn](https://www.linkedin.com/in/joaquin-leimeter-b47a41241)
