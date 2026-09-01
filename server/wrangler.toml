@@ -12,7 +12,7 @@ binding = "SESSIONS"
 id = "28235ac124434f6187aab6b7fedcfce5"
 
 [vars]
-APP_ORIGIN = "https://portfolio-app-26n.pages.dev"
+APP_ORIGIN = "https://joaquinleimeter.com"
 
 [env.production.vars]
 ENVIRONMENT = "production"
