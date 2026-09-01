@@ -6,9 +6,9 @@ Joaquin is a full stack developer based in Rosario / Santa Fe, Argentina, with e
 
 ## Site
 
-- [Portfolio home](https://portfolio-app-26n.pages.dev/): intro, stack, and experience.
-- [Experience timeline](https://portfolio-app-26n.pages.dev/#experience): work history at Radium Rocket, AlixPartners, PwC, Paytient, Instaseat, and Brookfield Residential.
-- [Resume (PDF)](https://portfolio-app-26n.pages.dev/cv/joaquin-leimeter-cv.pdf): downloadable CV.
+- [Portfolio home](https://joaquinleimeter.com/): intro, stack, and experience.
+- [Experience timeline](https://joaquinleimeter.com/#experience): work history at Radium Rocket, AlixPartners, PwC, Paytient, Instaseat, and Brookfield Residential.
+- [Resume (PDF)](https://joaquinleimeter.com/cv/joaquin-leimeter-cv.pdf): downloadable CV.
 
 ## Profiles
 
